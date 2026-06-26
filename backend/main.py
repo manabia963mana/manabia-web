@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from data import buscar_lugares, buscar_eventos, obtener_cantones, interpretar_consulta
 
-app = FastAPI(title="Mana API", description="Backend del portal turístico Manabía")
+app = FastAPI(title="Mana API", description="Backend del portal turistico Manabia")
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,7 +17,11 @@ class PreguntaRequest(BaseModel):
 
 @app.get("/")
 def inicio():
-    return {"mensaje": "Hola, soy Mana. El portal turístico del Norte de Manabí está activo."}
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+    content={"mensaje": "Hola, soy Mana. El portal turistico del Norte de Manabi esta activo."},
+    media_type="application/json; charset=utf-8"
+)
 
 @app.get("/lugares")
 def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
