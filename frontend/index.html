@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manabía - Tu guía del Norte de Manabí</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mana">MANA</span><span class="logo-bia">BÍA</span>
+      </div>
+      <nav class="nav">
+        <a href="#destinos">Destinos</a>
+        <a href="#eventos">Eventos</a>
+        <a href="#mana">Mana IA</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Descubre el Norte de Manabí</h1>
+      <p>Playas, naturaleza, cultura y gastronomía en un solo lugar</p>
+      <button class="btn-primary" onclick="abrirChat()">
+        💬 Pregúntale a Mana
+      </button>
+    </div>
+  </section>
+
+  <!-- BUSCADOR -->
+  <section class="buscador-section">
+    <div class="container">
+      <div class="buscador-box">
+        <input type="text" id="buscador" placeholder="¿Qué buscas? Ej: hoteles en Canoa, restaurantes en Bahía..."/>
+        <button onclick="buscar()">Buscar</button>
+      </div>
+      <div class="filtros">
+        <select id="filtro-canton" onchange="buscar()">
+          <option value="">Todos los cantones</option>
+          <option value="bahía">Bahía de Caráquez</option>
+          <option value="canoa">Canoa</option>
+          <option value="pedernales">Pedernales</option>
+          <option value="jama">Jama</option>
+          <option value="san vicente">San Vicente</option>
+          <option value="chone">Chone</option>
+          <option value="tosagua">Tosagua</option>
+        </select>
+        <select id="filtro-categoria" onchange="buscar()">
+          <option value="">Todas las categorías</option>
+          <option value="alojamiento">Alojamiento</option>
+          <option value="restaurante">Restaurantes</option>
+          <option value="playa">Playas</option>
+          <option value="naturaleza">Naturaleza</option>
+          <option value="cultura">Cultura</option>
+          <option value="deporte">Deportes</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTADOS -->
+  <section class="container" id="resultados-section" style="display:none">
+    <h2 class="section-title">Resultados</h2>
+    <div class="cards-grid" id="resultados-grid"></div>
+  </section>
+
+  <!-- DESTINOS DESTACADOS -->
+  <section class="container" id="destinos">
+    <h2 class="section-title">Cantones del Norte de Manabí</h2>
+    <div class="cards-grid">
+      <div class="card-canton" onclick="filtrarCanton('bahía')">
+        <div class="canton-icon">🏖️</div>
+        <h3>Bahía de Caráquez</h3>
+        <p>Ciudad ecológica y puerto histórico</p>
+      </div>
+      <div class="card-canton" onclick="filtrarCanton('canoa')">
+        <div class="canton-icon">🌊</div>
+        <h3>Canoa</h3>
+        <p>Surf, playas y vida bohemia</p>
+      </div>
+      <div class="card-canton" onclick="filtrarCanton('pedernales')">
+        <div class="canton-icon">🐠</div>
+        <h3>Pedernales</h3>
+        <p>Pesca artesanal y playas extensas</p>
+      </div>
+      <div class="card-canton" onclick="filtrarCanton('jama')">
+        <div class="canton-icon">🌿</div>
+        <h3>Jama</h3>
+        <p>Naturaleza y cultura ancestral</p>
+      </div>
+      <div class="card-canton" onclick="filtrarCanton('chone')">
+        <div class="canton-icon">🐄</div>
+        <h3>Chone</h3>
+        <p>Gastronomía y tradición manabita</p>
+      </div>
+      <div class="card-canton" onclick="filtrarCanton('san vicente')">
+        <div class="canton-icon">⛵</div>
+        <h3>San Vicente</h3>
+        <p>Frente a Bahía, tranquilidad total</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT MANA -->
+  <div class="chat-bubble" onclick="abrirChat()" title="Hablar con Mana">
+    💬
+  </div>
+
+  <div class="chat-overlay" id="chat-overlay" onclick="cerrarChat()"></div>
+
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-header">
+      <div class="chat-titulo">
+        <span class="chat-avatar">🌊</span>
+        <div>
+          <strong>Mana</strong>
+          <small>Tu guía del Norte de Manabí</small>
+        </div>
+      </div>
+      <button class="chat-cerrar" onclick="cerrarChat()">✕</button>
+    </div>
+    <div class="chat-mensajes" id="chat-mensajes">
+      <div class="mensaje-mana">
+        <p>¡Hola! Soy <strong>Mana</strong> 👋</p>
+        <p>Tu guía digital del Norte de Manabí. Puedo ayudarte a encontrar:</p>
+        <div class="sugerencias">
+          <button onclick="preguntar('¿Dónde hospedarse en Canoa?')">🏨 Hospedaje en Canoa</button>
+          <button onclick="preguntar('Restaurantes en Bahía de Caráquez')">🍽️ Restaurantes en Bahía</button>
+          <button onclick="preguntar('Playas para hacer surf')">🏄 Playas para surf</button>
+          <button onclick="preguntar('Qué hacer en Pedernales')">📍 Qué hacer en Pedernales</button>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="chat-voz" id="btn-voz" onclick="toggleVoz()" title="Hablar con Mana">🎤</div>
+      <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter') enviarMensaje()"/>
+      <button onclick="enviarMensaje()">➤</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
