@@ -13,7 +13,7 @@ def cargar_hoja(nombre):
         url = SHEETS[nombre]
         response = requests.get(url, timeout=15)
         response.raise_for_status()
-        df = pd.read_csv(StringIO(response.text))
+        df = pd.read_csv(StringIO(response.content.decode('utf-8')))
         df = df.dropna(how="all")
         df.columns = df.columns.str.strip()
         return df
