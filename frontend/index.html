@@ -852,217 +852,234 @@
 <script>
 const BACKEND = "https://manabia-backend.onrender.com";
 
-// Foto hero en base64 (se inyecta por script)
-HEROEOF
-
-# Inject base64 image
-
-cat >> /mnt/user-data/outputs/index.html << 'JSEOF'
-
-// ── BACKEND WARMUP ──
-// Despertar backend al cargar (puede tardar hasta 50 seg en plan gratuito)
-let backendListo = false;
-const TIMEOUT_CHAT = 65000; // 65 segundos de espera máxima
-
+// Despertar backend al cargar
 async function despertarBackend() {
   try {
-    const res = await fetch(BACKEND + '/', { signal: AbortSignal.timeout(70000) });
-    if (res.ok) {
-      backendListo = true;
-      console.log('Backend activo');
-    }
+    await fetch(BACKEND + '/', { signal: AbortSignal.timeout(70000) });
+    console.log('Backend activo');
   } catch(e) {
-    console.log('Backend tardando en despertar...');
+    console.log('Backend tardando...');
   }
 }
 despertarBackend();
-
-// Ping cada 14 min para que no se duerma
 setInterval(() => fetch(BACKEND + '/').catch(()=>{}), 14 * 60 * 1000);
 
 // ── CHAT ──
 function abrirChat() {
   document.getElementById('chat-panel').classList.add('abierto');
   document.getElementById('chat-overlay').classList.add('abierto');
-  setTimeout(()=>document.getElementById('chat-input').focus(), 300);
+  setTimeout(() => document.getElementById('chat-input').focus(), 200);
 }
 function cerrarChat() {
   document.getElementById('chat-panel').classList.remove('abierto');
   document.getElementById('chat-overlay').classList.remove('abierto');
 }
-function preguntar(txt) { document.getElementById('chat-input').value=txt; enviarMensaje(); abrirChat(); }
-function preguntarHero(txt) { if(txt.trim()) { preguntar(txt); abrirChat(); } }
+
+function preguntar(txt) {
+  if (!txt || !txt.trim()) return;
+  abrirChat();
+  setTimeout(() => {
+    document.getElementById('chat-input').value = txt.trim();
+    enviarMensaje();
+  }, 250);
+}
+
+function preguntarHero(txt) {
+  if (!txt || !txt.trim()) return;
+  preguntar(txt);
+}
+
 function enviarDemo() {
   const inp = document.getElementById('demo-input');
-  const txt = inp.value.trim(); if(!txt) return; inp.value='';
-  preguntar(txt); abrirChat();
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  preguntar(txt);
 }
 
 async function enviarMensaje() {
   const input = document.getElementById('chat-input');
-  const texto = input.value.trim(); if(!texto) return;
-  input.value='';
+  const texto = input.value.trim();
+  if (!texto) return;
+  input.value = '';
   agregarMsg(texto, 'usuario');
   const typing = agregarTyping();
-  
-  // Aviso si el backend puede estar dormido
+
   let avisoTimeout = setTimeout(() => {
     const aviso = document.createElement('div');
-    aviso.className = 'msg-mana'; aviso.id = 'aviso-carga';
-    aviso.innerHTML = '⏳ Mana está despertando (puede tardar hasta 50 seg la primera vez)... por favor espera.';
+    aviso.className = 'msg-mana';
+    aviso.id = 'aviso-carga';
+    aviso.innerHTML = '⏳ Mana está despertando, puede tardar hasta 50 seg la primera vez...';
     document.getElementById('chat-mensajes').appendChild(aviso);
     scrollChat();
   }, 5000);
 
   try {
-    const res = await fetch(BACKEND+'/mana/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({texto}),
+    const res = await fetch(BACKEND + '/mana/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto }),
       signal: AbortSignal.timeout(70000)
     });
     clearTimeout(avisoTimeout);
     const aviso = document.getElementById('aviso-carga');
-    if(aviso) aviso.remove();
+    if (aviso) aviso.remove();
     const data = await res.json();
     typing.remove();
     agregarMsg(data.respuesta || 'No pude procesar eso, intenta de nuevo.', 'mana');
-    backendListo = true;
   } catch(e) {
     clearTimeout(avisoTimeout);
     const aviso = document.getElementById('aviso-carga');
-    if(aviso) aviso.remove();
+    if (aviso) aviso.remove();
     typing.remove();
-    agregarMsg('Mana tardó demasiado en responder. El servidor gratuito se apaga con inactividad. Espera 1 minuto y vuelve a intentar. 🌊', 'mana');
+    agregarMsg('Mana tardó en responder. El servidor gratuito se apaga con inactividad. Espera 1 minuto y vuelve a intentar. 🌊', 'mana');
   }
 }
+
 function agregarMsg(txt, tipo) {
   const div = document.createElement('div');
-  div.className = tipo==='mana' ? 'msg-mana' : 'msg-usuario';
-  div.innerHTML = txt.replace(/\*([^*]+)\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  div.className = tipo === 'mana' ? 'msg-mana' : 'msg-usuario';
+  div.innerHTML = txt.replace(/\*([^*]+)\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   document.getElementById('chat-mensajes').appendChild(div);
   scrollChat();
 }
+
 function agregarTyping() {
   const div = document.createElement('div');
-  div.className='typing'; div.innerHTML='<span></span><span></span><span></span>';
+  div.className = 'typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
   document.getElementById('chat-mensajes').appendChild(div);
-  scrollChat(); return div;
+  scrollChat();
+  return div;
 }
-function scrollChat() { const m=document.getElementById('chat-mensajes'); m.scrollTop=m.scrollHeight; }
+
+function scrollChat() {
+  const m = document.getElementById('chat-mensajes');
+  m.scrollTop = m.scrollHeight;
+}
 
 // ── BÚSQUEDA ──
 async function buscar() {
   const consulta = document.getElementById('buscador').value.trim();
   const canton = document.getElementById('filtro-canton').value;
   const categoria = document.getElementById('filtro-categoria').value;
-  if(!consulta && !canton && !categoria) return;
+  if (!consulta && !canton && !categoria) return;
 
   const sec = document.getElementById('resultados-section');
   const grid = document.getElementById('resultados-grid');
   sec.style.display = 'block';
   grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">⏳ Buscando... (si es la primera visita puede tardar hasta 50 seg)</p>';
-  sec.scrollIntoView({behavior:'smooth'});
+  sec.scrollIntoView({ behavior: 'smooth' });
 
   const params = new URLSearchParams();
-  if(consulta) params.append('consulta',consulta);
-  if(canton) params.append('canton',canton);
-  if(categoria) params.append('categoria',categoria);
+  if (consulta) params.append('consulta', consulta);
+  if (canton) params.append('canton', canton);
+  if (categoria) params.append('categoria', categoria);
+
   try {
-    const res = await fetch(BACKEND+'/lugares?'+params, { signal: AbortSignal.timeout(70000) });
+    const res = await fetch(BACKEND + '/lugares?' + params, { signal: AbortSignal.timeout(70000) });
     const data = await res.json();
-    mostrarResultados(data.lugares||[]);
+    mostrarResultados(data.lugares || []);
   } catch(e) {
     grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">⚠️ Mana está despertando. Espera 1 minuto y vuelve a buscar.</p>';
   }
 }
+
 function mostrarResultados(lugares) {
   const sec = document.getElementById('resultados-section');
   const grid = document.getElementById('resultados-grid');
-  grid.innerHTML='';
-  if(!lugares.length) {
-    grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No encontramos resultados. Intenta con otros términos o pregúntale a Mana.</p>';
+  grid.innerHTML = '';
+  if (!lugares.length) {
+    grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">No encontramos resultados. Intenta con otros términos o pregúntale a Mana.</p>';
   } else {
-    lugares.forEach(l=>{
-      const c=document.createElement('div'); c.className='lugar-card';
-      c.innerHTML=`<span class="lugar-tag">${l.Categoría||l.Subcategoría||'Lugar'}</span>
-        <div class="lugar-nombre">${l.Nombre||''}</div>
-        <div class="lugar-desc">${l.Descripción||''}</div>
-        <div class="lugar-info">📍 ${l.Parroquia||''}, ${l.Cantón||''}${l.Horario?'<br>🕐 '+l.Horario:''}${l.Teléfono?'<br>📞 '+l.Teléfono:''}${l.Precio?'<br>💰 '+l.Precio:''}</div>`;
+    lugares.forEach(l => {
+      const c = document.createElement('div');
+      c.className = 'lugar-card';
+      c.innerHTML = `<span class="lugar-tag">${l.Categoría || l.Subcategoría || 'Lugar'}</span>
+        <div class="lugar-nombre">${l.Nombre || ''}</div>
+        <div class="lugar-desc">${l.Descripción || ''}</div>
+        <div class="lugar-info">📍 ${l.Parroquia || ''}, ${l.Cantón || ''}${l.Horario ? '<br>🕐 ' + l.Horario : ''}${l.Teléfono ? '<br>📞 ' + l.Teléfono : ''}${l.Precio ? '<br>💰 ' + l.Precio : ''}</div>`;
       grid.appendChild(c);
     });
   }
-  sec.style.display='block';
-  sec.scrollIntoView({behavior:'smooth'});
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth' });
 }
+
 function filtrarCanton(canton) {
-  document.getElementById('filtro-canton').value=canton;
-  document.getElementById('buscador').value='';
-  buscar();
-  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+  document.getElementById('filtro-canton').value = canton;
+  document.getElementById('buscador').value = '';
+  document.getElementById('explorar').scrollIntoView({ behavior: 'smooth' });
+  setTimeout(buscar, 400);
 }
+
 function filtrarCategoria(tag) {
-  document.getElementById('buscador').value=tag;
-  document.getElementById('filtro-canton').value='';
-  buscar();
-  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+  document.getElementById('buscador').value = tag;
+  document.getElementById('filtro-canton').value = '';
+  document.getElementById('explorar').scrollIntoView({ behavior: 'smooth' });
+  setTimeout(buscar, 400);
 }
 
 // ── EVENTOS ──
 async function cargarEventos() {
   try {
-    const res = await fetch(BACKEND+'/eventos');
+    const res = await fetch(BACKEND + '/eventos', { signal: AbortSignal.timeout(70000) });
     const data = await res.json();
     const grid = document.getElementById('eventos-grid');
-    const eventos = data.eventos||[];
-    if(!eventos.length) {
-      grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No hay eventos próximos en la base de datos todavía.</p>';
+    const eventos = data.eventos || [];
+    if (!eventos.length) {
+      grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">No hay eventos próximos todavía.</p>';
       return;
     }
-    grid.innerHTML='';
-    eventos.slice(0,4).forEach(ev=>{
-      const fecha = ev['Fecha Inicio']||ev.Fecha_Inicio||'';
-      let dia='', mes='';
-      if(fecha) {
-        const d=new Date(fecha);
-        dia=d.getDate();
-        mes=d.toLocaleString('es',{month:'short'}).toUpperCase();
+    grid.innerHTML = '';
+    eventos.slice(0, 4).forEach(ev => {
+      const fecha = ev['Fecha Inicio'] || ev.Fecha_Inicio || '';
+      let dia = '', mes = '';
+      if (fecha) {
+        const d = new Date(fecha);
+        dia = d.getDate();
+        mes = d.toLocaleString('es', { month: 'short' }).toUpperCase();
       }
-      const c=document.createElement('div'); c.className='evento-card';
-      c.innerHTML=`<div class="evento-fecha-bar">
-          <div><div class="fecha-num">${dia||'—'}</div><div class="fecha-mes">${mes}</div></div>
-          <span class="evento-badge">${ev.Categoría||'Evento'}</span>
+      const c = document.createElement('div');
+      c.className = 'evento-card';
+      c.innerHTML = `<div class="evento-fecha-bar">
+          <div><div class="fecha-num">${dia || '—'}</div><div class="fecha-mes">${mes}</div></div>
+          <span class="evento-badge">${ev.Categoría || 'Evento'}</span>
         </div>
         <div class="evento-body">
-          <div class="evento-nombre">${ev.Nombre||''}</div>
-          <div class="evento-lugar">📍 ${ev.Cantón||''}</div>
-          <div class="evento-desc">${(ev.Descripción||'').substring(0,90)}...</div>
+          <div class="evento-nombre">${ev.Nombre || ''}</div>
+          <div class="evento-lugar">📍 ${ev.Cantón || ''}</div>
+          <div class="evento-desc">${(ev.Descripción || '').substring(0, 90)}...</div>
         </div>`;
       grid.appendChild(c);
     });
   } catch(e) {
-    document.getElementById('eventos-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</p>';
+    document.getElementById('eventos-grid').innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</p>';
   }
 }
 cargarEventos();
 
 // ── VOZ ──
-let rec=null, escuchando=false;
+let rec = null, escuchando = false;
 function toggleVoz() {
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Usa Chrome para voz');return;}
-  if(escuchando){rec.stop();return;}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  rec=new SR(); rec.lang='es-EC'; rec.continuous=false; rec.interimResults=false;
-  rec.onstart=()=>{escuchando=true;document.getElementById('btn-voz').classList.add('escuchando');};
-  rec.onresult=(e)=>{document.getElementById('chat-input').value=e.results[0][0].transcript;enviarMensaje();};
-  rec.onend=()=>{escuchando=false;document.getElementById('btn-voz').classList.remove('escuchando');};
-  rec.onerror=()=>{escuchando=false;document.getElementById('btn-voz').classList.remove('escuchando');};
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Usa Chrome para activar la voz');
+    return;
+  }
+  if (escuchando) { rec.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  rec = new SR();
+  rec.lang = 'es-EC';
+  rec.continuous = false;
+  rec.interimResults = false;
+  rec.onstart = () => { escuchando = true; document.getElementById('btn-voz').classList.add('escuchando'); };
+  rec.onresult = (e) => { document.getElementById('chat-input').value = e.results[0][0].transcript; enviarMensaje(); };
+  rec.onend = () => { escuchando = false; document.getElementById('btn-voz').classList.remove('escuchando'); };
+  rec.onerror = () => { escuchando = false; document.getElementById('btn-voz').classList.remove('escuchando'); };
   rec.start();
 }
-document.getElementById('buscador').addEventListener('keypress',e=>{if(e.key==='Enter')buscar();});
+
+document.getElementById('buscador').addEventListener('keypress', e => { if (e.key === 'Enter') buscar(); });
 </script>
 </body>
 </html>
-JSEOF
-echo "Generado correctamente"
-wc -l /mnt/user-data/outputs/index.html
