@@ -11,10 +11,11 @@ SHEETS = {
 def cargar_hoja(nombre):
     try:
         url = SHEETS[nombre]
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=15)
         response.raise_for_status()
         df = pd.read_csv(StringIO(response.text))
         df = df.dropna(how="all")
+        df.columns = df.columns.str.strip()
         return df
     except Exception as e:
         print(f"Error cargando {nombre}: {e}")
@@ -25,57 +26,102 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     if df.empty:
         return []
 
-    df.columns = df.columns.str.strip()
+    # Columna nombre puede llamarse Nombre o Nombre Lugar
+    col_nombre = "Nombre" if "Nombre" in df.columns else "Nombre Lugar" if "Nombre Lugar" in df.columns else None
+    col_desc = "Descripción" if "Descripción" in df.columns else "Descripción corta" if "Descripción corta" in df.columns else None
+    col_canton = "Cantón" if "Cantón" in df.columns else "Canton" if "Canton" in df.columns else None
+    col_categoria = "Categoría" if "Categoría" in df.columns else "Categoria" if "Categoria" in df.columns else None
+    col_tags = "Tags" if "Tags" in df.columns else "Tags IA" if "Tags IA" in df.columns else None
+    col_parroquia = "Parroquia" if "Parroquia" in df.columns else None
+    col_subcategoria = "Subcategoría" if "Subcategoría" in df.columns else "Subcategoria" if "Subcategoria" in df.columns else None
+    col_estado = "Estado" if "Estado" in df.columns else None
 
-    if canton:
-        df = df[df["Cantón"].str.lower().str.contains(canton.lower(), na=False)]
-    if categoria:
-        df = df[df["Categoría"].str.lower().str.contains(categoria.lower(), na=False)]
-    if tags:
-        df = df[df["Tags"].str.lower().str.contains(tags.lower(), na=False)]
+    if col_estado and col_estado in df.columns:
+        df = df[df[col_estado].astype(str).str.lower().str.strip().isin(["activo", "verificado", "pendiente"])]
+
+    if canton and col_canton:
+        df = df[df[col_canton].astype(str).str.lower().str.contains(canton.lower(), na=False)]
+    if categoria and col_categoria:
+        df = df[df[col_categoria].astype(str).str.lower().str.contains(categoria.lower(), na=False)]
+    if tags and col_tags:
+        df = df[df[col_tags].astype(str).str.lower().str.contains(tags.lower(), na=False)]
+
     if consulta:
-        mask = (
-            df["Nombre"].str.lower().str.contains(consulta.lower(), na=False) |
-            df["Descripción"].str.lower().str.contains(consulta.lower(), na=False) |
-            df["Subcategoría"].str.lower().str.contains(consulta.lower(), na=False) |
-            df["Parroquia"].str.lower().str.contains(consulta.lower(), na=False)
-        )
-        df = df[mask]
+        masks = []
+        for col in [col_nombre, col_desc, col_subcategoria, col_parroquia, col_canton, col_tags, col_categoria]:
+            if col and col in df.columns:
+                masks.append(df[col].astype(str).str.lower().str.contains(consulta.lower(), na=False))
+        if masks:
+            mask_final = masks[0]
+            for m in masks[1:]:
+                mask_final = mask_final | m
+            df = df[mask_final]
 
-    df = df[df["Estado"].str.lower().str.strip() == "activo"] if "Estado" in df.columns else df
-    return df.to_dict(orient="records")
+    # Normalizar nombres de columnas para la respuesta
+    result = []
+    for _, row in df.head(20).iterrows():
+        item = {
+            "Nombre": str(row.get(col_nombre, "") or row.get("Nombre Lugar", "") or ""),
+            "Categoría": str(row.get(col_categoria, "") or ""),
+            "Subcategoría": str(row.get(col_subcategoria, "") or ""),
+            "Cantón": str(row.get(col_canton, "") or ""),
+            "Parroquia": str(row.get(col_parroquia, "") or ""),
+            "Descripción": str(row.get(col_desc, "") or row.get("Descripción corta", "") or ""),
+            "Teléfono": str(row.get("Teléfono", "") or row.get("Teléfono Principal", "") or ""),
+            "WhatsApp": str(row.get("WhatsApp", "") or ""),
+            "Horario": str(row.get("Horario", "") or ""),
+            "Precio": str(row.get("Precio", "") or row.get("Rango de precios", "") or ""),
+            "Tags": str(row.get(col_tags, "") or ""),
+            "Estado": str(row.get(col_estado, "") or "Activo"),
+        }
+        result.append(item)
+    return result
 
 def buscar_eventos(canton: str = "", categoria: str = ""):
     df = cargar_hoja("eventos")
     if df.empty:
         return []
 
-    df.columns = df.columns.str.strip()
+    col_canton = "Cantón" if "Cantón" in df.columns else "Canton" if "Canton" in df.columns else None
+    col_categoria = "Categoría" if "Categoría" in df.columns else "Categoria" if "Categoria" in df.columns else None
+    col_estado = "Estado" if "Estado" in df.columns else None
 
-    if canton:
-        df = df[df["Cantón"].str.lower().str.contains(canton.lower(), na=False)]
-    if categoria:
-        df = df[df["Categoría"].str.lower().str.contains(categoria.lower(), na=False)]
+    if canton and col_canton:
+        df = df[df[col_canton].astype(str).str.lower().str.contains(canton.lower(), na=False)]
+    if categoria and col_categoria:
+        df = df[df[col_categoria].astype(str).str.lower().str.contains(categoria.lower(), na=False)]
 
-    df = df[df["Estado"].str.lower().str.strip() == "activo"] if "Estado" in df.columns else df
-    return df.to_dict(orient="records")
+    result = []
+    for _, row in df.head(10).iterrows():
+        col_nombre = "Nombre" if "Nombre" in df.columns else "Nombre Evento o Actividad" if "Nombre Evento o Actividad" in df.columns else None
+        item = {
+            "Nombre": str(row.get(col_nombre or "Nombre", "") or ""),
+            "Categoría": str(row.get(col_categoria or "Categoría", "") or ""),
+            "Cantón": str(row.get(col_canton or "Cantón", "") or ""),
+            "Fecha Inicio": str(row.get("Fecha Inicio", "") or row.get("Fecha_Inicio", "") or ""),
+            "Descripción": str(row.get("Descripción", "") or row.get("Descripción corta", "") or ""),
+            "Organizador": str(row.get("Organizador", "") or row.get("Entidad o Persona organizadora", "") or ""),
+        }
+        result.append(item)
+    return result
 
 def obtener_cantones():
     df = cargar_hoja("cantones")
     if df.empty:
         return []
-    return df.to_dict(orient="records")
+    return df.fillna("").to_dict(orient="records")
 
 PALABRAS_CLAVE = {
-    "hospedaje": ["hotel", "hostal", "cabaña", "glamping", "ecohotel", "hostería", "alojamiento", "camping"],
-    "comer": ["restaurante", "mariscos", "comida", "gastronomía", "cafetería", "típica"],
-    "playa": ["playa", "surf", "mar", "costa"],
-    "naturaleza": ["reserva", "ecológico", "cascada", "senderismo", "bosque"],
-    "cultura": ["museo", "patrimonio", "artesanía", "arte", "cultura"],
-    "deporte": ["surf", "ciclismo", "parapente", "deporte", "náutico"],
+    "hospedaje": ["hotel", "hostal", "cabaña", "glamping", "ecohotel", "hostería", "alojamiento", "camping", "hospedaje"],
+    "comer": ["restaurante", "mariscos", "comida", "gastronomía", "cafetería", "típica", "ceviche", "bar"],
+    "playa": ["playa", "surf", "mar", "costa", "malecón"],
+    "naturaleza": ["reserva", "ecológico", "cascada", "senderismo", "bosque", "manglar"],
+    "cultura": ["museo", "patrimonio", "artesanía", "arte", "cultura", "iglesia"],
+    "deporte": ["surf", "ciclismo", "parapente", "deporte", "náutico", "pesca"],
     "transporte": ["taxi", "bus", "transporte", "mototaxi"],
-    "salud": ["hospital", "clínica", "médico", "salud"],
+    "salud": ["hospital", "clínica", "médico", "salud", "bomberos"],
     "banco": ["banco", "cajero", "atm", "cooperativa"],
+    "agencia": ["agencia", "tour", "operadora", "viajes"],
 }
 
 def interpretar_consulta(texto: str):
@@ -90,7 +136,7 @@ def interpretar_consulta(texto: str):
                 break
 
     cantones_conocidos = [
-        "bahía", "canoa", "pedernales", "jama", "san vicente",
+        "bahía", "bahia", "canoa", "pedernales", "jama", "san vicente",
         "chone", "tosagua", "sucre", "cojimíes", "charapotó"
     ]
     for c in cantones_conocidos:
