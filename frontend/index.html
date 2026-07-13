@@ -1,52 +1,544 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manabía - Tu guía del Norte de Manabí</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <title>Manabía — Tu guía del Norte de Manabí</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --azul: #1E3A6E;
+      --azul-medio: #16548a;
+      --turquesa: #4DD9AC;
+      --turquesa-oscuro: #2fb58d;
+      --arena: #F7F4EF;
+      --texto: #1a1a2e;
+      --texto-suave: #555;
+      --borde: #e0e0e0;
+      --blanco: #ffffff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family:'Inter',sans-serif; color:var(--texto); background:var(--blanco); }
+
+    /* ── HEADER ── */
+    .header {
+      position: sticky; top:0; z-index:200;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(30,58,110,0.1);
+      padding: 0 32px;
+    }
+    .header-inner {
+      max-width:1200px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      height:68px; gap:24px;
+    }
+    .logo-svg { display:flex; align-items:center; text-decoration:none; flex-shrink:0; }
+    .nav-links { display:flex; align-items:center; gap:4px; flex:1; justify-content:center; }
+    .nav-links a {
+      color:#444; text-decoration:none; font-size:14px; font-weight:500;
+      padding:8px 12px; border-radius:8px; transition:all 0.2s; white-space:nowrap;
+    }
+    .nav-links a:hover { color:var(--azul); background:rgba(30,58,110,0.06); }
+    .nav-links a.active { color:var(--azul); font-weight:600; }
+    .header-acciones { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .btn-hablar-header {
+      background:var(--turquesa); color:var(--azul);
+      border:none; padding:10px 18px; border-radius:50px;
+      font-size:14px; font-weight:700; cursor:pointer;
+      display:flex; align-items:center; gap:6px;
+      transition:all 0.2s; white-space:nowrap;
+    }
+    .btn-hablar-header:hover { background:var(--turquesa-oscuro); transform:translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      position:relative; height:92vh; min-height:580px;
+      display:flex; align-items:center;
+      overflow:hidden;
+    }
+    .hero-bg {
+      position:absolute; inset:0;
+      background-size:cover; background-position:center 30%;
+      filter:brightness(0.62);
+    }
+    .hero-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(135deg, rgba(30,58,110,0.75) 0%, rgba(10,30,60,0.45) 50%, rgba(0,0,0,0.2) 100%);
+    }
+    .hero-content {
+      position:relative; z-index:2;
+      max-width:1200px; margin:0 auto; padding:0 32px;
+      width:100%; display:grid; grid-template-columns:1fr 380px; gap:48px; align-items:center;
+    }
+    .hero-texto h1 {
+      font-size:clamp(36px,5vw,64px); font-weight:800; color:var(--blanco);
+      line-height:1.08; letter-spacing:-1px; margin-bottom:20px;
+    }
+    .hero-texto h1 span { color:var(--turquesa); }
+    .hero-texto p {
+      font-size:18px; color:rgba(255,255,255,0.88); line-height:1.6;
+      margin-bottom:32px; max-width:520px;
+    }
+    .hero-botones { display:flex; gap:14px; flex-wrap:wrap; }
+    .btn-hero-primario {
+      background:var(--turquesa); color:var(--azul);
+      border:none; padding:16px 28px; border-radius:50px;
+      font-size:16px; font-weight:700; cursor:pointer;
+      display:flex; align-items:center; gap:8px;
+      transition:all 0.25s; box-shadow:0 4px 24px rgba(77,217,172,0.35);
+    }
+    .btn-hero-primario:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(77,217,172,0.5); }
+    .btn-hero-secundario {
+      background:rgba(255,255,255,0.15); color:var(--blanco);
+      border:2px solid rgba(255,255,255,0.5); padding:14px 28px; border-radius:50px;
+      font-size:16px; font-weight:600; cursor:pointer;
+      backdrop-filter:blur(8px); transition:all 0.25s;
+    }
+    .btn-hero-secundario:hover { background:rgba(255,255,255,0.25); border-color:white; }
+    .hero-stats {
+      display:flex; gap:32px; margin-top:40px; flex-wrap:wrap;
+    }
+    .stat { text-align:left; }
+    .stat-num { font-size:28px; font-weight:800; color:var(--turquesa); line-height:1; }
+    .stat-label { font-size:12px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; letter-spacing:0.5px; }
+
+    /* Hero card Mana */
+    .hero-mana-card {
+      background:rgba(255,255,255,0.97);
+      border-radius:20px; padding:24px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    }
+    .mana-card-header {
+      display:flex; align-items:center; gap:12px; margin-bottom:16px;
+    }
+    .mana-avatar {
+      width:44px; height:44px; background:linear-gradient(135deg,var(--azul),var(--turquesa));
+      border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .mana-card-header strong { font-size:16px; color:var(--azul); display:block; }
+    .mana-card-header small { font-size:12px; color:var(--texto-suave); }
+    .mana-burbuja {
+      background:#f0f4ff; border-radius:12px 12px 12px 4px;
+      padding:12px 14px; font-size:13px; color:var(--texto); line-height:1.5;
+      margin-bottom:14px;
+    }
+    .mana-sugerencias { display:flex; flex-direction:column; gap:8px; }
+    .mana-sugerencias button {
+      background:var(--blanco); border:1.5px solid var(--azul); color:var(--azul);
+      padding:9px 14px; border-radius:20px; font-size:13px; font-weight:500;
+      cursor:pointer; text-align:left; transition:all 0.2s;
+    }
+    .mana-sugerencias button:hover { background:var(--azul); color:var(--blanco); }
+    .mana-input-row {
+      display:flex; gap:8px; margin-top:14px;
+      border-top:1px solid var(--borde); padding-top:14px;
+    }
+    .mana-input-row input {
+      flex:1; padding:10px 14px; border:1.5px solid var(--borde);
+      border-radius:50px; font-size:13px; outline:none;
+    }
+    .mana-input-row input:focus { border-color:var(--azul); }
+    .mana-input-row button {
+      background:var(--azul); color:white; border:none;
+      width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:16px;
+    }
+
+    /* ── CATEGORÍAS ── */
+    .categorias-bar {
+      background:var(--blanco);
+      box-shadow:0 4px 24px rgba(0,0,0,0.08);
+      position:relative; z-index:10;
+    }
+    .categorias-inner {
+      max-width:1200px; margin:0 auto; padding:0 32px;
+      display:flex; overflow-x:auto; gap:0;
+    }
+    .categorias-inner::-webkit-scrollbar { display:none; }
+    .cat-item {
+      display:flex; flex-direction:column; align-items:center;
+      padding:18px 20px; cursor:pointer; border-bottom:3px solid transparent;
+      transition:all 0.2s; min-width:100px; flex-shrink:0; gap:6px;
+      text-decoration:none;
+    }
+    .cat-item:hover { border-bottom-color:var(--turquesa); }
+    .cat-item:hover .cat-icon { color:var(--azul); }
+    .cat-item:hover .cat-label { color:var(--azul); }
+    .cat-item.activa { border-bottom-color:var(--azul); }
+    .cat-icon { font-size:24px; }
+    .cat-label { font-size:12px; font-weight:600; color:#666; letter-spacing:0.3px; }
+
+    /* ── SECCIONES GENERALES ── */
+    .seccion { padding:72px 32px; }
+    .seccion-arena { background:var(--arena); }
+    .seccion-blanca { background:var(--blanco); }
+    .container { max-width:1200px; margin:0 auto; }
+    .seccion-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:40px; flex-wrap:wrap; gap:16px; }
+    .seccion-titulo { font-size:32px; font-weight:800; color:var(--azul); }
+    .seccion-titulo span { color:var(--turquesa); }
+    .seccion-subtitulo { font-size:15px; color:var(--texto-suave); margin-top:6px; }
+    .ver-todos { color:var(--azul); font-size:14px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+    .ver-todos:hover { color:var(--turquesa-oscuro); }
+
+    /* ── CANTONES ── */
+    .cantones-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; }
+    .canton-card {
+      background:var(--blanco); border-radius:16px; padding:24px 20px;
+      text-align:center; cursor:pointer; border:2px solid transparent;
+      box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:all 0.25s;
+    }
+    .canton-card:hover {
+      transform:translateY(-4px); border-color:var(--turquesa);
+      box-shadow:0 12px 32px rgba(30,58,110,0.12);
+    }
+    .canton-emoji { font-size:36px; margin-bottom:10px; }
+    .canton-nombre { font-size:16px; font-weight:700; color:var(--azul); margin-bottom:6px; }
+    .canton-tags { font-size:12px; color:var(--turquesa-oscuro); font-weight:500; }
+
+    /* ── EVENTOS ── */
+    .eventos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px; }
+    .evento-card {
+      background:var(--blanco); border-radius:16px; overflow:hidden;
+      box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:all 0.25s;
+      border:1px solid var(--borde);
+    }
+    .evento-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(30,58,110,0.12); }
+    .evento-fecha-bar {
+      background:var(--azul); color:white;
+      padding:14px 20px; display:flex; align-items:center; gap:16px;
+    }
+    .fecha-num { font-size:32px; font-weight:800; line-height:1; }
+    .fecha-mes { font-size:12px; font-weight:600; letter-spacing:1px; opacity:0.8; }
+    .evento-badge {
+      margin-left:auto; background:var(--turquesa); color:var(--azul);
+      padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700;
+    }
+    .evento-body { padding:18px 20px; }
+    .evento-nombre { font-size:15px; font-weight:700; color:var(--azul); margin-bottom:8px; line-height:1.3; }
+    .evento-lugar { font-size:13px; color:var(--texto-suave); display:flex; align-items:center; gap:5px; }
+    .evento-desc { font-size:13px; color:var(--texto-suave); margin-top:10px; line-height:1.5; }
+
+    /* ── BUSCADOR ── */
+    .buscador-wrap {
+      background:var(--blanco); border-radius:16px;
+      padding:24px; box-shadow:0 4px 24px rgba(0,0,0,0.08); margin-bottom:40px;
+    }
+    .buscador-row { display:flex; gap:12px; margin-bottom:14px; }
+    .buscador-row input {
+      flex:1; padding:14px 20px; border:2px solid var(--borde);
+      border-radius:50px; font-size:15px; outline:none; transition:border-color 0.2s;
+    }
+    .buscador-row input:focus { border-color:var(--azul); }
+    .buscador-row button {
+      background:var(--azul); color:white; border:none;
+      padding:14px 28px; border-radius:50px; font-size:15px; font-weight:600; cursor:pointer;
+    }
+    .filtros-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .filtros-row select {
+      padding:9px 16px; border:1.5px solid var(--borde); border-radius:50px;
+      font-size:13px; outline:none; cursor:pointer; background:white; color:var(--texto);
+    }
+    .filtros-row select:focus { border-color:var(--azul); }
+
+    /* ── RESULTADOS ── */
+    .resultados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+    .lugar-card {
+      background:var(--blanco); border-radius:16px; padding:22px;
+      border-left:4px solid var(--turquesa);
+      box-shadow:0 2px 10px rgba(0,0,0,0.06);
+    }
+    .lugar-tag {
+      display:inline-block; background:#e8f5f0; color:var(--turquesa-oscuro);
+      padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;
+      margin-bottom:8px;
+    }
+    .lugar-nombre { font-size:16px; font-weight:700; color:var(--azul); margin-bottom:6px; }
+    .lugar-desc { font-size:13px; color:var(--texto-suave); line-height:1.5; }
+    .lugar-info { font-size:12px; color:#888; margin-top:10px; line-height:1.8; }
+
+    /* ── MANA IA SECTION ── */
+    .mana-section-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+    }
+    .mana-texto h2 { font-size:36px; font-weight:800; color:var(--azul); margin-bottom:16px; line-height:1.2; }
+    .mana-texto h2 span { color:var(--turquesa); }
+    .mana-texto p { font-size:16px; color:var(--texto-suave); line-height:1.7; margin-bottom:24px; }
+    .mana-features { display:flex; flex-direction:column; gap:14px; margin-bottom:28px; }
+    .mana-feature { display:flex; align-items:flex-start; gap:12px; }
+    .mana-feature-icon {
+      width:36px; height:36px; background:rgba(77,217,172,0.15);
+      border-radius:10px; display:flex; align-items:center; justify-content:center;
+      font-size:18px; flex-shrink:0;
+    }
+    .mana-feature-text strong { display:block; font-size:14px; color:var(--azul); margin-bottom:2px; }
+    .mana-feature-text span { font-size:13px; color:var(--texto-suave); }
+    .mana-aviso {
+      background:#fffbe6; border:1px solid #ffe58f; border-radius:10px;
+      padding:12px 16px; font-size:12px; color:#7a6000; line-height:1.5;
+    }
+    .mana-demo {
+      background:var(--blanco); border-radius:20px;
+      box-shadow:0 20px 60px rgba(30,58,110,0.12);
+      overflow:hidden;
+    }
+    .mana-demo-header {
+      background:var(--azul); padding:16px 20px;
+      display:flex; align-items:center; gap:12px;
+    }
+    .mana-demo-avatar {
+      width:40px; height:40px;
+      background:linear-gradient(135deg,var(--turquesa),#2fb58d);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+    }
+    .mana-demo-header strong { color:white; font-size:15px; display:block; }
+    .mana-demo-header small { color:rgba(255,255,255,0.7); font-size:12px; }
+    .mana-demo-mensajes { padding:20px; display:flex; flex-direction:column; gap:14px; min-height:260px; }
+    .demo-burbuja-mana {
+      background:#f0f4ff; border-radius:14px 14px 14px 4px;
+      padding:12px 14px; font-size:13px; line-height:1.6; color:var(--texto); max-width:85%;
+    }
+    .demo-burbuja-user {
+      background:var(--azul); color:white;
+      border-radius:14px 14px 4px 14px;
+      padding:12px 14px; font-size:13px; line-height:1.5;
+      max-width:85%; align-self:flex-end;
+    }
+    .mana-demo-input {
+      border-top:1px solid var(--borde); padding:14px 16px;
+      display:flex; gap:8px;
+    }
+    .mana-demo-input input {
+      flex:1; padding:10px 14px; border:1.5px solid var(--borde);
+      border-radius:50px; font-size:13px; outline:none;
+    }
+    .mana-demo-input button {
+      background:var(--azul); color:white; border:none;
+      width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:15px;
+    }
+
+    /* ── EXPERIENCIAS ── */
+    .experiencias-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:20px; }
+    .exp-card {
+      border-radius:16px; padding:28px 24px; position:relative; overflow:hidden;
+      cursor:pointer; transition:transform 0.25s;
+    }
+    .exp-card:hover { transform:translateY(-4px); }
+    .exp-card-1 { background:linear-gradient(135deg,#1E3A6E,#16548a); }
+    .exp-card-2 { background:linear-gradient(135deg,#0d7377,#4DD9AC); }
+    .exp-card-3 { background:linear-gradient(135deg,#2d5a27,#52a447); }
+    .exp-card-4 { background:linear-gradient(135deg,#6b3a2a,#c0714d); }
+    .exp-card-5 { background:linear-gradient(135deg,#3a2a6b,#7c5cbf); }
+    .exp-card-6 { background:linear-gradient(135deg,#1a4a6b,#2e87c4); }
+    .exp-icon { font-size:36px; margin-bottom:12px; }
+    .exp-titulo { font-size:17px; font-weight:700; color:white; margin-bottom:6px; }
+    .exp-desc { font-size:13px; color:rgba(255,255,255,0.8); line-height:1.5; }
+    .exp-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+    .exp-tag {
+      background:rgba(255,255,255,0.2); color:white;
+      padding:3px 9px; border-radius:20px; font-size:11px; font-weight:500;
+    }
+
+    /* ── FOOTER ── */
+    .footer { background:var(--azul); color:white; padding:56px 32px 32px; }
+    .footer-grid {
+      max-width:1200px; margin:0 auto;
+      display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px;
+      margin-bottom:48px;
+    }
+    .footer-brand h3 {
+      font-size:22px; font-weight:800; margin-bottom:10px;
+      color:white;
+    }
+    .footer-brand h3 span { color:var(--turquesa); }
+    .footer-brand p { font-size:13px; color:rgba(255,255,255,0.65); line-height:1.7; margin-bottom:16px; }
+    .footer-col h4 { font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--turquesa); margin-bottom:16px; }
+    .footer-col a { display:block; color:rgba(255,255,255,0.7); font-size:13px; text-decoration:none; margin-bottom:10px; transition:color 0.2s; }
+    .footer-col a:hover { color:var(--turquesa); }
+    .footer-bottom {
+      max-width:1200px; margin:0 auto;
+      border-top:1px solid rgba(255,255,255,0.1); padding-top:24px;
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    }
+    .footer-bottom p { font-size:12px; color:rgba(255,255,255,0.5); line-height:1.6; }
+    .footer-links { display:flex; gap:16px; flex-wrap:wrap; }
+    .footer-links a { font-size:12px; color:rgba(255,255,255,0.5); text-decoration:none; }
+    .footer-links a:hover { color:var(--turquesa); }
+
+    /* ── CHAT PANEL ── */
+    .chat-fab {
+      position:fixed; bottom:28px; right:28px; z-index:500;
+      width:60px; height:60px; background:var(--azul); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 24px rgba(30,58,110,0.4); cursor:pointer; transition:transform 0.2s;
+    }
+    .chat-fab:hover { transform:scale(1.1); }
+    .whatsapp-fab {
+      position:fixed; bottom:100px; right:28px; z-index:500;
+      width:50px; height:50px; background:#25D366; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(37,211,102,0.4); cursor:pointer; transition:transform 0.2s;
+      text-decoration:none;
+    }
+    .whatsapp-fab:hover { transform:scale(1.1); }
+    .chat-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:600; }
+    .chat-overlay.abierto { display:block; }
+    .chat-panel {
+      display:none; position:fixed; bottom:100px; right:28px;
+      width:380px; max-height:570px; background:white;
+      border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.2);
+      z-index:700; flex-direction:column; overflow:hidden;
+    }
+    .chat-panel.abierto { display:flex; }
+    .chat-header { background:var(--azul); padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .chat-header-info { display:flex; align-items:center; gap:12px; }
+    .chat-avatar-circle {
+      width:42px; height:42px; background:linear-gradient(135deg,var(--turquesa),#2fb58d);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+    }
+    .chat-header strong { color:white; display:block; font-size:15px; }
+    .chat-header small { color:rgba(255,255,255,0.75); font-size:11px; }
+    .chat-cerrar { background:none; border:none; color:rgba(255,255,255,0.8); font-size:18px; cursor:pointer; }
+    .chat-mensajes { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:14px; }
+    .msg-mana { background:#f0f4ff; border-radius:14px 14px 14px 4px; padding:12px 14px; font-size:13px; line-height:1.6; max-width:88%; }
+    .msg-usuario { background:var(--azul); color:white; border-radius:14px 14px 4px 14px; padding:12px 14px; font-size:13px; line-height:1.5; max-width:88%; align-self:flex-end; }
+    .sugs { display:flex; flex-direction:column; gap:7px; margin-top:10px; }
+    .sugs button { background:white; border:1.5px solid var(--azul); color:var(--azul); padding:8px 13px; border-radius:20px; font-size:12px; cursor:pointer; text-align:left; transition:all 0.2s; }
+    .sugs button:hover { background:var(--azul); color:white; }
+    .typing { display:flex; gap:4px; padding:12px 14px; background:#f0f4ff; border-radius:14px 14px 14px 4px; width:fit-content; }
+    .typing span { width:7px; height:7px; background:var(--azul); border-radius:50%; animation:bounce 1.2s infinite; opacity:0.4; }
+    .typing span:nth-child(2) { animation-delay:.2s; }
+    .typing span:nth-child(3) { animation-delay:.4s; }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-6px);opacity:1} }
+    .chat-input-bar { padding:14px; border-top:1px solid #f0f0f0; display:flex; gap:8px; align-items:center; }
+    .chat-input-bar input { flex:1; padding:10px 14px; border:1.5px solid var(--borde); border-radius:50px; font-size:13px; outline:none; }
+    .chat-input-bar input:focus { border-color:var(--azul); }
+    .chat-input-bar button { background:var(--azul); color:white; border:none; width:38px; height:38px; border-radius:50%; font-size:15px; cursor:pointer; }
+    .btn-voz { font-size:18px; cursor:pointer; padding:4px 6px; border-radius:50%; transition:background 0.2s; }
+    .btn-voz:hover { background:#f0f0f0; }
+    .btn-voz.escuchando { background:#ffe0e0; animation:pulso 1s infinite; }
+    @keyframes pulso { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+    /* ── RESULTADOS SECTION ── */
+    #resultados-section { display:none; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      .hero-content { grid-template-columns:1fr; }
+      .hero-mana-card { display:none; }
+      .mana-section-grid { grid-template-columns:1fr; }
+      .footer-grid { grid-template-columns:1fr 1fr; }
+      .nav-links { display:none; }
+    }
+    @media(max-width:600px){
+      .seccion { padding:48px 20px; }
+      .hero-texto h1 { font-size:32px; }
+      .hero-stats { gap:20px; }
+      .chat-panel { width:calc(100vw - 32px); right:16px; }
+      .footer-grid { grid-template-columns:1fr; gap:32px; }
+      .buscador-row { flex-direction:column; }
+      .footer-bottom { flex-direction:column; text-align:center; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="logo">
-        <svg width="140" height="48" viewBox="0 0 140 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 14 Q32 6 44 14 Q56 22 68 14" stroke="#4DD9AC" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <circle cx="70" cy="13" r="3" fill="#4DD9AC"/>
-        <text x="0" y="42" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF" letter-spacing="1">Mana</text>
-        <text x="62" y="42" font-family="Inter, sans-serif" font-size="22" font-weight="300" fill="#4DD9AC" letter-spacing="1">bía</text>
-        </svg>
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a class="logo-svg" href="#">
+      <svg width="120" height="44" viewBox="0 0 120 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 11 Q22 4 32 11 Q42 18 52 11" stroke="#4DD9AC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        <circle cx="53.5" cy="10.5" r="2.8" fill="#4DD9AC"/>
+        <text x="0" y="38" font-family="Inter,sans-serif" font-size="20" font-weight="800" fill="#1E3A6E">Mana</text>
+        <text x="52" y="38" font-family="Inter,sans-serif" font-size="20" font-weight="300" fill="#4DD9AC">bía</text>
+      </svg>
+    </a>
+    <nav class="nav-links">
+      <a href="#" class="active">Inicio</a>
+      <a href="#mana-ia">Mana IA</a>
+      <a href="#destinos">Destinos</a>
+      <a href="#explorar">Explorar</a>
+      <a href="#eventos">Eventos</a>
+      <a href="#experiencias">Experiencias</a>
+      <a href="#planificar">Planificar</a>
+    </nav>
+    <div class="header-acciones">
+      <button class="btn-hablar-header" onclick="abrirChat()">💬 Hablar con Mana</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-texto">
+      <h1>Descubre el Norte<br>de <span>Manabí</span> con Mana</h1>
+      <p>Playas, naturaleza, cultura, gastronomía y aventura en cinco cantones únicos del Pacífico ecuatoriano</p>
+      <div class="hero-botones">
+        <button class="btn-hero-primario" onclick="abrirChat()">💬 Hablar con Mana</button>
+        <button class="btn-hero-secundario" onclick="document.getElementById('explorar').scrollIntoView({behavior:'smooth'})">🗺️ Explorar destinos</button>
       </div>
-      <nav class="nav">
-        <a href="#destinos">Destinos</a>
-        <a href="#eventos">Eventos</a>
-        <a href="#mana">Mana IA</a>
-      </nav>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num">5</div><div class="stat-label">Cantones</div></div>
+        <div class="stat"><div class="stat-num">180+</div><div class="stat-label">Destinos</div></div>
+        <div class="stat"><div class="stat-num">60+</div><div class="stat-label">Eventos al año</div></div>
+        <div class="stat"><div class="stat-num">300km</div><div class="stat-label">De costa</div></div>
+      </div>
     </div>
-  </header>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Descubre el Norte de Manabí</h1>
-      <p>Playas, naturaleza, cultura y gastronomía en un solo lugar</p>
-      <button class="btn-primary" onclick="abrirChat()">
-        💬 Pregúntale a Mana
-      </button>
+    <div class="hero-mana-card">
+      <div class="mana-card-header">
+        <div class="mana-avatar">
+          <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M3 10 Q8 3 13 10 Q18 17 23 10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="24" cy="9" r="2" fill="#4DD9AC"/></svg>
+        </div>
+        <div><strong>Mana</strong><small>Tu guía del Norte de Manabí</small></div>
+      </div>
+      <div class="mana-burbuja">¡Hola! Soy Mana 👋 ¿Qué quieres descubrir hoy?</div>
+      <div class="mana-sugerencias">
+        <button onclick="preguntarHero('¿Dónde hospedarse en Canoa?')">🏨 Hospedaje en Canoa</button>
+        <button onclick="preguntarHero('Mejores restaurantes en Bahía de Caráquez')">🍽️ Restaurantes en Bahía</button>
+        <button onclick="preguntarHero('Playas para hacer surf en el norte de Manabí')">🏄 Playas para surf</button>
+        <button onclick="preguntarHero('Qué hacer en Pedernales este fin de semana')">📍 Qué hacer en Pedernales</button>
+      </div>
+      <div class="mana-input-row">
+        <input type="text" id="hero-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')preguntarHero(this.value)"/>
+        <button onclick="preguntarHero(document.getElementById('hero-input').value)">➤</button>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- BUSCADOR -->
-  <section class="buscador-section">
-    <div class="container">
-      <div class="buscador-box">
-        <input type="text" id="buscador" placeholder="¿Qué buscas? Ej: hoteles en Canoa, restaurantes en Bahía..."/>
+<!-- CATEGORÍAS -->
+<div class="categorias-bar">
+  <div class="categorias-inner">
+    <a class="cat-item activa" href="#explorar"><span class="cat-icon">🌴</span><span class="cat-label">Turismo</span></a>
+    <a class="cat-item" href="#eventos"><span class="cat-icon">📅</span><span class="cat-label">Eventos</span></a>
+    <a class="cat-item" href="#explorar"><span class="cat-icon">🍽️</span><span class="cat-label">Gastronomía</span></a>
+    <a class="cat-item" href="#explorar"><span class="cat-icon">🏛️</span><span class="cat-label">Cultura</span></a>
+    <a class="cat-item" href="#explorar"><span class="cat-icon">🌿</span><span class="cat-label">Naturaleza</span></a>
+    <a class="cat-item" href="#explorar"><span class="cat-icon">🏄</span><span class="cat-label">Deportes</span></a>
+    <a class="cat-item" href="#explorar"><span class="cat-icon">🛒</span><span class="cat-label">Comercio Local</span></a>
+    <a class="cat-item" href="#explorar"><span class="cat-icon">👥</span><span class="cat-label">Comunidad</span></a>
+  </div>
+</div>
+
+<!-- EXPLORAR / BUSCADOR -->
+<section class="seccion seccion-arena" id="explorar">
+  <div class="container">
+    <div class="seccion-header">
+      <div>
+        <div class="seccion-titulo">Busca lo que necesitas</div>
+        <div class="seccion-subtitulo">Hoteles, restaurantes, playas, actividades y más</div>
+      </div>
+    </div>
+    <div class="buscador-wrap">
+      <div class="buscador-row">
+        <input type="text" id="buscador" placeholder="¿Qué buscas? Ej: hoteles en Canoa, ceviche en Bahía, surf..."/>
         <button onclick="buscar()">Buscar</button>
       </div>
-      <div class="filtros">
+      <div class="filtros-row">
         <select id="filtro-canton" onchange="buscar()">
           <option value="">Todos los cantones</option>
           <option value="bahía">Bahía de Caráquez</option>
@@ -68,88 +560,462 @@
         </select>
       </div>
     </div>
-  </section>
-
-  <!-- RESULTADOS -->
-  <section class="container" id="resultados-section" style="display:none">
-    <h2 class="section-title">Resultados</h2>
-    <div class="cards-grid" id="resultados-grid"></div>
-  </section>
-
-  <!-- DESTINOS DESTACADOS -->
-  <section class="container" id="destinos">
-    <h2 class="section-title">Cantones del Norte de Manabí</h2>
-    <div class="cards-grid">
-      <div class="card-canton" onclick="filtrarCanton('bahía')">
-        <div class="canton-icon">🏖️</div>
-        <h3>Bahía de Caráquez</h3>
-        <p>Ciudad ecológica y puerto histórico</p>
-      </div>
-      <div class="card-canton" onclick="filtrarCanton('canoa')">
-        <div class="canton-icon">🌊</div>
-        <h3>Canoa</h3>
-        <p>Surf, playas y vida bohemia</p>
-      </div>
-      <div class="card-canton" onclick="filtrarCanton('pedernales')">
-        <div class="canton-icon">🐠</div>
-        <h3>Pedernales</h3>
-        <p>Pesca artesanal y playas extensas</p>
-      </div>
-      <div class="card-canton" onclick="filtrarCanton('jama')">
-        <div class="canton-icon">🌿</div>
-        <h3>Jama</h3>
-        <p>Naturaleza y cultura ancestral</p>
-      </div>
-      <div class="card-canton" onclick="filtrarCanton('chone')">
-        <div class="canton-icon">🐄</div>
-        <h3>Chone</h3>
-        <p>Gastronomía y tradición manabita</p>
-      </div>
-      <div class="card-canton" onclick="filtrarCanton('san vicente')">
-        <div class="canton-icon">⛵</div>
-        <h3>San Vicente</h3>
-        <p>Frente a Bahía, tranquilidad total</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CHAT MANA -->
-  <div class="chat-bubble" onclick="abrirChat()" title="Hablar con Mana">
-    💬
-  </div>
-
-  <div class="chat-overlay" id="chat-overlay" onclick="cerrarChat()"></div>
-
-  <div class="chat-panel" id="chat-panel">
-    <div class="chat-header">
-      <div class="chat-titulo">
-        <span class="chat-avatar">🌊</span>
-        <div>
-          <strong>Mana</strong>
-          <small>Tu guía del Norte de Manabí</small>
-        </div>
-      </div>
-      <button class="chat-cerrar" onclick="cerrarChat()">✕</button>
-    </div>
-    <div class="chat-mensajes" id="chat-mensajes">
-      <div class="mensaje-mana">
-        <p>¡Hola! Soy <strong>Mana</strong> 👋</p>
-        <p>Tu guía digital del Norte de Manabí. Puedo ayudarte a encontrar:</p>
-        <div class="sugerencias">
-          <button onclick="preguntar('¿Dónde hospedarse en Canoa?')">🏨 Hospedaje en Canoa</button>
-          <button onclick="preguntar('Restaurantes en Bahía de Caráquez')">🍽️ Restaurantes en Bahía</button>
-          <button onclick="preguntar('Playas para hacer surf')">🏄 Playas para surf</button>
-          <button onclick="preguntar('Qué hacer en Pedernales')">📍 Qué hacer en Pedernales</button>
-        </div>
-      </div>
-    </div>
-    <div class="chat-input-area">
-      <div class="chat-voz" id="btn-voz" onclick="toggleVoz()" title="Hablar con Mana">🎤</div>
-      <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter') enviarMensaje()"/>
-      <button onclick="enviarMensaje()">➤</button>
+    <div id="resultados-section">
+      <div class="seccion-titulo" style="margin-bottom:20px">Resultados</div>
+      <div class="resultados-grid" id="resultados-grid"></div>
     </div>
   </div>
+</section>
 
-  <script src="app.js"></script>
+<!-- DESTINOS / CANTONES -->
+<section class="seccion seccion-blanca" id="destinos">
+  <div class="container">
+    <div class="seccion-header">
+      <div>
+        <div class="seccion-titulo">Los cinco <span>cantones</span></div>
+        <div class="seccion-subtitulo">Elige tu destino y descubre lo que te espera</div>
+      </div>
+      <a href="#explorar" class="ver-todos">Ver mapa interactivo →</a>
+    </div>
+    <div class="cantones-grid">
+      <div class="canton-card" onclick="filtrarCanton('pedernales')">
+        <div class="canton-emoji">🐠</div>
+        <div class="canton-nombre">Pedernales</div>
+        <div class="canton-tags">Surf · Pesca · Naturaleza</div>
+      </div>
+      <div class="canton-card" onclick="filtrarCanton('jama')">
+        <div class="canton-emoji">🌿</div>
+        <div class="canton-nombre">Jama</div>
+        <div class="canton-tags">Ecoturismo · Arqueología</div>
+      </div>
+      <div class="canton-card" onclick="filtrarCanton('san vicente')">
+        <div class="canton-emoji">🏖️</div>
+        <div class="canton-nombre">San Vicente</div>
+        <div class="canton-tags">Canoa · Surf · Playas</div>
+      </div>
+      <div class="canton-card" onclick="filtrarCanton('bahía')">
+        <div class="canton-emoji">⛵</div>
+        <div class="canton-nombre">Sucre — Bahía</div>
+        <div class="canton-tags">Ciudad Eco · Puerto · Cultura</div>
+      </div>
+      <div class="canton-card" onclick="filtrarCanton('chone')">
+        <div class="canton-emoji">🐄</div>
+        <div class="canton-nombre">Chone</div>
+        <div class="canton-tags">Ganadería · Río · Fiestas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTOS -->
+<section class="seccion seccion-arena" id="eventos">
+  <div class="container">
+    <div class="seccion-header">
+      <div>
+        <div class="seccion-titulo">Eventos <span>destacados</span></div>
+        <div class="seccion-subtitulo">Festivales, deportes, cultura y gastronomía</div>
+      </div>
+      <a href="#" class="ver-todos">Ver calendario completo →</a>
+    </div>
+    <div class="eventos-grid" id="eventos-grid">
+      <div style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCIAS -->
+<section class="seccion seccion-blanca" id="experiencias">
+  <div class="container">
+    <div class="seccion-header">
+      <div>
+        <div class="seccion-titulo">Planes para cada <span>viajero</span></div>
+        <div class="seccion-subtitulo">¿Qué tipo de experiencia buscas?</div>
+      </div>
+    </div>
+    <div class="experiencias-grid">
+      <div class="exp-card exp-card-1" onclick="filtrarCategoria('surf')">
+        <div class="exp-icon">🏄</div>
+        <div class="exp-titulo">Aventura extrema</div>
+        <div class="exp-desc">Surf, kayak, parapente y senderismo en bosque tropical.</div>
+        <div class="exp-tags"><span class="exp-tag">Surf</span><span class="exp-tag">Kayak</span><span class="exp-tag">Parapente</span></div>
+      </div>
+      <div class="exp-card exp-card-2" onclick="filtrarCategoria('ceviche')">
+        <div class="exp-icon">🦐</div>
+        <div class="exp-titulo">Ruta gastronómica</div>
+        <div class="exp-desc">Ceviches, mariscos, seco de guanta y cocadas del Pacífico norte.</div>
+        <div class="exp-tags"><span class="exp-tag">Ceviche</span><span class="exp-tag">Mariscos</span><span class="exp-tag">Típico</span></div>
+      </div>
+      <div class="exp-card exp-card-3" onclick="filtrarCategoria('naturaleza')">
+        <div class="exp-icon">🦜</div>
+        <div class="exp-titulo">Naturaleza y Aviturismo</div>
+        <div class="exp-desc">80+ especies de aves, reservas naturales, manglares y bosque tropical.</div>
+        <div class="exp-tags"><span class="exp-tag">Aves</span><span class="exp-tag">Manglares</span><span class="exp-tag">Bosque</span></div>
+      </div>
+      <div class="exp-card exp-card-4" onclick="filtrarCategoria('romántico')">
+        <div class="exp-icon">🌅</div>
+        <div class="exp-titulo">Escapada romántica</div>
+        <div class="exp-desc">Playas tranquilas, atardeceres sobre el Pacífico, ecolodges boutique.</div>
+        <div class="exp-tags"><span class="exp-tag">Ecolodge</span><span class="exp-tag">Atardeceres</span></div>
+      </div>
+      <div class="exp-card exp-card-5" onclick="filtrarCategoria('familiar')">
+        <div class="exp-icon">👨‍👩‍👧‍👦</div>
+        <div class="exp-titulo">Familia y comunidad</div>
+        <div class="exp-desc">Playas seguras, actividades para niños, visitas a artesanos locales.</div>
+        <div class="exp-tags"><span class="exp-tag">Familiar</span><span class="exp-tag">Artesanía</span></div>
+      </div>
+      <div class="exp-card exp-card-6" onclick="filtrarCategoria('cultura')">
+        <div class="exp-icon">🏺</div>
+        <div class="exp-titulo">Cultura y arqueología</div>
+        <div class="exp-desc">Chirije, San Isidro y otras joyas de la cultura Jama-Coaque.</div>
+        <div class="exp-tags"><span class="exp-tag">Chirije</span><span class="exp-tag">Museos</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANA IA SECTION -->
+<section class="seccion seccion-arena" id="mana-ia">
+  <div class="container">
+    <div class="mana-section-grid">
+      <div class="mana-texto">
+        <h2>Conoce a <span>Mana</span>,<br>tu guía inteligente</h2>
+        <p>Mana es una guía entrenada con información verificada sobre los cinco cantones del norte de Manabí. Hazle preguntas en lenguaje natural y recibe recomendaciones personalizadas al instante.</p>
+        <div class="mana-features">
+          <div class="mana-feature">
+            <div class="mana-feature-icon">🗺️</div>
+            <div class="mana-feature-text"><strong>Descubre lugares y playas</strong><span>Hoteles, restaurantes, reservas naturales y más</span></div>
+          </div>
+          <div class="mana-feature">
+            <div class="mana-feature-icon">📅</div>
+            <div class="mana-feature-text"><strong>Consulta eventos y festivales</strong><span>Lo que pasa esta semana en el norte de Manabí</span></div>
+          </div>
+          <div class="mana-feature">
+            <div class="mana-feature-icon">🎤</div>
+            <div class="mana-feature-text"><strong>Disponible por voz</strong><span>Habla directamente con Mana desde tu celular</span></div>
+          </div>
+          <div class="mana-feature">
+            <div class="mana-feature-icon">🕐</div>
+            <div class="mana-feature-text"><strong>24/7, en español</strong><span>Siempre disponible, sin tiempos de espera</span></div>
+          </div>
+        </div>
+        <div class="mana-aviso">⚠️ Mana usa información verificada para sus respuestas. Te recomendamos confirmar precios y horarios directamente con los establecimientos.</div>
+      </div>
+      <div class="mana-demo">
+        <div class="mana-demo-header">
+          <div class="mana-demo-avatar">
+            <svg width="24" height="18" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#4DD9AC"/></svg>
+          </div>
+          <div><strong>Mana</strong><small>Tu guía del Norte de Manabí</small></div>
+        </div>
+        <div class="mana-demo-mensajes" id="demo-mensajes">
+          <div class="demo-burbuja-mana">¡Hola! Soy Mana 🌊<br>Tu guía del Norte de Manabí. ¿Qué quieres descubrir hoy?</div>
+          <div class="demo-burbuja-user">Quiero ver ballenas y comer buen ceviche este fin de semana</div>
+          <div class="demo-burbuja-mana">¡Perfecto momento! Jun–Sep es temporada de ballenas jorobadas 🐋<br><br>Te recomiendo:<br>📍 <strong>Bahía de Caráquez</strong> — tours de avistamiento desde el muelle a las 7h00<br>🦐 <strong>La Herradura</strong> — el mejor ceviche en el malecón de Bahía<br>🏡 Hospedaje en San Vicente desde $35/noche con vista al mar<br><br>¿Quieres que te arme el itinerario completo?</div>
+        </div>
+        <div class="mana-demo-input">
+          <input type="text" id="demo-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')enviarDemo()"/>
+          <button onclick="enviarDemo()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANIFICAR -->
+<section class="seccion seccion-blanca" id="planificar">
+  <div class="container">
+    <div class="seccion-header">
+      <div>
+        <div class="seccion-titulo">Planifica tu <span>viaje</span></div>
+        <div class="seccion-subtitulo">Todo lo que necesitas saber antes de llegar</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+      <div onclick="preguntarHero('Hospedaje en el norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
+        <div style="font-size:28px;margin-bottom:8px">🏨</div>
+        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Hospedaje</div>
+        <div style="font-size:13px;color:var(--texto-suave)">Hoteles, hosterías, glamping y cabañas</div>
+      </div>
+      <div onclick="preguntarHero('Cómo llegar al norte de Manabí desde Quito')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
+        <div style="font-size:28px;margin-bottom:8px">🚌</div>
+        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Transporte</div>
+        <div style="font-size:13px;color:var(--texto-suave)">Cómo llegar desde Quito, Guayaquil y Manta</div>
+      </div>
+      <div onclick="preguntarHero('Rutas recomendadas norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
+        <div style="font-size:28px;margin-bottom:8px">🗺️</div>
+        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Rutas</div>
+        <div style="font-size:13px;color:var(--texto-suave)">Itinerarios de 2, 4 y 7 días</div>
+      </div>
+      <div onclick="preguntarHero('Clima norte de Manabí mejor época para visitar')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
+        <div style="font-size:28px;margin-bottom:8px">🌤️</div>
+        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Clima</div>
+        <div style="font-size:13px;color:var(--texto-suave)">Mejor época para visitar cada cantón</div>
+      </div>
+      <div onclick="preguntarHero('Emergencias y hospitales norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
+        <div style="font-size:28px;margin-bottom:8px">🏥</div>
+        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Salud</div>
+        <div style="font-size:13px;color:var(--texto-suave)">Hospitales y clínicas por cantón</div>
+      </div>
+      <div onclick="preguntarHero('Bancos y cajeros norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
+        <div style="font-size:28px;margin-bottom:8px">🏧</div>
+        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Bancos</div>
+        <div style="font-size:13px;color:var(--texto-suave)">Cajeros ATM y cooperativas por cantón</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3>Mana<span>bía</span></h3>
+      <p>Tu guía de turismo, cultura, gastronomía y aventura para los cinco cantones del Norte de Manabí, Ecuador.</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px">Una iniciativa de la Corporación para el Desarrollo del Norte de Manabí · Tecnología impulsada por Mana IA.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Destinos</h4>
+      <a href="#destinos">Pedernales</a>
+      <a href="#destinos">Jama</a>
+      <a href="#destinos">San Vicente</a>
+      <a href="#destinos">Sucre — Bahía</a>
+      <a href="#destinos">Chone</a>
+    </div>
+    <div class="footer-col">
+      <h4>Explorar</h4>
+      <a href="#explorar">Playas y surf</a>
+      <a href="#explorar">Naturaleza</a>
+      <a href="#explorar">Gastronomía</a>
+      <a href="#explorar">Cultura</a>
+      <a href="#explorar">Aventura</a>
+    </div>
+    <div class="footer-col">
+      <h4>Sobre Manabía</h4>
+      <a href="#">Quiénes somos</a>
+      <a href="#">Misión y visión</a>
+      <a href="#">Aliados</a>
+      <a href="#">Contacto</a>
+      <a href="#">Prensa</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Manabía. Todos los derechos reservados.</p>
+    <div class="footer-links">
+      <a href="#">Política de Privacidad</a>
+      <a href="#">Términos y Condiciones</a>
+      <a href="#">Cookies</a>
+      <a href="#">Contacto</a>
+    </div>
+  </div>
+</footer>
+
+<!-- FABs -->
+<a class="whatsapp-fab" href="https://wa.me/" target="_blank" title="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+<div class="chat-fab" onclick="abrirChat()" title="Hablar con Mana">
+  <svg width="28" height="22" viewBox="0 0 28 22" fill="none"><path d="M3 11 Q10 2 17 11 Q24 20 31 11" stroke="#4DD9AC" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="30" cy="10" r="2.5" fill="#4DD9AC"/></svg>
+</div>
+
+<!-- CHAT PANEL -->
+<div class="chat-overlay" id="chat-overlay" onclick="cerrarChat()"></div>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar-circle">
+        <svg width="24" height="18" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#4DD9AC"/></svg>
+      </div>
+      <div><strong>Mana</strong><small>Tu guía del Norte de Manabí · 24/7</small></div>
+    </div>
+    <button class="chat-cerrar" onclick="cerrarChat()">✕</button>
+  </div>
+  <div class="chat-mensajes" id="chat-mensajes">
+    <div class="msg-mana">
+      <p>¡Hola! Soy <strong>Mana</strong> 🌊</p>
+      <p style="margin-top:6px">Tu guía del Norte de Manabí. Puedo ayudarte con:</p>
+      <div class="sugs" style="margin-top:10px">
+        <button onclick="preguntar('¿Dónde hospedarse en Canoa?')">🏨 Hospedaje en Canoa</button>
+        <button onclick="preguntar('Restaurantes en Bahía de Caráquez')">🍽️ Restaurantes en Bahía</button>
+        <button onclick="preguntar('Playas para hacer surf en Manabí')">🏄 Playas para surf</button>
+        <button onclick="preguntar('Qué hacer en Pedernales')">📍 Qué hacer en Pedernales</button>
+      </div>
+    </div>
+  </div>
+  <div class="chat-input-bar">
+    <span class="btn-voz" id="btn-voz" onclick="toggleVoz()" title="Hablar">🎤</span>
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')enviarMensaje()"/>
+    <button onclick="enviarMensaje()">➤</button>
+  </div>
+</div>
+
+<script>
+const BACKEND = "https://manabia-backend.onrender.com";
+
+// Foto hero en base64 (se inyecta por script)
+HEROEOF
+
+# Inject base64 image
+echo "document.getElementById('hero-bg').style.backgroundImage = 'url(\"${SUNSET}\")';" >> /mnt/user-data/outputs/index.html
+
+cat >> /mnt/user-data/outputs/index.html << 'JSEOF'
+
+// Ping al backend cada 14 min para que no se duerma
+setInterval(() => fetch(BACKEND + '/').catch(()=>{}), 14 * 60 * 1000);
+// Despertar al cargar
+fetch(BACKEND + '/').catch(()=>{});
+
+// ── CHAT ──
+function abrirChat() {
+  document.getElementById('chat-panel').classList.add('abierto');
+  document.getElementById('chat-overlay').classList.add('abierto');
+  setTimeout(()=>document.getElementById('chat-input').focus(), 300);
+}
+function cerrarChat() {
+  document.getElementById('chat-panel').classList.remove('abierto');
+  document.getElementById('chat-overlay').classList.remove('abierto');
+}
+function preguntar(txt) { document.getElementById('chat-input').value=txt; enviarMensaje(); abrirChat(); }
+function preguntarHero(txt) { if(txt.trim()) { preguntar(txt); abrirChat(); } }
+function enviarDemo() {
+  const inp = document.getElementById('demo-input');
+  const txt = inp.value.trim(); if(!txt) return; inp.value='';
+  preguntar(txt); abrirChat();
+}
+
+async function enviarMensaje() {
+  const input = document.getElementById('chat-input');
+  const texto = input.value.trim(); if(!texto) return;
+  input.value='';
+  agregarMsg(texto, 'usuario');
+  const typing = agregarTyping();
+  try {
+    const res = await fetch(BACKEND+'/mana/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto})});
+    const data = await res.json();
+    typing.remove();
+    agregarMsg(data.respuesta || 'No pude procesar eso, intenta de nuevo.', 'mana');
+  } catch(e) {
+    typing.remove();
+    agregarMsg('Ups, parece que Mana está cargando (puede tardar hasta 50 seg la primera vez). ¡Intenta de nuevo en un momento! 🌊', 'mana');
+  }
+}
+function agregarMsg(txt, tipo) {
+  const div = document.createElement('div');
+  div.className = tipo==='mana' ? 'msg-mana' : 'msg-usuario';
+  div.innerHTML = txt.replace(/\*([^*]+)\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  document.getElementById('chat-mensajes').appendChild(div);
+  scrollChat();
+}
+function agregarTyping() {
+  const div = document.createElement('div');
+  div.className='typing'; div.innerHTML='<span></span><span></span><span></span>';
+  document.getElementById('chat-mensajes').appendChild(div);
+  scrollChat(); return div;
+}
+function scrollChat() { const m=document.getElementById('chat-mensajes'); m.scrollTop=m.scrollHeight; }
+
+// ── BÚSQUEDA ──
+async function buscar() {
+  const consulta = document.getElementById('buscador').value.trim();
+  const canton = document.getElementById('filtro-canton').value;
+  const categoria = document.getElementById('filtro-categoria').value;
+  if(!consulta && !canton && !categoria) return;
+  const params = new URLSearchParams();
+  if(consulta) params.append('consulta',consulta);
+  if(canton) params.append('canton',canton);
+  if(categoria) params.append('categoria',categoria);
+  try {
+    const res = await fetch(BACKEND+'/lugares?'+params);
+    const data = await res.json();
+    mostrarResultados(data.lugares||[]);
+  } catch(e) { console.error(e); }
+}
+function mostrarResultados(lugares) {
+  const sec = document.getElementById('resultados-section');
+  const grid = document.getElementById('resultados-grid');
+  grid.innerHTML='';
+  if(!lugares.length) {
+    grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No encontramos resultados. Intenta con otros términos o pregúntale a Mana.</p>';
+  } else {
+    lugares.forEach(l=>{
+      const c=document.createElement('div'); c.className='lugar-card';
+      c.innerHTML=`<span class="lugar-tag">${l.Categoría||l.Subcategoría||'Lugar'}</span>
+        <div class="lugar-nombre">${l.Nombre||''}</div>
+        <div class="lugar-desc">${l.Descripción||''}</div>
+        <div class="lugar-info">📍 ${l.Parroquia||''}, ${l.Cantón||''}${l.Horario?'<br>🕐 '+l.Horario:''}${l.Teléfono?'<br>📞 '+l.Teléfono:''}${l.Precio?'<br>💰 '+l.Precio:''}</div>`;
+      grid.appendChild(c);
+    });
+  }
+  sec.style.display='block';
+  sec.scrollIntoView({behavior:'smooth'});
+}
+function filtrarCanton(canton) {
+  document.getElementById('filtro-canton').value=canton;
+  document.getElementById('buscador').value='';
+  buscar();
+  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+}
+function filtrarCategoria(tag) {
+  document.getElementById('buscador').value=tag;
+  document.getElementById('filtro-canton').value='';
+  buscar();
+  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+}
+
+// ── EVENTOS ──
+async function cargarEventos() {
+  try {
+    const res = await fetch(BACKEND+'/eventos');
+    const data = await res.json();
+    const grid = document.getElementById('eventos-grid');
+    const eventos = data.eventos||[];
+    if(!eventos.length) {
+      grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No hay eventos próximos en la base de datos todavía.</p>';
+      return;
+    }
+    grid.innerHTML='';
+    eventos.slice(0,4).forEach(ev=>{
+      const fecha = ev['Fecha Inicio']||ev.Fecha_Inicio||'';
+      let dia='', mes='';
+      if(fecha) {
+        const d=new Date(fecha);
+        dia=d.getDate();
+        mes=d.toLocaleString('es',{month:'short'}).toUpperCase();
+      }
+      const c=document.createElement('div'); c.className='evento-card';
+      c.innerHTML=`<div class="evento-fecha-bar">
+          <div><div class="fecha-num">${dia||'—'}</div><div class="fecha-mes">${mes}</div></div>
+          <span class="evento-badge">${ev.Categoría||'Evento'}</span>
+        </div>
+        <div class="evento-body">
+          <div class="evento-nombre">${ev.Nombre||''}</div>
+          <div class="evento-lugar">📍 ${ev.Cantón||''}</div>
+          <div class="evento-desc">${(ev.Descripción||'').substring(0,90)}...</div>
+        </div>`;
+      grid.appendChild(c);
+    });
+  } catch(e) {
+    document.getElementById('eventos-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</p>';
+  }
+}
+cargarEventos();
+
+// ── VOZ ──
+let rec=null, escuchando=false;
+function toggleVoz() {
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Usa Chrome para voz');return;}
+  if(escuchando){rec.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  rec=new SR(); rec.lang='es-EC'; rec.continuous=false; rec.interimResults=false;
+  rec.onstart=()=>{escuchando=true;document.getElementById('btn-voz').classList.add('escuchando');};
+  rec.onresult=(e)=>{document.getElementById('chat-input').value=e.results[0][0].transcript;enviarMensaje();};
+  rec.onend=()=>{escuchando=false;document.getElementById('btn-voz').classList.remove('escuchando');};
+  rec.onerror=()=>{escuchando=false;document.getElementById('btn-voz').classList.remove('escuchando');};
+  rec.start();
+}
+document.getElementById('buscador').addEventListener('keypress',e=>{if(e.key==='Enter')buscar();});
+</script>
 </body>
 </html>
+JSEOF
+echo "Generado correctamente"
+wc -l /mnt/user-data/outputs/index.html
