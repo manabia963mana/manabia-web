@@ -60,6 +60,7 @@
     }
     .hero-bg {
       position:absolute; inset:0;
+      background-image: url('https://i.ibb.co/VW1C2bX5/Whats-App-Image-2026-06-26-at-17-15-56.jpg');
       background-size:cover; background-position:center 30%;
       filter:brightness(0.62);
     }
@@ -813,7 +814,7 @@
 <a class="whatsapp-fab" href="https://wa.me/" target="_blank" title="WhatsApp">
   <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
-<div class="chat-fab" onclick="abrirChat()" title="Hablar con Mana">
+<div class="chat-fab" id="chat-fab" onclick="abrirChat()" title="Hablar con Mana">
   <svg width="28" height="22" viewBox="0 0 28 22" fill="none"><path d="M3 11 Q10 2 17 11 Q24 20 31 11" stroke="#4DD9AC" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="30" cy="10" r="2.5" fill="#4DD9AC"/></svg>
 </div>
 
@@ -855,14 +856,29 @@ const BACKEND = "https://manabia-backend.onrender.com";
 HEROEOF
 
 # Inject base64 image
-echo "document.getElementById('hero-bg').style.backgroundImage = 'url(\"${SUNSET}\")';" >> /mnt/user-data/outputs/index.html
 
 cat >> /mnt/user-data/outputs/index.html << 'JSEOF'
 
-// Ping al backend cada 14 min para que no se duerma
+// ── BACKEND WARMUP ──
+// Despertar backend al cargar (puede tardar hasta 50 seg en plan gratuito)
+let backendListo = false;
+const TIMEOUT_CHAT = 65000; // 65 segundos de espera máxima
+
+async function despertarBackend() {
+  try {
+    const res = await fetch(BACKEND + '/', { signal: AbortSignal.timeout(70000) });
+    if (res.ok) {
+      backendListo = true;
+      console.log('Backend activo');
+    }
+  } catch(e) {
+    console.log('Backend tardando en despertar...');
+  }
+}
+despertarBackend();
+
+// Ping cada 14 min para que no se duerma
 setInterval(() => fetch(BACKEND + '/').catch(()=>{}), 14 * 60 * 1000);
-// Despertar al cargar
-fetch(BACKEND + '/').catch(()=>{});
 
 // ── CHAT ──
 function abrirChat() {
@@ -888,14 +904,36 @@ async function enviarMensaje() {
   input.value='';
   agregarMsg(texto, 'usuario');
   const typing = agregarTyping();
+  
+  // Aviso si el backend puede estar dormido
+  let avisoTimeout = setTimeout(() => {
+    const aviso = document.createElement('div');
+    aviso.className = 'msg-mana'; aviso.id = 'aviso-carga';
+    aviso.innerHTML = '⏳ Mana está despertando (puede tardar hasta 50 seg la primera vez)... por favor espera.';
+    document.getElementById('chat-mensajes').appendChild(aviso);
+    scrollChat();
+  }, 5000);
+
   try {
-    const res = await fetch(BACKEND+'/mana/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto})});
+    const res = await fetch(BACKEND+'/mana/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({texto}),
+      signal: AbortSignal.timeout(70000)
+    });
+    clearTimeout(avisoTimeout);
+    const aviso = document.getElementById('aviso-carga');
+    if(aviso) aviso.remove();
     const data = await res.json();
     typing.remove();
     agregarMsg(data.respuesta || 'No pude procesar eso, intenta de nuevo.', 'mana');
+    backendListo = true;
   } catch(e) {
+    clearTimeout(avisoTimeout);
+    const aviso = document.getElementById('aviso-carga');
+    if(aviso) aviso.remove();
     typing.remove();
-    agregarMsg('Ups, parece que Mana está cargando (puede tardar hasta 50 seg la primera vez). ¡Intenta de nuevo en un momento! 🌊', 'mana');
+    agregarMsg('Mana tardó demasiado en responder. El servidor gratuito se apaga con inactividad. Espera 1 minuto y vuelve a intentar. 🌊', 'mana');
   }
 }
 function agregarMsg(txt, tipo) {
@@ -919,15 +957,24 @@ async function buscar() {
   const canton = document.getElementById('filtro-canton').value;
   const categoria = document.getElementById('filtro-categoria').value;
   if(!consulta && !canton && !categoria) return;
+
+  const sec = document.getElementById('resultados-section');
+  const grid = document.getElementById('resultados-grid');
+  sec.style.display = 'block';
+  grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">⏳ Buscando... (si es la primera visita puede tardar hasta 50 seg)</p>';
+  sec.scrollIntoView({behavior:'smooth'});
+
   const params = new URLSearchParams();
   if(consulta) params.append('consulta',consulta);
   if(canton) params.append('canton',canton);
   if(categoria) params.append('categoria',categoria);
   try {
-    const res = await fetch(BACKEND+'/lugares?'+params);
+    const res = await fetch(BACKEND+'/lugares?'+params, { signal: AbortSignal.timeout(70000) });
     const data = await res.json();
     mostrarResultados(data.lugares||[]);
-  } catch(e) { console.error(e); }
+  } catch(e) {
+    grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">⚠️ Mana está despertando. Espera 1 minuto y vuelve a buscar.</p>';
+  }
 }
 function mostrarResultados(lugares) {
   const sec = document.getElementById('resultados-section');
