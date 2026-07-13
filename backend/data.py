@@ -112,16 +112,17 @@ def obtener_cantones():
     return df.fillna("").to_dict(orient="records")
 
 PALABRAS_CLAVE = {
-    "hospedaje": ["hotel", "hostal", "cabaña", "glamping", "ecohotel", "hostería", "alojamiento", "camping", "hospedaje"],
-    "comer": ["restaurante", "mariscos", "comida", "gastronomía", "cafetería", "típica", "ceviche", "bar"],
-    "playa": ["playa", "surf", "mar", "costa", "malecón"],
-    "naturaleza": ["reserva", "ecológico", "cascada", "senderismo", "bosque", "manglar"],
-    "cultura": ["museo", "patrimonio", "artesanía", "arte", "cultura", "iglesia"],
-    "deporte": ["surf", "ciclismo", "parapente", "deporte", "náutico", "pesca"],
-    "transporte": ["taxi", "bus", "transporte", "mototaxi"],
-    "salud": ["hospital", "clínica", "médico", "salud", "bomberos"],
-    "banco": ["banco", "cajero", "atm", "cooperativa"],
-    "agencia": ["agencia", "tour", "operadora", "viajes"],
+    "alojamiento": ["hotel", "hostal", "cabaña", "glamping", "hostería", "alojamiento", "camping", "hospedaje", "lodge", "ecohotel"],
+    "restaurante": ["restaurante", "mariscos", "comida", "gastronomía", "cafetería", "típica", "ceviche", "bar", "comer", "food", "soda"],
+    "playa": ["playa", "surf", "mar", "costa", "malecón", "balneario"],
+    "naturaleza": ["reserva", "ecológico", "cascada", "senderismo", "bosque", "manglar", "naturaleza", "ecoturismo"],
+    "cultura": ["museo", "patrimonio", "artesanía", "arte", "cultura", "iglesia", "parque", "monumento"],
+    "deporte": ["surf", "ciclismo", "parapente", "deporte", "náutico", "pesca", "kayak", "aventura"],
+    "transporte": ["taxi", "bus", "transporte", "mototaxi", "cooperativa transporte"],
+    "salud": ["hospital", "clínica", "médico", "salud", "bomberos", "farmacia", "dispensario"],
+    "banco": ["banco", "cajero", "atm", "cooperativa", "financiero"],
+    "agencia": ["agencia", "tour", "operadora", "viajes", "turismo"],
+    "servicios": ["servicio", "público", "municipio", "gobierno", "gasolinera", "ferretería"],
 }
 
 def interpretar_consulta(texto: str):
@@ -134,10 +135,13 @@ def interpretar_consulta(texto: str):
             if palabra in texto_lower:
                 categoria_detectada = categoria
                 break
+        if categoria_detectada:
+            break
 
     cantones_conocidos = [
         "bahía", "bahia", "canoa", "pedernales", "jama", "san vicente",
-        "chone", "tosagua", "sucre", "cojimíes", "charapotó"
+        "chone", "tosagua", "sucre", "cojimíes", "cojimies", "charapotó",
+        "charapoto", "leonidas", "san isidro"
     ]
     for c in cantones_conocidos:
         if c in texto_lower:
