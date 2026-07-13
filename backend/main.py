@@ -34,8 +34,14 @@ def eventos(canton: str = "", categoria: str = ""):
     return {"total": len(resultados), "eventos": resultados}
 
 @app.get("/cantones")
+@app.head("/cantones")
 def cantones():
     return {"cantones": obtener_cantones()}
+
+@app.get("/health")
+@app.head("/health")
+def health():
+    return {"status": "ok"}
 
 @app.post("/mana/chat")
 def chat_mana(request: PreguntaRequest):
