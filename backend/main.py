@@ -50,13 +50,23 @@ def chat_mana(request: PreguntaRequest):
         return {"respuesta": "Hola, soy Mana 👋 ¿En qué puedo ayudarte? Puedes preguntarme sobre lugares, hospedaje, restaurantes o eventos del Norte de Manabí."}
 
     categoria, canton = interpretar_consulta(texto)
-    resultados = buscar_lugares(consulta=texto, canton=canton, categoria=categoria)
+
+    # Buscar primero con categoría y cantón
+    resultados = buscar_lugares(consulta=texto, canton=canton, categoria="")
+
+    # Si no hay resultados, buscar solo por texto libre
+    if not resultados:
+        resultados = buscar_lugares(consulta=texto)
+
+    # Si aún no hay resultados, buscar por cantón solo
+    if not resultados and canton:
+        resultados = buscar_lugares(canton=canton)
 
     if not resultados:
         resultados_eventos = buscar_eventos(canton=canton)
         if resultados_eventos:
             eventos_texto = "\n".join([
-                f"• *{e.get('Nombre', '')}* — {e.get('Cantón', '')} ({e.get('Fecha_Inicio', '')})"
+                f"• *{e.get('Nombre', '')}* — {e.get('Cantón', '')} ({e.get('Fecha Inicio', '')})"
                 for e in resultados_eventos[:3]
             ])
             return {"respuesta": f"No encontré lugares para eso, pero hay eventos próximos:\n\n{eventos_texto}"}
