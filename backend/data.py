@@ -13,11 +13,9 @@ def cargar_hoja(nombre):
         url = SHEETS[nombre]
         response = requests.get(url, timeout=15)
         response.raise_for_status()
-        # Forzar UTF-8 explícitamente
         response.encoding = 'utf-8'
         df = pd.read_csv(StringIO(response.text), encoding='utf-8')
         df = df.dropna(how="all")
-        # Limpiar nombres de columnas
         df.columns = [c.strip().replace('\ufeff', '') for c in df.columns]
         return df
     except Exception as e:
@@ -25,20 +23,18 @@ def cargar_hoja(nombre):
         return pd.DataFrame()
 
 def normalizar(texto):
-    """Normaliza texto para búsqueda sin tildes"""
     if not texto:
         return ""
     reemplazos = {
-        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
-        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
-        'ñ': 'n', 'Ñ': 'N'
+        'á':'a','é':'e','í':'i','ó':'o','ú':'u',
+        'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U',
+        'ñ':'n','Ñ':'N'
     }
     for orig, repl in reemplazos.items():
         texto = texto.replace(orig, repl)
     return texto.lower()
 
 def encontrar_columna(df, opciones):
-    """Encuentra la primera columna que coincida con las opciones dadas"""
     cols_norm = {normalizar(c): c for c in df.columns}
     for op in opciones:
         op_norm = normalizar(op)
@@ -46,16 +42,20 @@ def encontrar_columna(df, opciones):
             return cols_norm[op_norm]
     return None
 
+def limpiar(valor):
+    """Limpia valores nan, None, vacíos"""
+    if valor is None:
+        return ""
+    s = str(valor).strip()
+    if s.lower() in ("nan", "none", "n/a", "-", ""):
+        return ""
+    return s
+
 def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", tags: str = ""):
     df = cargar_hoja("lugares")
     if df.empty:
-        print("DataFrame vacío")
         return []
 
-    print(f"Columnas disponibles: {list(df.columns)}")
-    print(f"Total filas: {len(df)}")
-
-    # Detectar columnas con normalización
     col_nombre = encontrar_columna(df, ["Nombre", "Nombre Lugar", "Nombre Comercial"])
     col_desc = encontrar_columna(df, ["Descripción", "Descripcion", "Descripción corta", "Descripcion corta"])
     col_canton = encontrar_columna(df, ["Cantón", "Canton"])
@@ -64,34 +64,30 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     col_parroquia = encontrar_columna(df, ["Parroquia"])
     col_tags = encontrar_columna(df, ["Tags", "Tags IA", "Tags_IA"])
     col_estado = encontrar_columna(df, ["Estado", "Estado Verificación", "Estado Verificacion"])
-    col_tel = encontrar_columna(df, ["Teléfono", "Telefono", "Teléfono Principal", "Telefono Principal"])
+    col_tel = encontrar_columna(df, ["Teléfono", "Telefono", "Teléfono Principal"])
     col_horario = encontrar_columna(df, ["Horario"])
     col_precio = encontrar_columna(df, ["Precio", "Rango de precios"])
     col_wa = encontrar_columna(df, ["WhatsApp"])
 
-    print(f"canton col: {col_canton}, nombre col: {col_nombre}, desc col: {col_desc}")
-
-    # Filtrar por cantón (también busca en parroquia)
+    # Filtrar por cantón (busca en cantón Y parroquia, excluye Tosagua)
     if canton:
         canton_norm = normalizar(canton)
-        mask_canton = pd.Series([False] * len(df))
+        mask = pd.Series([False] * len(df))
         for col in [col_canton, col_parroquia]:
             if col:
-                mask_canton = mask_canton | df[col].astype(str).apply(normalizar).str.contains(canton_norm, na=False)
-        df = df[mask_canton]
-        print(f"Después de filtro canton '{canton}': {len(df)} filas")
+                mask = mask | df[col].astype(str).apply(normalizar).str.contains(canton_norm, na=False)
+        df = df[mask]
 
-    # Filtrar por categoría
+    # Filtrar por categoría o subcategoría
     if categoria:
         cat_norm = normalizar(categoria)
-        mask_cat = pd.Series([False] * len(df))
+        mask = pd.Series([False] * len(df))
         for col in [col_categoria, col_subcategoria]:
             if col:
-                mask_cat = mask_cat | df[col].astype(str).apply(normalizar).str.contains(cat_norm, na=False)
-        df = df[mask_cat]
-        print(f"Después de filtro categoria '{categoria}': {len(df)} filas")
+                mask = mask | df[col].astype(str).apply(normalizar).str.contains(cat_norm, na=False)
+        df = df[mask]
 
-    # Búsqueda por texto libre
+    # Búsqueda libre en todos los campos relevantes
     if consulta:
         consulta_norm = normalizar(consulta)
         mask = pd.Series([False] * len(df))
@@ -99,27 +95,24 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             if col:
                 mask = mask | df[col].astype(str).apply(normalizar).str.contains(consulta_norm, na=False)
         df = df[mask]
-        print(f"Después de búsqueda '{consulta}': {len(df)} filas")
 
-    # Construir resultado normalizado
     result = []
     for _, row in df.head(20).iterrows():
         item = {
-            "Nombre": str(row.get(col_nombre, "") or "") if col_nombre else "",
-            "Categoría": str(row.get(col_categoria, "") or "") if col_categoria else "",
-            "Subcategoría": str(row.get(col_subcategoria, "") or "") if col_subcategoria else "",
-            "Cantón": str(row.get(col_canton, "") or "") if col_canton else "",
-            "Parroquia": str(row.get(col_parroquia, "") or "") if col_parroquia else "",
-            "Descripción": str(row.get(col_desc, "") or "") if col_desc else "",
-            "Teléfono": str(row.get(col_tel, "") or "") if col_tel else "",
-            "WhatsApp": str(row.get(col_wa, "") or "") if col_wa else "",
-            "Horario": str(row.get(col_horario, "") or "") if col_horario else "",
-            "Precio": str(row.get(col_precio, "") or "") if col_precio else "",
-            "Tags": str(row.get(col_tags, "") or "") if col_tags else "",
+            "Nombre": limpiar(row.get(col_nombre, "")),
+            "Categoría": limpiar(row.get(col_categoria, "")),
+            "Subcategoría": limpiar(row.get(col_subcategoria, "")),
+            "Cantón": limpiar(row.get(col_canton, "")),
+            "Parroquia": limpiar(row.get(col_parroquia, "")),
+            "Descripción": limpiar(row.get(col_desc, "")),
+            "Teléfono": limpiar(row.get(col_tel, "")),
+            "WhatsApp": limpiar(row.get(col_wa, "")),
+            "Horario": limpiar(row.get(col_horario, "")),
+            "Precio": limpiar(row.get(col_precio, "")),
+            "Tags": limpiar(row.get(col_tags, "")),
         }
-        result.append(item)
-
-    print(f"Resultado final: {len(result)} lugares")
+        if item["Nombre"]:
+            result.append(item)
     return result
 
 def buscar_eventos(canton: str = "", categoria: str = ""):
@@ -135,23 +128,22 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
     col_org = encontrar_columna(df, ["Organizador", "Entidad o Persona organizadora"])
 
     if canton and col_canton:
-        canton_norm = normalizar(canton)
-        df = df[df[col_canton].astype(str).apply(normalizar).str.contains(canton_norm, na=False)]
+        df = df[df[col_canton].astype(str).apply(normalizar).str.contains(normalizar(canton), na=False)]
     if categoria and col_categoria:
-        cat_norm = normalizar(categoria)
-        df = df[df[col_categoria].astype(str).apply(normalizar).str.contains(cat_norm, na=False)]
+        df = df[df[col_categoria].astype(str).apply(normalizar).str.contains(normalizar(categoria), na=False)]
 
     result = []
     for _, row in df.head(10).iterrows():
         item = {
-            "Nombre": str(row.get(col_nombre, "") or "") if col_nombre else "",
-            "Categoría": str(row.get(col_categoria, "") or "") if col_categoria else "",
-            "Cantón": str(row.get(col_canton, "") or "") if col_canton else "",
-            "Fecha Inicio": str(row.get(col_fecha, "") or "") if col_fecha else "",
-            "Descripción": str(row.get(col_desc, "") or "") if col_desc else "",
-            "Organizador": str(row.get(col_org, "") or "") if col_org else "",
+            "Nombre": limpiar(row.get(col_nombre, "")),
+            "Categoría": limpiar(row.get(col_categoria, "")),
+            "Cantón": limpiar(row.get(col_canton, "")),
+            "Fecha Inicio": limpiar(row.get(col_fecha, "")),
+            "Descripción": limpiar(row.get(col_desc, "")),
+            "Organizador": limpiar(row.get(col_org, "")),
         }
-        result.append(item)
+        if item["Nombre"]:
+            result.append(item)
     return result
 
 def obtener_cantones():
@@ -160,16 +152,43 @@ def obtener_cantones():
         return []
     return df.fillna("").to_dict(orient="records")
 
+# Mapa completo de palabras clave basado en categorías REALES de la base de datos
 PALABRAS_CLAVE = {
-    "alojamiento": ["hotel", "hostal", "cabaña", "glamping", "hostería", "alojamiento", "camping", "hospedaje", "lodge"],
-    "restaurante": ["restaurante", "mariscos", "comida", "gastronomía", "cafetería", "típica", "ceviche", "bar", "comer"],
-    "playa": ["playa", "surf", "mar", "costa", "malecón", "balneario"],
-    "naturaleza": ["reserva", "ecológico", "cascada", "senderismo", "bosque", "manglar", "naturaleza"],
-    "cultura": ["museo", "patrimonio", "artesanía", "arte", "cultura", "iglesia", "parque"],
-    "deporte": ["surf", "ciclismo", "parapente", "deporte", "náutico", "pesca", "kayak", "aventura"],
-    "salud": ["hospital", "clínica", "médico", "salud", "bomberos", "farmacia"],
-    "banco": ["banco", "cajero", "atm", "cooperativa"],
-    "agencia": ["agencia", "tour", "operadora", "viajes"],
+    # Alojamiento
+    "Alojamiento": ["hotel", "hostal", "cabaña", "glamping", "hosteria", "alojamiento", "camping",
+                    "hospedaje", "lodge", "resort", "refugio", "casa de huespedes", "hacienda",
+                    "dormir", "quedarme", "hospedarme", "habitacion", "cuarto"],
+    # Comida y bebida
+    "Alimentos, Bebidas Y Entretenimiento": ["restaurante", "mariscos", "comida", "gastronomia",
+                    "cafeteria", "tipica", "ceviche", "bar", "comer", "almorzar", "cenar",
+                    "desayunar", "beber", "discoteca", "entretenimiento", "soda"],
+    # Servicios financieros
+    "Servicios Financieros": ["cajero", "atm", "banco", "cooperativa", "dinero", "efectivo",
+                    "sacar dinero", "plata", "financiero", "credito", "debito"],
+    # Salud
+    "Salud": ["hospital", "clinica", "medico", "salud", "bomberos", "farmacia",
+                    "dispensario", "dentista", "emergencia", "doctor", "enfermo"],
+    # Transporte
+    "Movilidad Y Transporte": ["taxi", "bus", "transporte", "mototaxi", "movilizarme",
+                    "llegar", "interprovincial", "terminal", "movilidad"],
+    # Naturaleza
+    "Ecología Y Naturaleza": ["reserva", "ecologico", "cascada", "senderismo", "bosque",
+                    "manglar", "naturaleza", "ecoturismo", "playa", "playa", "humedal",
+                    "isla", "mirador", "rio", "area natural"],
+    # Cultura
+    "Cultura y Patrimonio": ["museo", "patrimonio", "artesania", "arte", "cultura",
+                    "iglesia", "arqueologico", "historia", "teatro", "biblioteca"],
+    # Deportes
+    "Instalaciones Deportivas": ["surf", "deporte", "cancha", "estadio", "gimnasio",
+                    "piscina", "tenis", "voley", "patinaje", "yoga", "fitness"],
+    # Agencias
+    "Agenciamiento Turístico": ["agencia", "tour", "operadora", "viajes", "paquete", "excursion"],
+    # Servicios públicos
+    "Servicios Públicos": ["municipio", "gobierno", "policia", "tramite", "publico"],
+    # Wellness
+    "Wellness": ["spa", "masaje", "relajacion", "wellness", "belleza"],
+    # Educación
+    "Educación Y Formación": ["universidad", "instituto", "idiomas", "curso", "educacion"],
 }
 
 def interpretar_consulta(texto: str):
@@ -186,9 +205,9 @@ def interpretar_consulta(texto: str):
             break
 
     cantones_conocidos = [
-        "bahia", "canoa", "pedernales", "jama", "san vicente",
-        "chone", "tosagua", "sucre", "cojimies", "charapoto",
-        "leonidas", "san isidro"
+        "bahia", "caraquez", "canoa", "pedernales", "jama",
+        "san vicente", "chone", "sucre", "cojimies", "charapoto",
+        "leonidas", "san isidro", "norte de manabi", "manabi"
     ]
     for c in cantones_conocidos:
         if c in texto_norm:
