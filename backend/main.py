@@ -98,7 +98,7 @@ def chat_mana(request: PreguntaRequest):
     from data import normalizar
     texto = request.texto.strip()
     if not texto:
-        return {"respuesta": "¡Hola! Soy Mana 🌊 ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre lugares, hospedaje, restaurantes, cajeros o eventos del Norte de Manabí."}
+        return {"respuesta": "¡Hola! Soy Mana 🌊 ¿En qué puedo ayudarte hoy?"}
 
     texto_norm = normalizar(texto)
 
@@ -110,18 +110,29 @@ def chat_mana(request: PreguntaRequest):
     # 2. Interpretar categoría y cantón
     categoria, canton = interpretar_consulta(texto)
 
-    # 3. Buscar en BD con texto libre + filtros
-    resultados = buscar_lugares(consulta=texto, canton=canton, categoria=categoria)
+    resultados = []
 
-    # 4. Si no hay resultados, buscar solo por categoría detectada
-    if not resultados and categoria:
+    # 3. Si hay categoría Y cantón → filtrar por ambos primero
+    if categoria and canton:
         resultados = buscar_lugares(categoria=categoria, canton=canton)
 
-    # 5. Si aún no hay, buscar solo por cantón
-    if not resultados and canton:
-        resultados = buscar_lugares(canton=canton)
+    # 4. Si hay categoría pero no cantón → buscar por categoría
+    if not resultados and categoria and not canton:
+        resultados = buscar_lugares(categoria=categoria)
 
-    # 6. Si no hay nada, mostrar eventos
+    # 5. Si hay categoría y cantón pero no encontró → solo por categoría
+    if not resultados and categoria:
+        resultados = buscar_lugares(categoria=categoria)
+
+    # 6. Si no hay categoría → búsqueda libre con cantón
+    if not resultados and not categoria:
+        resultados = buscar_lugares(consulta=texto, canton=canton)
+
+    # 7. Último recurso → búsqueda libre sin filtros
+    if not resultados:
+        resultados = buscar_lugares(consulta=texto)
+
+    # 8. Si aún no hay nada → mostrar eventos
     if not resultados:
         resultados_eventos = buscar_eventos(canton=canton)
         if resultados_eventos:
@@ -129,13 +140,10 @@ def chat_mana(request: PreguntaRequest):
                 f"• *{e.get('Nombre', '')}* — {e.get('Cantón', '')} ({e.get('Fecha Inicio', '')})"
                 for e in resultados_eventos[:3]
             ])
-            return {"respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos que podrían interesarte:\n\n{eventos_texto}\n\n¿Quieres más información sobre alguno?"}
-        return {
-            "respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza, eventos y más del Norte de Manabí. ¿Qué necesitas?"
-        }
+            return {"respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{eventos_texto}\n\n¿Quieres más información?"}
+        return {"respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza y más del Norte de Manabí. ¿Qué necesitas?"}
 
-    respuesta = armar_respuesta(texto, resultados, canton, categoria)
-    return {"respuesta": respuesta}
+    return {"respuesta": armar_respuesta(texto, resultados, canton, categoria)}
 
 def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -> str:
     total = len(resultados)
