@@ -225,26 +225,38 @@ def interpretar_consulta(texto: str):
         if categoria_detectada:
             break
 
-    ALIAS_CANTONES = {
-        "bahia de caraquez": "sucre",
-        "bahia": "sucre",
-        "caraquez": "sucre",
-        "canoa": "san vicente",
+    # Mapa de lo que el usuario dice → lo que está en la BD (cantón o parroquia)
+    # Ordenado de más largo a más corto para evitar matches parciales
+    LUGARES_CONOCIDOS = {
+        "bahia de caraquez": "bahia de caraquez",
         "san vicente": "san vicente",
+        "canoa": "canoa",
         "pedernales": "pedernales",
+        "cojimies": "cojimies",
+        "charapoto": "charapoto",
+        "san isidro": "san isidro",
+        "leonidas": "leonidas",
         "jama": "jama",
         "chone": "chone",
         "sucre": "sucre",
-        "cojimies": "pedernales",
-        "charapoto": "sucre",
-        "san isidro": "sucre",
-        "leonidas": "sucre",
+        "bahia": "bahia",
+        "santa rita": "santa rita",
+        "canuto": "canuto",
+        "el matal": "el matal",
+        "don juan": "don juan",
+        "tabuga": "tabuga",
+        "briceño": "briceno",
+        "san jacinto": "san jacinto",
+        "san clemente": "san clemente",
+        "chirije": "chirije",
+        "la cabuya": "la cabuya",
+        "atahualpa": "atahualpa",
+        "cabo pasado": "cabo pasado",
     }
 
-    # Buscar frases más largas primero para evitar matches parciales
-    for alias in sorted(ALIAS_CANTONES.keys(), key=len, reverse=True):
+    for alias in sorted(LUGARES_CONOCIDOS.keys(), key=len, reverse=True):
         if alias in texto_norm:
-            canton_detectado = ALIAS_CANTONES[alias]
+            canton_detectado = LUGARES_CONOCIDOS[alias]
             break
 
     return categoria_detectada, canton_detectado
