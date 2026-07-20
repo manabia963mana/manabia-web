@@ -542,13 +542,11 @@
       <div class="filtros-row">
         <select id="filtro-canton" onchange="buscar()">
           <option value="">Todos los cantones</option>
-          <option value="bahía">Bahía de Caráquez</option>
-          <option value="canoa">Canoa</option>
           <option value="pedernales">Pedernales</option>
           <option value="jama">Jama</option>
-          <option value="san vicente">San Vicente</option>
+          <option value="san vicente">San Vicente — Canoa</option>
+          <option value="sucre">Sucre — Bahía de Caráquez</option>
           <option value="chone">Chone</option>
-          <option value="tosagua">Tosagua</option>
         </select>
         <select id="filtro-categoria" onchange="buscar()">
           <option value="">Todas las categorías</option>
@@ -587,22 +585,27 @@
       <div class="canton-card" onclick="filtrarCanton('jama')">
         <div class="canton-emoji">🌿</div>
         <div class="canton-nombre">Jama</div>
-        <div class="canton-tags">Ecoturismo · Arqueología</div>
+        <div class="canton-tags">Ecoturismo · Arqueología · Cultura</div>
       </div>
       <div class="canton-card" onclick="filtrarCanton('san vicente')">
-        <div class="canton-emoji">🏖️</div>
+        <div class="canton-emoji">🏄</div>
         <div class="canton-nombre">San Vicente</div>
         <div class="canton-tags">Canoa · Surf · Playas</div>
       </div>
-      <div class="canton-card" onclick="filtrarCanton('bahía')">
+      <div class="canton-card" onclick="filtrarCanton('sucre')">
         <div class="canton-emoji">⛵</div>
-        <div class="canton-nombre">Sucre — Bahía</div>
-        <div class="canton-tags">Ciudad Eco · Puerto · Cultura</div>
+        <div class="canton-nombre">Sucre</div>
+        <div class="canton-tags">Bahía · Puerto · Ciudad Eco</div>
       </div>
       <div class="canton-card" onclick="filtrarCanton('chone')">
         <div class="canton-emoji">🐄</div>
         <div class="canton-nombre">Chone</div>
-        <div class="canton-tags">Ganadería · Río · Fiestas</div>
+        <div class="canton-tags">Ganadería · Río · Gastronomía</div>
+      </div>
+      <div class="canton-card" onclick="buscar(); document.getElementById('buscador').value=''; document.getElementById('filtro-canton').value='';">
+        <div class="canton-emoji">🗺️</div>
+        <div class="canton-nombre">Norte de Manabí</div>
+        <div class="canton-tags">Todos los cantones</div>
       </div>
     </div>
   </div>
