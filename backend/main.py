@@ -85,12 +85,70 @@ RESPUESTAS_FIJAS = {
 }
 
 def verificar_saludo(texto_norm: str):
-    """Verifica si es una pregunta genérica y devuelve respuesta fija o None"""
-    for clave, datos in RESPUESTAS_FIJAS.items():
-        for palabra in datos["palabras"]:
-            from data import normalizar
-            if normalizar(palabra) in texto_norm:
-                return datos["respuesta"]
+    """Solo responde a saludos puros, nunca intercepta búsquedas"""
+    from data import normalizar
+    texto_limpio = texto_norm.strip()
+    palabras_texto = set(texto_limpio.split())
+    
+    # Lista de palabras que SOLO activan saludo si están solas o casi solas
+    SALUDOS_PUROS = {"hola", "hey", "hi", "hello", "saludos", "buenas"}
+    GRACIAS_PUROS = {"gracias", "grax", "thanks"}
+    
+    # Solo activa si el mensaje tiene 1-3 palabras Y una es saludo puro
+    if len(palabras_texto) <= 3 and palabras_texto & SALUDOS_PUROS:
+        return RESPUESTAS_FIJAS["saludo"]["respuesta"]
+    
+    if len(palabras_texto) <= 4 and palabras_texto & GRACIAS_PUROS:
+        return RESPUESTAS_FIJAS["gracias"]["respuesta"]
+    
+    # Para el resto, buscar frases completas exactas (no palabras sueltas)
+    FRASES_EXACTAS = {
+        "buenos dias": "saludo",
+        "buenas tardes": "saludo", 
+        "buenas noches": "saludo",
+        "quien eres": "quien_eres",
+        "que eres": "quien_eres",
+        "como te llamas": "quien_eres",
+        "quien es mana": "quien_eres",
+        "que es mana": "quien_eres",
+        "para que sirves": "quien_eres",
+        "muchas gracias": "gracias",
+        "thank you": "gracias",
+        "como llegar": "como_llegar",
+        "como ir": "como_llegar",
+        "desde quito": "como_llegar",
+        "desde guayaquil": "como_llegar",
+        "desde manta": "como_llegar",
+        "llegar al norte": "como_llegar",
+        "como me movilizo": "como_llegar",
+        "ver ballenas": "ballenas",
+        "ballena jorobada": "ballenas",
+        "avistamiento de ballenas": "ballenas",
+        "fin de semana": "rutas",
+        "plan de viaje": "rutas",
+        "es seguro": "seguridad",
+        "es peligroso": "seguridad",
+    }
+    
+    for frase, clave in FRASES_EXACTAS.items():
+        if frase in texto_limpio:
+            return RESPUESTAS_FIJAS[clave]["respuesta"]
+    
+    # Palabras únicas que solo activan si el mensaje es corto (máx 4 palabras)
+    PALABRAS_CORTAS = {
+        "clima": "clima",
+        "temperatura": "clima", 
+        "itinerario": "rutas",
+        "recorrido": "rutas",
+        "ballenas": "ballenas",
+        "seguridad": "seguridad",
+    }
+    
+    if len(palabras_texto) <= 4:
+        for palabra, clave in PALABRAS_CORTAS.items():
+            if palabra in palabras_texto:
+                return RESPUESTAS_FIJAS[clave]["respuesta"]
+    
     return None
 
 @app.post("/mana/chat")
