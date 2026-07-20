@@ -207,7 +207,14 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
     total = len(resultados)
 
     if canton:
-        intro = f"Encontré **{total} opción(es)** en {canton.title()}:\n\n"
+        nombre_mostrar = {
+            "sucre": "Bahía de Caráquez / Sucre",
+            "san vicente": "San Vicente / Canoa",
+            "pedernales": "Pedernales",
+            "jama": "Jama",
+            "chone": "Chone",
+        }.get(canton.lower(), canton.title())
+        intro = f"Encontré **{total} opción(es)** en {nombre_mostrar}:\n\n"
     elif categoria:
         nombre_cat = categoria.split(",")[0].strip()
         intro = f"Encontré **{total} opción(es)** de {nombre_cat} en el Norte de Manabí:\n\n"
