@@ -128,6 +128,12 @@ def verificar_saludo(texto_norm: str):
         "plan de viaje": "rutas",
         "es seguro": "seguridad",
         "es peligroso": "seguridad",
+        "que puedes hacer": "quien_eres",
+        "que puedes": "quien_eres",
+        "para que sirves": "quien_eres",
+        "que sabes": "quien_eres",
+        "en que me ayudas": "quien_eres",
+        "como me ayudas": "quien_eres",
     }
     
     for frase, clave in FRASES_EXACTAS.items():
@@ -142,6 +148,7 @@ def verificar_saludo(texto_norm: str):
         "recorrido": "rutas",
         "ballenas": "ballenas",
         "seguridad": "seguridad",
+        "ayudas": "quien_eres",
     }
     
     if len(palabras_texto) <= 4:
