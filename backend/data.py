@@ -217,6 +217,10 @@ def interpretar_consulta(texto: str):
     categoria_detectada = ""
     canton_detectado = ""
 
+    # Palabras generales que activan búsqueda libre en la BD
+    PALABRAS_GENERAL = ["hacer", "visitar", "ver", "conocer", "recomendar",
+                        "lugares", "sitios", "atracciones", "que hay"]
+
     for categoria, palabras in PALABRAS_CLAVE.items():
         for palabra in palabras:
             if normalizar(palabra) in texto_norm:
@@ -225,13 +229,23 @@ def interpretar_consulta(texto: str):
         if categoria_detectada:
             break
 
-    # Mapa de lo que el usuario dice → lo que está en la BD (cantón o parroquia)
-    # Ordenado de más largo a más corto para evitar matches parciales
-    LUGARES_CONOCIDOS = {
+    if not categoria_detectada:
+        for p in PALABRAS_GENERAL:
+            if normalizar(p) in texto_norm:
+                categoria_detectada = "GENERAL"
+                break
+
+    # Aliases con variantes ortográficas comunes
+    ALIAS_CANTONES = {
         "bahia de caraquez": "bahia de caraquez",
+        "baia de caraquez": "bahia de caraquez",
         "san vicente": "san vicente",
+        "sanvicente": "san vicente",
         "canoa": "canoa",
+        "kanoa": "canoa",
         "pedernales": "pedernales",
+        "pedernals": "pedernales",
+        "pedernalez": "pedernales",
         "cojimies": "cojimies",
         "charapoto": "charapoto",
         "san isidro": "san isidro",
@@ -240,12 +254,13 @@ def interpretar_consulta(texto: str):
         "chone": "chone",
         "sucre": "sucre",
         "bahia": "bahia",
+        "baia": "bahia",
         "santa rita": "santa rita",
         "canuto": "canuto",
         "el matal": "el matal",
         "don juan": "don juan",
         "tabuga": "tabuga",
-        "briceño": "briceno",
+        "briceno": "briceno",
         "san jacinto": "san jacinto",
         "san clemente": "san clemente",
         "chirije": "chirije",
@@ -254,9 +269,9 @@ def interpretar_consulta(texto: str):
         "cabo pasado": "cabo pasado",
     }
 
-    for alias in sorted(LUGARES_CONOCIDOS.keys(), key=len, reverse=True):
-        if alias in texto_norm:
-            canton_detectado = LUGARES_CONOCIDOS[alias]
+    for alias in sorted(ALIAS_CANTONES.keys(), key=len, reverse=True):
+        if normalizar(alias) in texto_norm:
+            canton_detectado = ALIAS_CANTONES[alias]
             break
 
     return categoria_detectada, canton_detectado
