@@ -168,7 +168,7 @@ def chat_mana(request: PreguntaRequest):
     resultados = []
 
     # 3. Búsqueda por nombre específico primero (si el texto es largo y específico)
-    if len(texto.split()) >= 3 and not canton and not categoria:
+    if len(texto.split()) >= 2 and not canton and not categoria:
         resultados = buscar_lugares(consulta=texto)
 
     # 4. Si hay categoría Y cantón
