@@ -146,8 +146,8 @@ def verificar_saludo(texto_norm: str):
     return None
 
 def escapar_markdown(texto: str) -> str:
-    """Elimina asteriscos sueltos que no son parte de negrita"""
-    return re.sub(r'\*(?!\*)', '', texto)
+    """Elimina todos los asteriscos del texto"""
+    return texto.replace('*', '')
 
 # Palabras que se ignoran al buscar por nombre específico
 PALABRAS_IGNORAR = {
@@ -234,12 +234,12 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
 
     if canton:
         nombre_lugar = NOMBRES_CANTON.get(canton.lower(), canton.title())
-        intro = f"Encontré **{total} opción(es)** en {nombre_lugar}:\n\n"
+        intro = f"Encontré {total} opción(es) en {nombre_lugar}:\n\n"
     elif categoria and categoria != "GENERAL":
         nombre_cat = categoria.split(",")[0].strip()
-        intro = f"Encontré **{total} opción(es)** de {nombre_cat} en el Norte de Manabí:\n\n"
+        intro = f"Encontré {total} opción(es) de {nombre_cat} en el Norte de Manabí:\n\n"
     else:
-        intro = f"Encontré **{total} resultado(s)**:\n\n"
+        intro = f"Encontré {total} resultado(s):\n\n"
 
     items = []
     for lugar in resultados[:5]:
@@ -255,7 +255,7 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
         precio = lugar.get("Precio", "")
 
         nombre_safe = nombre.replace('*', '')
-        linea = f"📍 **{nombre_safe}**"
+        linea = f"📍 {nombre}"
         ubicacion = ", ".join(filter(None, [parroquia, canton_lugar]))
         if ubicacion:
             linea += f" — {ubicacion}"
