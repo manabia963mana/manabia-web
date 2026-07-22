@@ -157,7 +157,11 @@ PALABRAS_IGNORAR = {
     "dame", "dime", "busca", "buscar", "informacion", "informacion",
     "sobre", "del", "de", "la", "el", "los", "las", "un", "una",
     "quiero", "saber", "conocer", "hay", "existe", "tienen",
-    "donde", "cual", "cuales", "como", "que", "me", "si"
+    "donde", "cual", "cuales", "como", "que", "me", "si",
+    "tener", "necesito", "necesitas", "busco", "encontrar", "encuentrame",
+    "mostrar", "muestrame", "muestra", "cuentame", "dime", "por", "favor",
+    "porfavor", "porfa", "para", "puedes", "podrias", "ayuda", "ayudame",
+    "algo", "algun", "alguna", "en", "y", "a"
 }
 
 # ── MEMORIA DE 1 MENSAJE ──
