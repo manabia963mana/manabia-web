@@ -254,7 +254,8 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
         horario = lugar.get("Horario", "")
         precio = lugar.get("Precio", "")
 
-        linea = f"📍 *{nombre}*"
+        nombre_safe = nombre.replace('*', '')
+        linea = f"📍 **{nombre_safe}**"
         ubicacion = ", ".join(filter(None, [parroquia, canton_lugar]))
         if ubicacion:
             linea += f" — {ubicacion}"
