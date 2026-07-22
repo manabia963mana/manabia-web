@@ -126,14 +126,19 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
         df = df[mask]
         print(f"Después de filtro categoría '{categoria}': {len(df)} filas")
 
-    # BÚSQUEDA LIBRE
+    # BÚSQUEDA LIBRE — exige que CADA palabra de la consulta aparezca en algún lugar
+    # del registro (no la frase completa pegada), para tolerar frases naturales como
+    # "quiero tener información de casa monteros"
     if consulta:
-        consulta_norm = normalizar(consulta)
-        mask = pd.Series([False] * len(df), index=df.index)
-        for col in [col_nombre, col_desc, col_subcategoria, col_parroquia, col_canton, col_tags, col_categoria]:
-            if col:
-                mask = mask | df[col].astype(str).apply(normalizar).str.contains(consulta_norm, na=False)
-        df = df[mask]
+        palabras_consulta = [p for p in normalizar(consulta).split() if len(p) > 1]
+        if palabras_consulta:
+            columnas_busqueda = [c for c in [col_nombre, col_desc, col_subcategoria, col_parroquia, col_canton, col_tags, col_categoria] if c]
+            if columnas_busqueda:
+                texto_fila = df[columnas_busqueda].astype(str).apply(
+                    lambda fila: normalizar(" ".join(fila.values)), axis=1
+                )
+                mask = texto_fila.apply(lambda t: all(p in t for p in palabras_consulta))
+                df = df[mask]
         print(f"Después de búsqueda libre '{consulta}': {len(df)} filas")
 
     result = []
