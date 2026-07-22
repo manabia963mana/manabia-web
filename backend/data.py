@@ -65,6 +65,16 @@ def limpiar(valor):
         return ""
     return s
 
+def limpiar_coordenada(valor):
+    """Convierte una coordenada a float, o None si no es válida"""
+    s = limpiar(valor)
+    if not s:
+        return None
+    try:
+        return float(str(s).replace(",", "."))
+    except (ValueError, TypeError):
+        return None
+
 def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", tags: str = ""):
     df = cargar_hoja("lugares")
     if df.empty:
@@ -83,8 +93,10 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     col_horario = encontrar_columna(df, ["Horario"])
     col_precio = encontrar_columna(df, ["Precio", "Rango de precios"])
     col_wa = encontrar_columna(df, ["WhatsApp"])
+    col_lat = encontrar_columna(df, ["Latitud", "Lat"])
+    col_lng = encontrar_columna(df, ["Longitud", "Lng", "Long"])
 
-    print(f"Columnas detectadas -> canton:{col_canton}, categoria:{col_categoria}, nombre:{col_nombre}, parroquia:{col_parroquia}")
+    print(f"Columnas detectadas -> canton:{col_canton}, categoria:{col_categoria}, nombre:{col_nombre}, parroquia:{col_parroquia}, lat:{col_lat}, lng:{col_lng}")
 
     # Eliminar filas sin nombre
     if col_nombre:
@@ -141,6 +153,8 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Horario": limpiar(row.get(col_horario, "")) if col_horario else "",
             "Precio": limpiar(row.get(col_precio, "")) if col_precio else "",
             "Tags": limpiar(row.get(col_tags, "")) if col_tags else "",
+            "Lat": limpiar_coordenada(row.get(col_lat, "")) if col_lat else None,
+            "Lng": limpiar_coordenada(row.get(col_lng, "")) if col_lng else None,
         }
         result.append(item)
 
