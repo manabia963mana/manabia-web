@@ -16,6 +16,7 @@ app.add_middleware(
 
 class PreguntaRequest(BaseModel):
     texto: str
+    contexto: dict = {}
 
 @app.get("/")
 @app.head("/")
@@ -147,7 +148,9 @@ def verificar_saludo(texto_norm: str):
 
 def escapar_markdown(texto: str) -> str:
     """Elimina todos los asteriscos del texto"""
-    return texto.replace('*', '')
+    if not texto:
+        return texto
+    return str(texto).replace('*', '')
 
 # Palabras que se ignoran al buscar por nombre específico
 PALABRAS_IGNORAR = {
@@ -157,18 +160,55 @@ PALABRAS_IGNORAR = {
     "donde", "cual", "cuales", "como", "que", "me", "si"
 }
 
+# ── MEMORIA DE 1 MENSAJE ──
+# Frases cortas que solo tienen sentido si vienen después de una pregunta de Mana
+PALABRAS_CONTINUACION = {
+    "si", "dale", "ok", "okay", "claro", "va", "vale", "quiero",
+    "porfa", "porfavor", "mas", "siguiente", "sip", "obvio", "aja",
+    "bueno", "listo", "eso"
+}
+
+def es_continuacion(texto_norm: str) -> bool:
+    palabras = set(texto_norm.split())
+    if len(palabras) == 0 or len(palabras) > 3:
+        return False
+    return bool(palabras & PALABRAS_CONTINUACION)
+
+
 @app.post("/mana/chat")
 def chat_mana(request: PreguntaRequest):
     texto = request.texto.strip()
+    contexto_previo = request.contexto or {}
+
     if not texto:
-        return {"respuesta": "¡Hola! Soy Mana 🌊 ¿En qué puedo ayudarte hoy?"}
+        return {"respuesta": "¡Hola! Soy Mana 🌊 ¿En qué puedo ayudarte hoy?", "contexto": {}}
 
     texto_norm = normalizar(texto)
+
+    # 0. Memoria de 1 mensaje: el usuario responde algo corto tipo "sí" / "dale" / "más"
+    if es_continuacion(texto_norm):
+        total_previo = contexto_previo.get("total", 0)
+        mostrados_previo = contexto_previo.get("mostrados", 0)
+
+        if total_previo > mostrados_previo:
+            # Había más resultados pendientes de la búsqueda anterior -> mostrar el siguiente tramo
+            canton = contexto_previo.get("canton", "")
+            categoria = contexto_previo.get("categoria", "")
+            consulta = contexto_previo.get("consulta", "")
+            resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria)
+            respuesta, nuevo_contexto = armar_respuesta(resultados, canton, categoria, offset=mostrados_previo, consulta=consulta)
+            return {"respuesta": respuesta, "contexto": nuevo_contexto}
+        else:
+            # No hay contexto pendiente claro -> pedir que aclare, en vez de perderse
+            return {
+                "respuesta": "¡Cuéntame! ¿Qué necesitas: hospedaje, restaurantes, playas, eventos o algo más? 🌊",
+                "contexto": {}
+            }
 
     # 1. Verificar respuestas fijas primero
     respuesta_fija = verificar_saludo(texto_norm)
     if respuesta_fija:
-        return {"respuesta": respuesta_fija}
+        return {"respuesta": respuesta_fija, "contexto": {}}
 
     # 2. Interpretar categoría y cantón
     categoria, canton = interpretar_consulta(texto)
@@ -205,17 +245,25 @@ def chat_mana(request: PreguntaRequest):
         resultados_eventos = buscar_eventos(canton=canton)
         if resultados_eventos:
             eventos_texto = "\n".join([
-                f"• *{e.get('Nombre', '')}* — {e.get('Canton', e.get('Cantón', ''))} ({e.get('Fecha Inicio', '')})"
+                f"• {escapar_markdown(e.get('Nombre', ''))} — {e.get('Canton', e.get('Cantón', ''))} ({e.get('Fecha Inicio', '')})"
                 for e in resultados_eventos[:3]
             ])
-            return {"respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{eventos_texto}\n\n¿Quieres más información sobre alguno?"}
-        return {"respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza y más del Norte de Manabí. ¿Qué necesitas?"}
+            return {
+                "respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{eventos_texto}\n\n¿Quieres más información sobre alguno?",
+                "contexto": {}
+            }
+        return {
+            "respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza y más del Norte de Manabí. ¿Qué necesitas?",
+            "contexto": {}
+        }
 
-    return {"respuesta": armar_respuesta(texto, resultados, canton, categoria)}
+    respuesta, nuevo_contexto = armar_respuesta(resultados, canton, categoria, offset=0, consulta=texto_limpio_busqueda)
+    return {"respuesta": respuesta, "contexto": nuevo_contexto}
 
 
-def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -> str:
+def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int = 0, consulta: str = "") -> tuple:
     total = len(resultados)
+    tramo = resultados[offset:offset + 5]
 
     NOMBRES_CANTON = {
         "sucre": "Bahía de Caráquez / Sucre",
@@ -232,29 +280,31 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
         "leonidas": "Leónidas Plaza",
     }
 
-    if canton:
-        nombre_lugar = NOMBRES_CANTON.get(canton.lower(), canton.title())
-        intro = f"Encontré {total} opción(es) en {nombre_lugar}:\n\n"
-    elif categoria and categoria != "GENERAL":
-        nombre_cat = categoria.split(",")[0].strip()
-        intro = f"Encontré {total} opción(es) de {nombre_cat} en el Norte de Manabí:\n\n"
+    if offset == 0:
+        if canton:
+            nombre_lugar = NOMBRES_CANTON.get(canton.lower(), canton.title())
+            intro = f"Encontré {total} opción(es) en {nombre_lugar}:\n\n"
+        elif categoria and categoria != "GENERAL":
+            nombre_cat = categoria.split(",")[0].strip()
+            intro = f"Encontré {total} opción(es) de {nombre_cat} en el Norte de Manabí:\n\n"
+        else:
+            intro = f"Encontré {total} resultado(s):\n\n"
     else:
-        intro = f"Encontré {total} resultado(s):\n\n"
+        intro = "Aquí tienes más opciones:\n\n"
 
     items = []
-    for lugar in resultados[:5]:
+    for lugar in tramo:
         nombre = escapar_markdown(lugar.get("Nombre", ""))
         if not nombre:
             continue
-        desc = lugar.get("Descripción", "")
-        canton_lugar = lugar.get("Cantón", "")
-        parroquia = lugar.get("Parroquia", "")
-        subcategoria = lugar.get("Subcategoría", "")
+        desc = escapar_markdown(lugar.get("Descripción", ""))
+        canton_lugar = escapar_markdown(lugar.get("Cantón", ""))
+        parroquia = escapar_markdown(lugar.get("Parroquia", ""))
+        subcategoria = escapar_markdown(lugar.get("Subcategoría", ""))
         telefono = lugar.get("Teléfono", "")
-        horario = lugar.get("Horario", "")
-        precio = lugar.get("Precio", "")
+        horario = escapar_markdown(lugar.get("Horario", ""))
+        precio = escapar_markdown(lugar.get("Precio", ""))
 
-        nombre_safe = nombre.replace('*', '')
         linea = f"📍 {nombre}"
         ubicacion = ", ".join(filter(None, [parroquia, canton_lugar]))
         if ubicacion:
@@ -272,10 +322,19 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
         items.append(linea)
 
     cuerpo = "\n\n".join(items)
+    mostrados = offset + len(tramo)
 
-    if total > 5:
-        pie = f"\n\n_...y {total - 5} más. ¿Quieres que filtre por alguna zona específica?_"
+    if total > mostrados:
+        pie = f"\n\n_...y {total - mostrados} más. ¿Quieres que te muestre más opciones?_"
     else:
         pie = "\n\n¿Te ayudo con algo más?"
 
-    return intro + cuerpo + pie
+    nuevo_contexto = {
+        "canton": canton,
+        "categoria": categoria,
+        "consulta": consulta,
+        "mostrados": mostrados,
+        "total": total,
+    }
+
+    return intro + cuerpo + pie, nuevo_contexto
