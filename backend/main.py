@@ -1,3 +1,4 @@
+import re
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -44,6 +45,7 @@ def eventos(canton: str = "", categoria: str = ""):
 def cantones():
     return {"cantones": obtener_cantones()}
 
+# ── RESPUESTAS FIJAS ──
 RESPUESTAS_FIJAS = {
     "saludo": {
         "respuesta": "¡Hola! Soy **Mana** 🌊, tu guía digital del Norte de Manabí.\n\nPuedo ayudarte a encontrar:\n📍 Lugares turísticos, playas y naturaleza\n🏨 Hospedaje en los cinco cantones\n🍽️ Restaurantes y gastronomía típica\n🏄 Actividades y deportes\n📅 Eventos y festivales\n💰 Cajeros, bancos y servicios\n\n¿Qué estás buscando hoy?"
@@ -144,10 +146,16 @@ def verificar_saludo(texto_norm: str):
     return None
 
 def escapar_markdown(texto: str) -> str:
-    """Escapa asteriscos sueltos en nombres para no romper el formato"""
-    import re
-    # Reemplaza asteriscos que no sean para negrita/cursiva
+    """Elimina asteriscos sueltos que no son parte de negrita"""
     return re.sub(r'\*(?!\*)', '', texto)
+
+# Palabras que se ignoran al buscar por nombre específico
+PALABRAS_IGNORAR = {
+    "dame", "dime", "busca", "buscar", "informacion", "informacion",
+    "sobre", "del", "de", "la", "el", "los", "las", "un", "una",
+    "quiero", "saber", "conocer", "hay", "existe", "tienen",
+    "donde", "cual", "cuales", "como", "que", "me", "si"
+}
 
 @app.post("/mana/chat")
 def chat_mana(request: PreguntaRequest):
@@ -157,7 +165,7 @@ def chat_mana(request: PreguntaRequest):
 
     texto_norm = normalizar(texto)
 
-    # 1. Verificar respuestas fijas
+    # 1. Verificar respuestas fijas primero
     respuesta_fija = verificar_saludo(texto_norm)
     if respuesta_fija:
         return {"respuesta": respuesta_fija}
@@ -167,40 +175,44 @@ def chat_mana(request: PreguntaRequest):
 
     resultados = []
 
-    # 3. Búsqueda por nombre específico primero (si el texto es largo y específico)
-    if len(texto.split()) >= 3 and not canton and not categoria:
-        resultados = buscar_lugares(consulta=texto)
+    # 3. Búsqueda por nombre específico — limpia palabras vacías
+    palabras_busqueda = [p for p in texto.split() if normalizar(p) not in PALABRAS_IGNORAR]
+    texto_limpio_busqueda = " ".join(palabras_busqueda)
+
+    if len(palabras_busqueda) >= 1 and not canton and not categoria:
+        resultados = buscar_lugares(consulta=texto_limpio_busqueda)
 
     # 4. Si hay categoría Y cantón
-    if not resultados and categoria and canton:
+    if not resultados and categoria and categoria != "GENERAL" and canton:
         resultados = buscar_lugares(categoria=categoria, canton=canton)
 
     # 5. Si hay solo categoría
-    if not resultados and categoria and not canton:
+    if not resultados and categoria and categoria != "GENERAL" and not canton:
         resultados = buscar_lugares(categoria=categoria)
 
-    # 6. Si hay solo cantón — búsqueda general en ese cantón
-    if not resultados and canton and not categoria:
-        resultados = buscar_lugares(canton=canton, consulta=texto)
+    # 6. Si hay cantón con categoría GENERAL → buscar todo en ese cantón
+    if not resultados and canton:
+        resultados = buscar_lugares(canton=canton, consulta=texto_limpio_busqueda)
         if not resultados:
             resultados = buscar_lugares(canton=canton)
 
     # 7. Búsqueda libre general
     if not resultados:
-        resultados = buscar_lugares(consulta=texto)
+        resultados = buscar_lugares(consulta=texto_limpio_busqueda)
 
-    # 8. Sin resultados → eventos
+    # 8. Sin resultados → mostrar eventos
     if not resultados:
         resultados_eventos = buscar_eventos(canton=canton)
         if resultados_eventos:
             eventos_texto = "\n".join([
-                f"• *{e.get('Nombre', '')}* — {e.get('Cantón', '')} ({e.get('Fecha Inicio', '')})"
+                f"• *{e.get('Nombre', '')}* — {e.get('Canton', e.get('Cantón', ''))} ({e.get('Fecha Inicio', '')})"
                 for e in resultados_eventos[:3]
             ])
             return {"respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{eventos_texto}\n\n¿Quieres más información sobre alguno?"}
         return {"respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza y más del Norte de Manabí. ¿Qué necesitas?"}
 
     return {"respuesta": armar_respuesta(texto, resultados, canton, categoria)}
+
 
 def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -> str:
     total = len(resultados)
@@ -212,16 +224,18 @@ def armar_respuesta(texto: str, resultados: list, canton: str, categoria: str) -
         "jama": "Jama",
         "chone": "Chone",
         "bahia": "Bahía de Caráquez",
+        "bahia de caraquez": "Bahía de Caráquez",
         "canoa": "Canoa",
         "charapoto": "Charapotó",
         "san isidro": "San Isidro",
         "cojimies": "Cojimíes",
+        "leonidas": "Leónidas Plaza",
     }
 
     if canton:
         nombre_lugar = NOMBRES_CANTON.get(canton.lower(), canton.title())
         intro = f"Encontré **{total} opción(es)** en {nombre_lugar}:\n\n"
-    elif categoria:
+    elif categoria and categoria != "GENERAL":
         nombre_cat = categoria.split(",")[0].strip()
         intro = f"Encontré **{total} opción(es)** de {nombre_cat} en el Norte de Manabí:\n\n"
     else:
