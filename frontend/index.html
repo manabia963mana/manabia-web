@@ -63,11 +63,11 @@ a{text-decoration:none;}
 /* CATEGORÍAS CON FOTO */
 .seccion-cat-fotos{padding:64px 24px 16px;}
 .cat-foto-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;}
-.cat-foto-item{cursor:pointer;text-align:center;}
+.cat-foto-item{cursor:pointer;text-align:center;position:relative;}
 .cat-foto-img{position:relative;height:100px;border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(20,50,90,0.12);transition:transform .2s;}
 .cat-foto-item:hover .cat-foto-img{transform:translateY(-3px);}
 .cat-foto-img img{width:100%;height:100%;object-fit:cover;display:block;background:var(--gris-claro);}
-.cat-foto-badge{position:absolute;bottom:-14px;left:10px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,0.25);z-index:2;}
+.cat-foto-badge{position:absolute;top:83px;left:10px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,0.25);z-index:3;}
 .cat-foto-label{margin-top:22px;font-size:14px;font-weight:700;color:var(--navy);}
 .cat-foto-sub{font-size:12px;color:var(--gris);margin-top:2px;}
 
@@ -261,32 +261,32 @@ a{text-decoration:none;}
   <div class="container">
     <div class="cat-foto-grid">
       <div class="cat-foto-item" onclick="filtrarCategoria('playa')">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/wtYPsPZ/ryan-loughlin-HXqp-Jn-Ly-Hzg-unsplash.jpg" alt="Playas" onerror="this.parentElement.style.background='#2E86FF';this.style.display='none';"><span class="cat-foto-badge" style="background:#2E86FF">🏄</span></div>
+        <div class="cat-foto-img"><img src="https://i.ibb.co/wtYPsPZ/ryan-loughlin-HXqp-Jn-Ly-Hzg-unsplash.jpg" alt="Playas" onerror="this.parentElement.style.background='#2E86FF';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#2E86FF">🏄</span>
         <div class="cat-foto-label">Playas</div>
         <div class="cat-foto-sub">Sol, mar y arena</div>
       </div>
       <div class="cat-foto-item" onclick="filtrarCategoria('naturaleza')">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/qLz9XsNH/andres-medina-Bn9-Hsqg-Hcow-unsplash.jpg" alt="Naturaleza" onerror="this.parentElement.style.background='#1CAE79';this.style.display='none';"><span class="cat-foto-badge" style="background:#1CAE79">🌿</span></div>
+        <div class="cat-foto-img"><img src="https://i.ibb.co/qLz9XsNH/andres-medina-Bn9-Hsqg-Hcow-unsplash.jpg" alt="Naturaleza" onerror="this.parentElement.style.background='#1CAE79';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#1CAE79">🌿</span>
         <div class="cat-foto-label">Naturaleza</div>
         <div class="cat-foto-sub">Cascadas, ríos y más</div>
       </div>
       <div class="cat-foto-item" onclick="filtrarCategoria('cultura')">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/GQ3PJTxz/dezalb-market-776944.jpg" alt="Cultura" onerror="this.parentElement.style.background='#E8792E';this.style.display='none';"><span class="cat-foto-badge" style="background:#E8792E">🏺</span></div>
+        <div class="cat-foto-img"><img src="https://i.ibb.co/GQ3PJTxz/dezalb-market-776944.jpg" alt="Cultura" onerror="this.parentElement.style.background='#E8792E';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#E8792E">🏺</span>
         <div class="cat-foto-label">Cultura</div>
         <div class="cat-foto-sub">Jama-Coaque, Historia viva</div>
       </div>
       <div class="cat-foto-item" onclick="filtrarCategoria('ceviche')">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/VYYDSksW/martin-baron-1-P81h-KRBzrg-unsplash.jpg" alt="Gastronomía" onerror="this.parentElement.style.background='#E14848';this.style.display='none';"><span class="cat-foto-badge" style="background:#E14848">🍽️</span></div>
+        <div class="cat-foto-img"><img src="https://i.ibb.co/VYYDSksW/martin-baron-1-P81h-KRBzrg-unsplash.jpg" alt="Gastronomía" onerror="this.parentElement.style.background='#E14848';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#E14848">🍽️</span>
         <div class="cat-foto-label">Gastronomía</div>
         <div class="cat-foto-sub">Sabores manabitas</div>
       </div>
       <div class="cat-foto-item" onclick="document.getElementById('eventos').scrollIntoView({behavior:'smooth'})">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/3m7hBckt/andres-medina-erv9g1-TKYIw-unsplash.jpg" alt="Eventos" onerror="this.parentElement.style.background='#8B5CF6';this.style.display='none';"><span class="cat-foto-badge" style="background:#8B5CF6">🎉</span></div>
+        <div class="cat-foto-img"><img src="https://i.ibb.co/3m7hBckt/andres-medina-erv9g1-TKYIw-unsplash.jpg" alt="Eventos" onerror="this.parentElement.style.background='#8B5CF6';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#8B5CF6">🎉</span>
         <div class="cat-foto-label">Eventos</div>
         <div class="cat-foto-sub">Lo que está pasando</div>
       </div>
       <div class="cat-foto-item" onclick="filtrarCategoria('surf')">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/Rkx66vdD/gilberto-olimpio-n-Vx-W3-Sula-FM-unsplash.jpg" alt="Aventuras" onerror="this.parentElement.style.background='#0D9488';this.style.display='none';"><span class="cat-foto-badge" style="background:#0D9488">🪂</span></div>
+        <div class="cat-foto-img"><img src="https://i.ibb.co/Rkx66vdD/gilberto-olimpio-n-Vx-W3-Sula-FM-unsplash.jpg" alt="Aventuras" onerror="this.parentElement.style.background='#0D9488';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#0D9488">🪂</span>
         <div class="cat-foto-label">Aventuras</div>
         <div class="cat-foto-sub">Adrenalina y diversión</div>
       </div>
