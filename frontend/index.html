@@ -1,545 +1,309 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manabía — Tu guía del Norte de Manabí</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --azul: #1E3A6E;
-      --azul-medio: #16548a;
-      --turquesa: #4DD9AC;
-      --turquesa-oscuro: #2fb58d;
-      --arena: #F7F4EF;
-      --texto: #1a1a2e;
-      --texto-suave: #555;
-      --borde: #e0e0e0;
-      --blanco: #ffffff;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family:'Inter',sans-serif; color:var(--texto); background:var(--blanco); }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manabía — Tu guía del Norte de Manabí</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#16305A;
+  --navy2:#1E3A6E;
+  --verde:#1CAE79;
+  --verde-osc:#149463;
+  --verde-claro:#E8F8F1;
+  --gris:#6B7280;
+  --gris-claro:#F5F6F8;
+  --borde:#E7E9EC;
+  --blanco:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;color:var(--navy);background:var(--blanco);padding-bottom:78px;}
+.container{max-width:1180px;margin:0 auto;padding:0 24px;}
+a{text-decoration:none;}
 
-    /* ── HEADER ── */
-    .header {
-      position: sticky; top:0; z-index:200;
-      background: rgba(255,255,255,0.97);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(30,58,110,0.1);
-      padding: 0 32px;
-    }
-    .header-inner {
-      max-width:1200px; margin:0 auto;
-      display:flex; align-items:center; justify-content:space-between;
-      height:68px; gap:24px;
-    }
-    .logo-svg { display:flex; align-items:center; text-decoration:none; flex-shrink:0; }
-    .nav-links { display:flex; align-items:center; gap:4px; flex:1; justify-content:center; }
-    .nav-links a {
-      color:#444; text-decoration:none; font-size:14px; font-weight:500;
-      padding:8px 12px; border-radius:8px; transition:all 0.2s; white-space:nowrap;
-    }
-    .nav-links a:hover { color:var(--azul); background:rgba(30,58,110,0.06); }
-    .nav-links a.active { color:var(--azul); font-weight:600; }
-    .header-acciones { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-    .btn-hablar-header {
-      background:var(--turquesa); color:var(--azul);
-      border:none; padding:10px 18px; border-radius:50px;
-      font-size:14px; font-weight:700; cursor:pointer;
-      display:flex; align-items:center; gap:6px;
-      transition:all 0.2s; white-space:nowrap;
-    }
-    .btn-hablar-header:hover { background:var(--turquesa-oscuro); transform:translateY(-1px); }
+/* HEADER */
+.header{position:sticky;top:0;z-index:300;background:rgba(255,255,255,0.98);backdrop-filter:blur(10px);border-bottom:1px solid var(--borde);}
+.header-inner{max-width:1180px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.logo{display:flex;align-items:center;gap:6px;font-size:21px;font-weight:800;color:var(--navy);flex-shrink:0;}
+.logo svg{flex-shrink:0;}
+.nav-links{display:flex;align-items:center;gap:26px;flex:1;justify-content:center;}
+.nav-links a{color:#374151;font-size:14.5px;font-weight:500;transition:color .2s;white-space:nowrap;}
+.nav-links a:hover{color:var(--verde);}
+.header-right{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.btn-hablar{background:var(--verde);color:#fff;border:none;padding:10px 20px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;}
+.btn-hablar:hover{background:var(--verde-osc);}
+.lang-sel{font-size:13px;color:#374151;font-weight:500;display:flex;align-items:center;gap:3px;cursor:pointer;}
 
-    /* ── HERO ── */
-    .hero {
-      position:relative; height:92vh; min-height:580px;
-      display:flex; align-items:center;
-      overflow:hidden;
-    }
-    .hero-bg {
-      position:absolute; inset:0;
-      background-image: url('https://i.ibb.co/VW1C2bX5/Whats-App-Image-2026-06-26-at-17-15-56.jpg');
-      background-size:cover; background-position:center 30%;
-      filter:brightness(0.62);
-    }
-    .hero-overlay {
-      position:absolute; inset:0;
-      background:linear-gradient(135deg, rgba(30,58,110,0.75) 0%, rgba(10,30,60,0.45) 50%, rgba(0,0,0,0.2) 100%);
-    }
-    .hero-content {
-      position:relative; z-index:2;
-      max-width:1200px; margin:0 auto; padding:0 32px;
-      width:100%; display:grid; grid-template-columns:1fr 380px; gap:48px; align-items:center;
-    }
-    .hero-texto h1 {
-      font-size:clamp(36px,5vw,64px); font-weight:800; color:var(--blanco);
-      line-height:1.08; letter-spacing:-1px; margin-bottom:20px;
-    }
-    .hero-texto h1 span { color:var(--turquesa); }
-    .hero-texto p {
-      font-size:18px; color:rgba(255,255,255,0.88); line-height:1.6;
-      margin-bottom:32px; max-width:520px;
-    }
-    .hero-botones { display:flex; gap:14px; flex-wrap:wrap; }
-    .btn-hero-primario {
-      background:var(--turquesa); color:var(--azul);
-      border:none; padding:16px 28px; border-radius:50px;
-      font-size:16px; font-weight:700; cursor:pointer;
-      display:flex; align-items:center; gap:8px;
-      transition:all 0.25s; box-shadow:0 4px 24px rgba(77,217,172,0.35);
-    }
-    .btn-hero-primario:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(77,217,172,0.5); }
-    .btn-hero-secundario {
-      background:rgba(255,255,255,0.15); color:var(--blanco);
-      border:2px solid rgba(255,255,255,0.5); padding:14px 28px; border-radius:50px;
-      font-size:16px; font-weight:600; cursor:pointer;
-      backdrop-filter:blur(8px); transition:all 0.25s;
-    }
-    .btn-hero-secundario:hover { background:rgba(255,255,255,0.25); border-color:white; }
-    .hero-stats {
-      display:flex; gap:32px; margin-top:40px; flex-wrap:wrap;
-    }
-    .stat { text-align:left; }
-    .stat-num { font-size:28px; font-weight:800; color:var(--turquesa); line-height:1; }
-    .stat-label { font-size:12px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; letter-spacing:0.5px; }
+/* HERO */
+.hero-nuevo{padding:56px 24px 0;}
+.hero-nuevo-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+.hero-nuevo-texto h1{font-size:44px;font-weight:800;line-height:1.15;letter-spacing:-0.5px;color:var(--navy);}
+.hero-nuevo-texto h1 .verde{color:var(--verde);display:block;}
+.hero-nuevo-texto p{margin-top:18px;font-size:16px;color:var(--gris);line-height:1.6;max-width:440px;}
+.hero-nuevo-img{border-radius:24px;overflow:hidden;height:380px;box-shadow:0 20px 50px rgba(20,50,90,0.18);}
+.hero-nuevo-img img{width:100%;height:100%;object-fit:cover;display:block;}
 
-    /* Hero card Mana */
-    .hero-mana-card {
-      background:rgba(255,255,255,0.97);
-      border-radius:20px; padding:24px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.25);
-    }
-    .mana-card-header {
-      display:flex; align-items:center; gap:12px; margin-bottom:16px;
-    }
-    .mana-avatar {
-      width:44px; height:44px; background:linear-gradient(135deg,var(--azul),var(--turquesa));
-      border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    }
-    .mana-card-header strong { font-size:16px; color:var(--azul); display:block; }
-    .mana-card-header small { font-size:12px; color:var(--texto-suave); }
-    .mana-burbuja {
-      background:#f0f4ff; border-radius:12px 12px 12px 4px;
-      padding:12px 14px; font-size:13px; color:var(--texto); line-height:1.5;
-      margin-bottom:14px;
-    }
-    .mana-sugerencias { display:flex; flex-direction:column; gap:8px; }
-    .mana-sugerencias button {
-      background:var(--blanco); border:1.5px solid var(--azul); color:var(--azul);
-      padding:9px 14px; border-radius:20px; font-size:13px; font-weight:500;
-      cursor:pointer; text-align:left; transition:all 0.2s;
-    }
-    .mana-sugerencias button:hover { background:var(--azul); color:var(--blanco); }
-    .mana-input-row {
-      display:flex; gap:8px; margin-top:14px;
-      border-top:1px solid var(--borde); padding-top:14px;
-    }
-    .mana-input-row input {
-      flex:1; padding:10px 14px; border:1.5px solid var(--borde);
-      border-radius:50px; font-size:13px; outline:none;
-    }
-    .mana-input-row input:focus { border-color:var(--azul); }
-    .mana-input-row button {
-      background:var(--azul); color:white; border:none;
-      width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:16px;
-    }
+/* SEARCH CARD (superpuesta) */
+.hero-search-wrap{max-width:1180px;margin:-58px auto 0;padding:0 24px;position:relative;z-index:5;}
+.hero-search-card{background:#fff;border-radius:22px;padding:28px 32px;box-shadow:0 24px 60px rgba(20,50,90,0.16);max-width:760px;margin:0 auto;}
+.hero-search-header{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;color:var(--navy);}
+.hero-search-titulo{font-size:19px;font-weight:700;color:var(--navy);margin-top:4px;margin-bottom:16px;}
+.hero-search-input-row{display:flex;align-items:center;gap:10px;background:var(--gris-claro);border-radius:50px;padding:6px 8px 6px 20px;}
+.hero-search-input-row input{flex:1;border:none;background:transparent;outline:none;font-size:14.5px;padding:10px 0;color:var(--navy);}
+.hero-mic{font-size:18px;cursor:pointer;padding:6px;color:var(--gris);}
+.hero-send{background:var(--verde);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.hero-send:hover{background:var(--verde-osc);}
+.hero-search-sugs{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.hero-search-sugs button{background:var(--gris-claro);border:none;color:var(--navy);padding:9px 15px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.hero-search-sugs button:hover{background:var(--verde-claro);color:var(--verde-osc);}
 
-    /* ── CATEGORÍAS ── */
-    .categorias-bar {
-      background:var(--blanco);
-      box-shadow:0 4px 24px rgba(0,0,0,0.08);
-      position:relative; z-index:10;
-    }
-    .categorias-inner {
-      max-width:1200px; margin:0 auto; padding:0 32px;
-      display:flex; overflow-x:auto; gap:0;
-    }
-    .categorias-inner::-webkit-scrollbar { display:none; }
-    .cat-item {
-      display:flex; flex-direction:column; align-items:center;
-      padding:18px 20px; cursor:pointer; border-bottom:3px solid transparent;
-      transition:all 0.2s; min-width:100px; flex-shrink:0; gap:6px;
-      text-decoration:none;
-    }
-    .cat-item:hover { border-bottom-color:var(--turquesa); }
-    .cat-item:hover .cat-icon { color:var(--azul); }
-    .cat-item:hover .cat-label { color:var(--azul); }
-    .cat-item.activa { border-bottom-color:var(--azul); }
-    .cat-icon { font-size:24px; }
-    .cat-label { font-size:12px; font-weight:600; color:#666; letter-spacing:0.3px; }
+/* CATEGORÍAS CON FOTO */
+.seccion-cat-fotos{padding:64px 24px 16px;}
+.cat-foto-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;}
+.cat-foto-item{cursor:pointer;text-align:center;}
+.cat-foto-img{position:relative;height:100px;border-radius:16px;overflow:hidden;background-size:cover;background-position:center;box-shadow:0 6px 18px rgba(20,50,90,0.12);transition:transform .2s;}
+.cat-foto-item:hover .cat-foto-img{transform:translateY(-3px);}
+.cat-foto-badge{position:absolute;bottom:-14px;left:10px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,0.25);}
+.cat-foto-label{margin-top:22px;font-size:14px;font-weight:700;color:var(--navy);}
+.cat-foto-sub{font-size:12px;color:var(--gris);margin-top:2px;}
 
-    /* ── SECCIONES GENERALES ── */
-    .seccion { padding:72px 32px; }
-    .seccion-arena { background:var(--arena); }
-    .seccion-blanca { background:var(--blanco); }
-    .container { max-width:1200px; margin:0 auto; }
-    .seccion-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:40px; flex-wrap:wrap; gap:16px; }
-    .seccion-titulo { font-size:32px; font-weight:800; color:var(--azul); }
-    .seccion-titulo span { color:var(--turquesa); }
-    .seccion-subtitulo { font-size:15px; color:var(--texto-suave); margin-top:6px; }
-    .ver-todos { color:var(--azul); font-size:14px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:4px; white-space:nowrap; }
-    .ver-todos:hover { color:var(--turquesa-oscuro); }
+/* SECCIONES GENERALES */
+.seccion-gen{padding:56px 24px;}
+.seccion-gen-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;}
+.seccion-gen-titulo{font-size:27px;font-weight:800;color:var(--navy);}
+.seccion-gen-titulo span{color:var(--verde);}
+.seccion-gen-link{color:var(--verde-osc);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px;}
 
-    /* ── CANTONES ── */
-    .cantones-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; }
-    .canton-card {
-      background:var(--blanco); border-radius:16px; padding:24px 20px;
-      text-align:center; cursor:pointer; border:2px solid transparent;
-      box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:all 0.25s;
-    }
-    .canton-card:hover {
-      transform:translateY(-4px); border-color:var(--turquesa);
-      box-shadow:0 12px 32px rgba(30,58,110,0.12);
-    }
-    .canton-emoji { font-size:36px; margin-bottom:10px; }
-    .canton-nombre { font-size:16px; font-weight:700; color:var(--azul); margin-bottom:6px; }
-    .canton-tags { font-size:12px; color:var(--turquesa-oscuro); font-weight:500; }
+/* CANTONES */
+.cantones-grid-nuevo{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.canton-card-nuevo{border:1.5px solid var(--borde);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;background:#fff;}
+.canton-card-nuevo:hover{border-color:var(--verde);box-shadow:0 10px 26px rgba(20,50,90,0.1);transform:translateY(-3px);}
+.canton-icono{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px;border:2px solid currentColor;}
+.canton-nombre-nuevo{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.canton-sub-nuevo{font-size:11.5px;color:var(--gris);}
 
-    /* ── EVENTOS ── */
-    .eventos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px; }
-    .evento-card {
-      background:var(--blanco); border-radius:16px; overflow:hidden;
-      box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:all 0.25s;
-      border:1px solid var(--borde);
-    }
-    .evento-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(30,58,110,0.12); }
-    .evento-fecha-bar {
-      background:var(--azul); color:white;
-      padding:14px 20px; display:flex; align-items:center; gap:16px;
-    }
-    .fecha-num { font-size:32px; font-weight:800; line-height:1; }
-    .fecha-mes { font-size:12px; font-weight:600; letter-spacing:1px; opacity:0.8; }
-    .evento-badge {
-      margin-left:auto; background:var(--turquesa); color:var(--azul);
-      padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700;
-    }
-    .evento-body { padding:18px 20px; }
-    .evento-nombre { font-size:15px; font-weight:700; color:var(--azul); margin-bottom:8px; line-height:1.3; }
-    .evento-lugar { font-size:13px; color:var(--texto-suave); display:flex; align-items:center; gap:5px; }
-    .evento-desc { font-size:13px; color:var(--texto-suave); margin-top:10px; line-height:1.5; }
+/* EVENTOS */
+.eventos-tabs{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;}
+.eventos-tabs button{background:var(--gris-claro);border:none;color:var(--navy);padding:9px 18px;border-radius:20px;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .2s;}
+.eventos-tabs button.activo{background:var(--navy2);color:#fff;}
+.eventos-grid-nuevo{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.evento-card-nuevo{border:1px solid var(--borde);border-radius:16px;overflow:hidden;background:#fff;transition:all .2s;}
+.evento-card-nuevo:hover{box-shadow:0 12px 30px rgba(20,50,90,0.1);transform:translateY(-3px);}
+.evento-fecha-nuevo{padding:14px 16px;color:#fff;display:flex;align-items:center;justify-content:space-between;}
+.evento-fecha-nuevo .num{font-size:26px;font-weight:800;line-height:1;}
+.evento-fecha-nuevo .mes{font-size:10.5px;font-weight:700;letter-spacing:0.5px;opacity:.9;}
+.evento-fecha-nuevo .tag-evento{background:rgba(255,255,255,0.25);padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;}
+.evento-body-nuevo{padding:16px;}
+.evento-nombre-nuevo{font-size:14.5px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3;min-height:38px;}
+.evento-lugar-nuevo{font-size:12px;color:var(--gris);margin-bottom:8px;}
+.evento-desc-nuevo{font-size:12px;color:var(--gris);line-height:1.5;margin-bottom:12px;min-height:36px;}
+.evento-cta{font-size:12.5px;font-weight:700;color:var(--verde-osc);}
 
-    /* ── BUSCADOR ── */
-    .buscador-wrap {
-      background:var(--blanco); border-radius:16px;
-      padding:24px; box-shadow:0 4px 24px rgba(0,0,0,0.08); margin-bottom:40px;
-    }
-    .buscador-row { display:flex; gap:12px; margin-bottom:14px; }
-    .buscador-row input {
-      flex:1; padding:14px 20px; border:2px solid var(--borde);
-      border-radius:50px; font-size:15px; outline:none; transition:border-color 0.2s;
-    }
-    .buscador-row input:focus { border-color:var(--azul); }
-    .buscador-row button {
-      background:var(--azul); color:white; border:none;
-      padding:14px 28px; border-radius:50px; font-size:15px; font-weight:600; cursor:pointer;
-    }
-    .filtros-row { display:flex; gap:10px; flex-wrap:wrap; }
-    .filtros-row select {
-      padding:9px 16px; border:1.5px solid var(--borde); border-radius:50px;
-      font-size:13px; outline:none; cursor:pointer; background:white; color:var(--texto);
-    }
-    .filtros-row select:focus { border-color:var(--azul); }
+/* BUSCADOR / EXPLORAR */
+.buscador-wrap-nuevo{background:var(--gris-claro);border-radius:18px;padding:24px;margin-bottom:36px;}
+.buscador-row-nuevo{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.buscador-row-nuevo input{flex:1;min-width:220px;padding:13px 18px;border:1.5px solid var(--borde);border-radius:50px;font-size:14.5px;outline:none;background:#fff;}
+.buscador-row-nuevo input:focus{border-color:var(--verde);}
+.buscador-row-nuevo button{background:var(--navy2);color:#fff;border:none;padding:13px 26px;border-radius:50px;font-size:14.5px;font-weight:600;cursor:pointer;}
+.filtros-row-nuevo{display:flex;gap:10px;flex-wrap:wrap;}
+.filtros-row-nuevo select{padding:9px 15px;border:1.5px solid var(--borde);border-radius:50px;font-size:13px;background:#fff;cursor:pointer;color:var(--navy);}
+.resultados-grid-nuevo{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;}
+.lugar-card-nuevo{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:20px;border-left:4px solid var(--verde);}
+.lugar-tag-nuevo{display:inline-block;background:var(--verde-claro);color:var(--verde-osc);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px;}
+.lugar-nombre-nuevo{font-size:15.5px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.lugar-desc-nuevo{font-size:12.5px;color:var(--gris);line-height:1.5;}
+.lugar-info-nuevo{font-size:11.5px;color:#8a93a3;margin-top:9px;line-height:1.8;}
+.lugar-botones-nuevo{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn-wa-nuevo,.btn-maps-nuevo{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:700;color:#fff;}
+.btn-wa-nuevo{background:#25D366;}
+.btn-maps-nuevo{background:var(--navy2);}
 
-    /* ── RESULTADOS ── */
-    .resultados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
-    .lugar-card {
-      background:var(--blanco); border-radius:16px; padding:22px;
-      border-left:4px solid var(--turquesa);
-      box-shadow:0 2px 10px rgba(0,0,0,0.06);
-    }
-    .lugar-tag {
-      display:inline-block; background:#e8f5f0; color:var(--turquesa-oscuro);
-      padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;
-      margin-bottom:8px;
-    }
-    .lugar-nombre { font-size:16px; font-weight:700; color:var(--azul); margin-bottom:6px; }
-    .lugar-desc { font-size:13px; color:var(--texto-suave); line-height:1.5; }
-    .lugar-info { font-size:12px; color:#888; margin-top:10px; line-height:1.8; }
+/* MAPA */
+#mapa-contenedor{width:100%;height:460px;border-radius:18px;overflow:hidden;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:#888;font-size:14px;}
 
-    /* ── MANA IA SECTION ── */
-    .mana-section-grid {
-      display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
-    }
-    .mana-texto h2 { font-size:36px; font-weight:800; color:var(--azul); margin-bottom:16px; line-height:1.2; }
-    .mana-texto h2 span { color:var(--turquesa); }
-    .mana-texto p { font-size:16px; color:var(--texto-suave); line-height:1.7; margin-bottom:24px; }
-    .mana-features { display:flex; flex-direction:column; gap:14px; margin-bottom:28px; }
-    .mana-feature { display:flex; align-items:flex-start; gap:12px; }
-    .mana-feature-icon {
-      width:36px; height:36px; background:rgba(77,217,172,0.15);
-      border-radius:10px; display:flex; align-items:center; justify-content:center;
-      font-size:18px; flex-shrink:0;
-    }
-    .mana-feature-text strong { display:block; font-size:14px; color:var(--azul); margin-bottom:2px; }
-    .mana-feature-text span { font-size:13px; color:var(--texto-suave); }
-    .mana-aviso {
-      background:#fffbe6; border:1px solid #ffe58f; border-radius:10px;
-      padding:12px 16px; font-size:12px; color:#7a6000; line-height:1.5;
-    }
-    .mana-demo {
-      background:var(--blanco); border-radius:20px;
-      box-shadow:0 20px 60px rgba(30,58,110,0.12);
-      overflow:hidden;
-    }
-    .mana-demo-header {
-      background:var(--azul); padding:16px 20px;
-      display:flex; align-items:center; gap:12px;
-    }
-    .mana-demo-avatar {
-      width:40px; height:40px;
-      background:linear-gradient(135deg,var(--turquesa),#2fb58d);
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-    }
-    .mana-demo-header strong { color:white; font-size:15px; display:block; }
-    .mana-demo-header small { color:rgba(255,255,255,0.7); font-size:12px; }
-    .mana-demo-mensajes { padding:20px; display:flex; flex-direction:column; gap:14px; min-height:260px; }
-    .demo-burbuja-mana {
-      background:#f0f4ff; border-radius:14px 14px 14px 4px;
-      padding:12px 14px; font-size:13px; line-height:1.6; color:var(--texto); max-width:85%;
-    }
-    .demo-burbuja-user {
-      background:var(--azul); color:white;
-      border-radius:14px 14px 4px 14px;
-      padding:12px 14px; font-size:13px; line-height:1.5;
-      max-width:85%; align-self:flex-end;
-    }
-    .mana-demo-input {
-      border-top:1px solid var(--borde); padding:14px 16px;
-      display:flex; gap:8px;
-    }
-    .mana-demo-input input {
-      flex:1; padding:10px 14px; border:1.5px solid var(--borde);
-      border-radius:50px; font-size:13px; outline:none;
-    }
-    .mana-demo-input button {
-      background:var(--azul); color:white; border:none;
-      width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:15px;
-    }
+/* FOOTER */
+.footer-nuevo{background:#fff;border-top:1px solid var(--borde);padding:52px 24px 28px;position:relative;overflow:hidden;}
+.footer-grid-nuevo{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;}
+.footer-brand-nuevo .logo{margin-bottom:12px;}
+.footer-brand-nuevo p{font-size:13px;color:var(--gris);line-height:1.7;max-width:280px;margin-bottom:16px;}
+.footer-social{display:flex;gap:12px;}
+.footer-social a{width:34px;height:34px;border-radius:50%;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:15px;transition:all .2s;}
+.footer-social a:hover{background:var(--verde);color:#fff;}
+.footer-col-nuevo h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;}
+.footer-col-nuevo a{display:block;color:var(--gris);font-size:13px;margin-bottom:10px;transition:color .2s;}
+.footer-col-nuevo a:hover{color:var(--verde-osc);}
+.footer-plant{position:absolute;bottom:-10px;right:-10px;font-size:110px;opacity:0.9;pointer-events:none;transform:rotate(-8deg);}
 
-    /* ── EXPERIENCIAS ── */
-    .experiencias-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:20px; }
-    .exp-card {
-      border-radius:16px; padding:28px 24px; position:relative; overflow:hidden;
-      cursor:pointer; transition:transform 0.25s;
-    }
-    .exp-card:hover { transform:translateY(-4px); }
-    .exp-card-1 { background:linear-gradient(135deg,#1E3A6E,#16548a); }
-    .exp-card-2 { background:linear-gradient(135deg,#0d7377,#4DD9AC); }
-    .exp-card-3 { background:linear-gradient(135deg,#2d5a27,#52a447); }
-    .exp-card-4 { background:linear-gradient(135deg,#6b3a2a,#c0714d); }
-    .exp-card-5 { background:linear-gradient(135deg,#3a2a6b,#7c5cbf); }
-    .exp-card-6 { background:linear-gradient(135deg,#1a4a6b,#2e87c4); }
-    .exp-icon { font-size:36px; margin-bottom:12px; }
-    .exp-titulo { font-size:17px; font-weight:700; color:white; margin-bottom:6px; }
-    .exp-desc { font-size:13px; color:rgba(255,255,255,0.8); line-height:1.5; }
-    .exp-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
-    .exp-tag {
-      background:rgba(255,255,255,0.2); color:white;
-      padding:3px 9px; border-radius:20px; font-size:11px; font-weight:500;
-    }
+/* BARRA DE CHAT FLOTANTE INFERIOR */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:800;background:var(--navy);padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 -8px 30px rgba(0,0,0,0.18);}
+.bottom-bar-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--verde),#0d7377);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bottom-bar-info{color:#fff;flex-shrink:0;display:none;}
+.bottom-bar-info strong{display:block;font-size:13.5px;}
+.bottom-bar-info small{font-size:11px;opacity:.7;}
+.bottom-bar-input-row{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border-radius:50px;padding:6px 8px 6px 18px;max-width:760px;margin:0 auto;}
+.bottom-bar-input-row input{flex:1;border:none;background:transparent;outline:none;color:#fff;font-size:14px;padding:8px 0;}
+.bottom-bar-input-row input::placeholder{color:rgba(255,255,255,0.55);}
+.bottom-bar-mic{font-size:17px;cursor:pointer;color:rgba(255,255,255,0.75);padding:6px;}
+.bottom-bar-send{background:var(--verde);color:#fff;border:none;width:38px;height:38px;border-radius:50%;font-size:15px;cursor:pointer;flex-shrink:0;}
 
-    /* ── FOOTER ── */
-    .footer { background:var(--azul); color:white; padding:56px 32px 32px; }
-    .footer-grid {
-      max-width:1200px; margin:0 auto;
-      display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px;
-      margin-bottom:48px;
-    }
-    .footer-brand h3 {
-      font-size:22px; font-weight:800; margin-bottom:10px;
-      color:white;
-    }
-    .footer-brand h3 span { color:var(--turquesa); }
-    .footer-brand p { font-size:13px; color:rgba(255,255,255,0.65); line-height:1.7; margin-bottom:16px; }
-    .footer-col h4 { font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--turquesa); margin-bottom:16px; }
-    .footer-col a { display:block; color:rgba(255,255,255,0.7); font-size:13px; text-decoration:none; margin-bottom:10px; transition:color 0.2s; }
-    .footer-col a:hover { color:var(--turquesa); }
-    .footer-bottom {
-      max-width:1200px; margin:0 auto;
-      border-top:1px solid rgba(255,255,255,0.1); padding-top:24px;
-      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
-    }
-    .footer-bottom p { font-size:12px; color:rgba(255,255,255,0.5); line-height:1.6; }
-    .footer-links { display:flex; gap:16px; flex-wrap:wrap; }
-    .footer-links a { font-size:12px; color:rgba(255,255,255,0.5); text-decoration:none; }
-    .footer-links a:hover { color:var(--turquesa); }
+/* CHAT PANEL (popup) */
+.chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:900;}
+.chat-overlay.abierto{display:block;}
+.chat-panel{display:none;position:fixed;bottom:86px;right:28px;width:380px;max-height:560px;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.22);z-index:950;flex-direction:column;overflow:hidden;}
+.chat-panel.abierto{display:flex;}
+.chat-header{background:var(--navy2);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.chat-header-info{display:flex;align-items:center;gap:12px;}
+.chat-avatar-circle{width:40px;height:40px;background:linear-gradient(135deg,var(--verde),#2fb58d);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.chat-header strong{color:#fff;display:block;font-size:14.5px;}
+.chat-header small{color:rgba(255,255,255,0.75);font-size:11px;}
+.chat-cerrar{background:none;border:none;color:rgba(255,255,255,0.85);font-size:18px;cursor:pointer;}
+.chat-mensajes{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;}
+.msg-mana{background:var(--gris-claro);border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:13px;line-height:1.6;max-width:88%;color:var(--navy);}
+.msg-usuario{background:var(--navy2);color:#fff;border-radius:14px 14px 4px 14px;padding:12px 14px;font-size:13px;line-height:1.5;max-width:88%;align-self:flex-end;}
+.sugs{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.sugs button{background:#fff;border:1.5px solid var(--navy2);color:var(--navy2);padding:8px 13px;border-radius:20px;font-size:12px;cursor:pointer;text-align:left;}
+.typing{display:flex;gap:4px;padding:12px 14px;background:var(--gris-claro);border-radius:14px 14px 14px 4px;width:fit-content;}
+.typing span{width:7px;height:7px;background:var(--navy2);border-radius:50%;animation:bounce 1.2s infinite;opacity:.4;}
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-6px);opacity:1}}
 
-    /* ── CHAT PANEL ── */
-    .chat-fab {
-      position:fixed; bottom:28px; right:28px; z-index:500;
-      width:60px; height:60px; background:var(--azul); border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 4px 24px rgba(30,58,110,0.4); cursor:pointer; transition:transform 0.2s;
-    }
-    .chat-fab:hover { transform:scale(1.1); }
-    .whatsapp-fab {
-      position:fixed; bottom:100px; right:28px; z-index:500;
-      width:50px; height:50px; background:#25D366; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 4px 16px rgba(37,211,102,0.4); cursor:pointer; transition:transform 0.2s;
-      text-decoration:none;
-    }
-    .whatsapp-fab:hover { transform:scale(1.1); }
-    .chat-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:600; }
-    .chat-overlay.abierto { display:block; }
-    .chat-panel {
-      display:none; position:fixed; bottom:100px; right:28px;
-      width:380px; max-height:570px; background:white;
-      border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.2);
-      z-index:700; flex-direction:column; overflow:hidden;
-    }
-    .chat-panel.abierto { display:flex; }
-    .chat-header { background:var(--azul); padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
-    .chat-header-info { display:flex; align-items:center; gap:12px; }
-    .chat-avatar-circle {
-      width:42px; height:42px; background:linear-gradient(135deg,var(--turquesa),#2fb58d);
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-    }
-    .chat-header strong { color:white; display:block; font-size:15px; }
-    .chat-header small { color:rgba(255,255,255,0.75); font-size:11px; }
-    .chat-cerrar { background:none; border:none; color:rgba(255,255,255,0.8); font-size:18px; cursor:pointer; }
-    .chat-mensajes { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:14px; }
-    .msg-mana { background:#f0f4ff; border-radius:14px 14px 14px 4px; padding:12px 14px; font-size:13px; line-height:1.6; max-width:88%; }
-    .msg-usuario { background:var(--azul); color:white; border-radius:14px 14px 4px 14px; padding:12px 14px; font-size:13px; line-height:1.5; max-width:88%; align-self:flex-end; }
-    .sugs { display:flex; flex-direction:column; gap:7px; margin-top:10px; }
-    .sugs button { background:white; border:1.5px solid var(--azul); color:var(--azul); padding:8px 13px; border-radius:20px; font-size:12px; cursor:pointer; text-align:left; transition:all 0.2s; }
-    .sugs button:hover { background:var(--azul); color:white; }
-    .typing { display:flex; gap:4px; padding:12px 14px; background:#f0f4ff; border-radius:14px 14px 14px 4px; width:fit-content; }
-    .typing span { width:7px; height:7px; background:var(--azul); border-radius:50%; animation:bounce 1.2s infinite; opacity:0.4; }
-    .typing span:nth-child(2) { animation-delay:.2s; }
-    .typing span:nth-child(3) { animation-delay:.4s; }
-    @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-6px);opacity:1} }
-    .chat-input-bar { padding:14px; border-top:1px solid #f0f0f0; display:flex; gap:8px; align-items:center; }
-    .chat-input-bar input { flex:1; padding:10px 14px; border:1.5px solid var(--borde); border-radius:50px; font-size:13px; outline:none; }
-    .chat-input-bar input:focus { border-color:var(--azul); }
-    .chat-input-bar button { background:var(--azul); color:white; border:none; width:38px; height:38px; border-radius:50%; font-size:15px; cursor:pointer; }
-    .btn-voz { font-size:18px; cursor:pointer; padding:4px 6px; border-radius:50%; transition:background 0.2s; }
-    .btn-voz:hover { background:#f0f0f0; }
-    .btn-voz.escuchando { background:#ffe0e0; animation:pulso 1s infinite; }
-    @keyframes pulso { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+#resultados-section{display:none;}
 
-    /* ── RESULTADOS SECTION ── */
-    #resultados-section { display:none; }
-
-    /* ── RESPONSIVE ── */
-    @media(max-width:900px){
-      .hero-content { grid-template-columns:1fr; }
-      .hero-mana-card { display:none; }
-      .mana-section-grid { grid-template-columns:1fr; }
-      .footer-grid { grid-template-columns:1fr 1fr; }
-      .nav-links { display:none; }
-    }
-    @media(max-width:600px){
-      .seccion { padding:48px 20px; }
-      .hero-texto h1 { font-size:32px; }
-      .hero-stats { gap:20px; }
-      .chat-panel { width:calc(100vw - 32px); right:16px; }
-      .footer-grid { grid-template-columns:1fr; gap:32px; }
-      .buscador-row { flex-direction:column; }
-      .footer-bottom { flex-direction:column; text-align:center; }
-    }
-  </style>
+/* RESPONSIVE */
+@media(max-width:980px){
+  .nav-links{display:none;}
+  .hero-nuevo-grid{grid-template-columns:1fr;}
+  .hero-nuevo-img{height:260px;order:-1;}
+  .hero-search-wrap{margin-top:24px;}
+  .cat-foto-grid{grid-template-columns:repeat(3,1fr);}
+  .cantones-grid-nuevo{grid-template-columns:repeat(2,1fr);}
+  .eventos-grid-nuevo{grid-template-columns:repeat(2,1fr);}
+  .footer-grid-nuevo{grid-template-columns:1fr 1fr;}
+  .bottom-bar-info{display:none;}
+}
+@media(max-width:600px){
+  .hero-nuevo-texto h1{font-size:32px;}
+  .hero-search-card{padding:20px;}
+  .cat-foto-grid{grid-template-columns:repeat(2,1fr);}
+  .cantones-grid-nuevo{grid-template-columns:1fr 1fr;}
+  .eventos-grid-nuevo{grid-template-columns:1fr;}
+  .footer-grid-nuevo{grid-template-columns:1fr;gap:28px;}
+  .chat-panel{width:calc(100vw - 24px);right:12px;bottom:80px;}
+  .bottom-bar{padding:10px 14px;}
+}
+</style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="header">
   <div class="header-inner">
-    <a class="logo-svg" href="#">
-      <svg width="120" height="44" viewBox="0 0 120 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 11 Q22 4 32 11 Q42 18 52 11" stroke="#4DD9AC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-        <circle cx="53.5" cy="10.5" r="2.8" fill="#4DD9AC"/>
-        <text x="0" y="38" font-family="Inter,sans-serif" font-size="20" font-weight="800" fill="#1E3A6E">Mana</text>
-        <text x="52" y="38" font-family="Inter,sans-serif" font-size="20" font-weight="300" fill="#4DD9AC">bía</text>
-      </svg>
+    <a class="logo" href="#">
+      <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
+      Manabía
     </a>
     <nav class="nav-links">
-      <a href="#" class="active">Inicio</a>
-      <a href="#mana-ia">Mana IA</a>
-      <a href="#destinos">Destinos</a>
-      <a href="#explorar">Explorar</a>
+      <a href="#">Descubre ▾</a>
+      <a href="#categorias">Qué hacer ▾</a>
+      <a href="#explorar">Lugares</a>
       <a href="#eventos">Eventos</a>
-      <a href="#experiencias">Experiencias</a>
-      <a href="#planificar">Planificar</a>
+      <a href="#planificar">Rutas</a>
+      <a href="#categorias">Gastronomía</a>
+      <a href="#">Blog</a>
     </nav>
-    <div class="header-acciones">
-      <button class="btn-hablar-header" onclick="abrirChat()">💬 Hablar con Mana</button>
+    <div class="header-right">
+      <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
+      <span class="lang-sel">🌐 ES ▾</span>
     </div>
   </div>
 </header>
 
 <!-- HERO -->
-<section class="hero" id="inicio">
-  <div class="hero-bg" id="hero-bg"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-texto">
-      <h1>Descubre el Norte<br>de <span>Manabí</span> con Mana</h1>
-      <p>Playas, naturaleza, cultura, gastronomía y aventura en cinco cantones únicos del Pacífico ecuatoriano</p>
-      <div class="hero-botones">
-        <button class="btn-hero-primario" onclick="abrirChat()">💬 Hablar con Mana</button>
-        <button class="btn-hero-secundario" onclick="document.getElementById('explorar').scrollIntoView({behavior:'smooth'})">🗺️ Explorar destinos</button>
-      </div>
-      <div class="hero-stats">
-        <div class="stat"><div class="stat-num">5</div><div class="stat-label">Cantones</div></div>
-        <div class="stat"><div class="stat-num">180+</div><div class="stat-label">Destinos</div></div>
-        <div class="stat"><div class="stat-num">60+</div><div class="stat-label">Eventos al año</div></div>
-        <div class="stat"><div class="stat-num">300km</div><div class="stat-label">De costa</div></div>
-      </div>
+<section class="hero-nuevo">
+  <div class="hero-nuevo-grid">
+    <div class="hero-nuevo-texto">
+      <h1>Descubre el Norte de Manabí<span class="verde">Con Mana es más fácil.</span></h1>
+      <p>Playas, naturaleza, gastronomía, cultura y eventos. Pregunta a Mana y encuentra el plan perfecto para hoy.</p>
     </div>
-    <div class="hero-mana-card">
-      <div class="mana-card-header">
-        <div class="mana-avatar">
-          <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M3 10 Q8 3 13 10 Q18 17 23 10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="24" cy="9" r="2" fill="#4DD9AC"/></svg>
-        </div>
-        <div><strong>Mana</strong><small>Tu guía del Norte de Manabí</small></div>
+    <div class="hero-nuevo-img">
+      <img src="https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg" alt="Playa Norte de Manabí"/>
+    </div>
+  </div>
+</section>
+
+<div class="hero-search-wrap">
+  <div class="hero-search-card">
+    <div class="hero-search-header">
+      <span>🌊</span><strong>¡Hola! Soy Mana 👋</strong>
+    </div>
+    <div class="hero-search-titulo">¿Qué quieres descubrir hoy?</div>
+    <div class="hero-search-input-row">
+      <input type="text" id="hero-input-nuevo" placeholder="Escribe o habla con Mana..." onkeypress="if(event.key==='Enter')enviarHeroNuevo()"/>
+      <span class="hero-mic" onclick="toggleVozGlobal('hero-input-nuevo')">🎤</span>
+      <button class="hero-send" onclick="enviarHeroNuevo()">➤</button>
+    </div>
+    <div class="hero-search-sugs">
+      <button onclick="preguntar('Quiero ver ballenas')">Quiero ver ballenas</button>
+      <button onclick="preguntar('¿Dónde como un buen ceviche?')">¿Dónde como un buen ceviche?</button>
+      <button onclick="preguntar('Playas tranquilas')">Playas tranquilas</button>
+      <button onclick="preguntar('Ruta de 3 días')">Ruta de 3 días</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORÍAS CON FOTO -->
+<section class="seccion-cat-fotos" id="categorias">
+  <div class="container">
+    <div class="cat-foto-grid">
+      <div class="cat-foto-item" onclick="filtrarCategoria('playa')">
+        <div class="cat-foto-img" style="background-image:url('https://i.ibb.co/wtYPsPZ/ryan-loughlin-HXqp-Jn-Ly-Hzg-unsplash.jpg')"><span class="cat-foto-badge" style="background:#2E86FF">🏄</span></div>
+        <div class="cat-foto-label">Playas</div>
+        <div class="cat-foto-sub">Sol, mar y arena</div>
       </div>
-      <div class="mana-burbuja">¡Hola! Soy Mana 👋 ¿Qué quieres descubrir hoy?</div>
-      <div class="mana-sugerencias">
-        <button onclick="preguntarHero('¿Dónde hospedarse en Canoa?')">🏨 Hospedaje en Canoa</button>
-        <button onclick="preguntarHero('Mejores restaurantes en Bahía de Caráquez')">🍽️ Restaurantes en Bahía</button>
-        <button onclick="preguntarHero('Playas para hacer surf en el norte de Manabí')">🏄 Playas para surf</button>
-        <button onclick="preguntarHero('Qué hacer en Pedernales este fin de semana')">📍 Qué hacer en Pedernales</button>
+      <div class="cat-foto-item" onclick="filtrarCategoria('naturaleza')">
+        <div class="cat-foto-img" style="background-image:url('https://i.ibb.co/qLz9XsNH/andres-medina-Bn9-Hsqg-Hcow-unsplash.jpg')"><span class="cat-foto-badge" style="background:#1CAE79">🌿</span></div>
+        <div class="cat-foto-label">Naturaleza</div>
+        <div class="cat-foto-sub">Cascadas, ríos y más</div>
       </div>
-      <div class="mana-input-row">
-        <input type="text" id="hero-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')preguntarHero(this.value)"/>
-        <button onclick="preguntarHero(document.getElementById('hero-input').value)">➤</button>
+      <div class="cat-foto-item" onclick="filtrarCategoria('cultura')">
+        <div class="cat-foto-img" style="background-image:url('https://i.ibb.co/GQ3PJTxz/dezalb-market-776944.jpg')"><span class="cat-foto-badge" style="background:#E8792E">🗿</span></div>
+        <div class="cat-foto-label">Cultura</div>
+        <div class="cat-foto-sub">Jama-Coaque, Historia viva</div>
+      </div>
+      <div class="cat-foto-item" onclick="filtrarCategoria('ceviche')">
+        <div class="cat-foto-img" style="background-image:url('https://i.ibb.co/VYYDSksW/martin-baron-1-P81h-KRBzrg-unsplash.jpg')"><span class="cat-foto-badge" style="background:#E14848">🍽️</span></div>
+        <div class="cat-foto-label">Gastronomía</div>
+        <div class="cat-foto-sub">Sabores manabitas</div>
+      </div>
+      <div class="cat-foto-item" onclick="document.getElementById('eventos').scrollIntoView({behavior:'smooth'})">
+        <div class="cat-foto-img" style="background-image:url('https://i.ibb.co/3m7hBckt/andres-medina-erv9g1-TKYIw-unsplash.jpg')"><span class="cat-foto-badge" style="background:#8B5CF6">🎉</span></div>
+        <div class="cat-foto-label">Eventos</div>
+        <div class="cat-foto-sub">Lo que está pasando</div>
+      </div>
+      <div class="cat-foto-item" onclick="filtrarCategoria('surf')">
+        <div class="cat-foto-img" style="background-image:url('https://i.ibb.co/Rkx66vdD/gilberto-olimpio-n-Vx-W3-Sula-FM-unsplash.jpg')"><span class="cat-foto-badge" style="background:#0D9488">🪂</span></div>
+        <div class="cat-foto-label">Aventuras</div>
+        <div class="cat-foto-sub">Adrenalina y diversión</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CATEGORÍAS -->
-<div class="categorias-bar">
-  <div class="categorias-inner">
-    <a class="cat-item activa" href="#explorar"><span class="cat-icon">🌴</span><span class="cat-label">Turismo</span></a>
-    <a class="cat-item" href="#eventos"><span class="cat-icon">📅</span><span class="cat-label">Eventos</span></a>
-    <a class="cat-item" href="#explorar"><span class="cat-icon">🍽️</span><span class="cat-label">Gastronomía</span></a>
-    <a class="cat-item" href="#explorar"><span class="cat-icon">🏛️</span><span class="cat-label">Cultura</span></a>
-    <a class="cat-item" href="#explorar"><span class="cat-icon">🌿</span><span class="cat-label">Naturaleza</span></a>
-    <a class="cat-item" href="#explorar"><span class="cat-icon">🏄</span><span class="cat-label">Deportes</span></a>
-    <a class="cat-item" href="#explorar"><span class="cat-icon">🛒</span><span class="cat-label">Comercio Local</span></a>
-    <a class="cat-item" href="#explorar"><span class="cat-icon">👥</span><span class="cat-label">Comunidad</span></a>
-  </div>
-</div>
-
 <!-- EXPLORAR / BUSCADOR -->
-<section class="seccion seccion-arena" id="explorar">
+<section class="seccion-gen" id="explorar">
   <div class="container">
-    <div class="seccion-header">
-      <div>
-        <div class="seccion-titulo">Busca lo que necesitas</div>
-        <div class="seccion-subtitulo">Hoteles, restaurantes, playas, actividades y más</div>
-      </div>
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Busca lo que <span>necesitas</span></div>
     </div>
-    <div class="buscador-wrap">
-      <div class="buscador-row">
+    <div class="buscador-wrap-nuevo">
+      <div class="buscador-row-nuevo">
         <input type="text" id="buscador" placeholder="¿Qué buscas? Ej: hoteles en Canoa, ceviche en Bahía, surf..."/>
         <button onclick="buscar()">Buscar</button>
       </div>
-      <div class="filtros-row">
+      <div class="filtros-row-nuevo">
         <select id="filtro-canton" onchange="buscar()">
           <option value="">Todos los cantones</option>
           <option value="pedernales">Pedernales</option>
@@ -560,274 +324,184 @@
       </div>
     </div>
     <div id="resultados-section">
-      <div class="seccion-titulo" style="margin-bottom:20px">Resultados</div>
-      <div class="resultados-grid" id="resultados-grid"></div>
+      <div class="seccion-gen-titulo" style="margin-bottom:18px;font-size:20px;">Resultados</div>
+      <div class="resultados-grid-nuevo" id="resultados-grid"></div>
     </div>
   </div>
 </section>
 
-<!-- DESTINOS / CANTONES -->
-<section class="seccion seccion-blanca" id="destinos">
+<!-- CANTONES -->
+<section class="seccion-gen" id="destinos" style="background:var(--gris-claro);">
   <div class="container">
-    <div class="seccion-header">
-      <div>
-        <div class="seccion-titulo">Los cinco <span>cantones</span></div>
-        <div class="seccion-subtitulo">Elige tu destino y descubre lo que te espera</div>
-      </div>
-      <a href="#explorar" class="ver-todos">Ver mapa interactivo →</a>
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Los cinco <span>cantones</span></div>
+      <a href="#mapa" class="seccion-gen-link">Ver mapa interactivo →</a>
     </div>
-    <div class="cantones-grid">
-      <div class="canton-card" onclick="filtrarCanton('pedernales')">
-        <div class="canton-emoji">🐠</div>
-        <div class="canton-nombre">Pedernales</div>
-        <div class="canton-tags">Surf · Pesca · Naturaleza</div>
+    <div class="cantones-grid-nuevo">
+      <div class="canton-card-nuevo" onclick="filtrarCanton('pedernales')">
+        <div class="canton-icono" style="color:#2E86FF;">🏄</div>
+        <div class="canton-nombre-nuevo">Pedernales</div>
+        <div class="canton-sub-nuevo">Surf · Pesca · Naturaleza</div>
       </div>
-      <div class="canton-card" onclick="filtrarCanton('jama')">
-        <div class="canton-emoji">🌿</div>
-        <div class="canton-nombre">Jama</div>
-        <div class="canton-tags">Ecoturismo · Arqueología · Cultura</div>
+      <div class="canton-card-nuevo" onclick="filtrarCanton('jama')">
+        <div class="canton-icono" style="color:#1CAE79;">🌿</div>
+        <div class="canton-nombre-nuevo">Jama</div>
+        <div class="canton-sub-nuevo">Ecoturismo · Arqueología</div>
       </div>
-      <div class="canton-card" onclick="filtrarCanton('san vicente')">
-        <div class="canton-emoji">🏄</div>
-        <div class="canton-nombre">San Vicente</div>
-        <div class="canton-tags">Canoa · Surf · Playas</div>
+      <div class="canton-card-nuevo" onclick="filtrarCanton('san vicente')">
+        <div class="canton-icono" style="color:#E8792E;">🏖️</div>
+        <div class="canton-nombre-nuevo">San Vicente</div>
+        <div class="canton-sub-nuevo">Canoa · Surf · Playas</div>
       </div>
-      <div class="canton-card" onclick="filtrarCanton('sucre')">
-        <div class="canton-emoji">⛵</div>
-        <div class="canton-nombre">Sucre</div>
-        <div class="canton-tags">Bahía · Puerto · Ciudad Eco</div>
+      <div class="canton-card-nuevo" onclick="filtrarCanton('sucre')">
+        <div class="canton-icono" style="color:#16305A;">⛵</div>
+        <div class="canton-nombre-nuevo">Sucre — Bahía</div>
+        <div class="canton-sub-nuevo">Ciudad Eco · Puerto · Cultura</div>
       </div>
-      <div class="canton-card" onclick="filtrarCanton('chone')">
-        <div class="canton-emoji">🐄</div>
-        <div class="canton-nombre">Chone</div>
-        <div class="canton-tags">Ganadería · Río · Gastronomía</div>
-      </div>
-      <div class="canton-card" onclick="buscar(); document.getElementById('buscador').value=''; document.getElementById('filtro-canton').value='';">
-        <div class="canton-emoji">🗺️</div>
-        <div class="canton-nombre">Norte de Manabí</div>
-        <div class="canton-tags">Todos los cantones</div>
+      <div class="canton-card-nuevo" onclick="filtrarCanton('chone')">
+        <div class="canton-icono" style="color:#8B5A2B;">🐄</div>
+        <div class="canton-nombre-nuevo">Chone</div>
+        <div class="canton-sub-nuevo">Ganadería · Río · Fiestas</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- EVENTOS -->
-<section class="seccion seccion-arena" id="eventos">
+<section class="seccion-gen" id="eventos">
   <div class="container">
-    <div class="seccion-header">
-      <div>
-        <div class="seccion-titulo">Eventos <span>destacados</span></div>
-        <div class="seccion-subtitulo">Festivales, deportes, cultura y gastronomía</div>
-      </div>
-      <a href="#" class="ver-todos">Ver calendario completo →</a>
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Eventos en <span>Manabí</span></div>
+      <a href="#" class="seccion-gen-link">Ver calendario completo →</a>
     </div>
-    <div class="eventos-grid" id="eventos-grid">
-      <div style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</div>
+    <div class="eventos-tabs">
+      <button class="activo" data-rango="hoy" onclick="filtrarEventosTab('hoy', this)">Hoy</button>
+      <button data-rango="semana" onclick="filtrarEventosTab('semana', this)">Esta semana</button>
+      <button data-rango="mes" onclick="filtrarEventosTab('mes', this)">Este mes</button>
+      <button data-rango="proximos" onclick="filtrarEventosTab('proximos', this)">Próximamente</button>
+    </div>
+    <div class="eventos-grid-nuevo" id="eventos-grid">
+      <div style="color:#888;font-size:14px;grid-column:1/-1;">Cargando eventos...</div>
     </div>
   </div>
 </section>
 
-<!-- EXPERIENCIAS -->
-<section class="seccion seccion-blanca" id="experiencias">
+<!-- MAPA -->
+<section class="seccion-gen" id="mapa" style="background:var(--gris-claro);">
   <div class="container">
-    <div class="seccion-header">
-      <div>
-        <div class="seccion-titulo">Planes para cada <span>viajero</span></div>
-        <div class="seccion-subtitulo">¿Qué tipo de experiencia buscas?</div>
-      </div>
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Mapa <span>interactivo</span></div>
     </div>
-    <div class="experiencias-grid">
-      <div class="exp-card exp-card-1" onclick="filtrarCategoria('surf')">
-        <div class="exp-icon">🏄</div>
-        <div class="exp-titulo">Aventura extrema</div>
-        <div class="exp-desc">Surf, kayak, parapente y senderismo en bosque tropical.</div>
-        <div class="exp-tags"><span class="exp-tag">Surf</span><span class="exp-tag">Kayak</span><span class="exp-tag">Parapente</span></div>
-      </div>
-      <div class="exp-card exp-card-2" onclick="filtrarCategoria('ceviche')">
-        <div class="exp-icon">🦐</div>
-        <div class="exp-titulo">Ruta gastronómica</div>
-        <div class="exp-desc">Ceviches, mariscos, seco de guanta y cocadas del Pacífico norte.</div>
-        <div class="exp-tags"><span class="exp-tag">Ceviche</span><span class="exp-tag">Mariscos</span><span class="exp-tag">Típico</span></div>
-      </div>
-      <div class="exp-card exp-card-3" onclick="filtrarCategoria('naturaleza')">
-        <div class="exp-icon">🦜</div>
-        <div class="exp-titulo">Naturaleza y Aviturismo</div>
-        <div class="exp-desc">80+ especies de aves, reservas naturales, manglares y bosque tropical.</div>
-        <div class="exp-tags"><span class="exp-tag">Aves</span><span class="exp-tag">Manglares</span><span class="exp-tag">Bosque</span></div>
-      </div>
-      <div class="exp-card exp-card-4" onclick="filtrarCategoria('romántico')">
-        <div class="exp-icon">🌅</div>
-        <div class="exp-titulo">Escapada romántica</div>
-        <div class="exp-desc">Playas tranquilas, atardeceres sobre el Pacífico, ecolodges boutique.</div>
-        <div class="exp-tags"><span class="exp-tag">Ecolodge</span><span class="exp-tag">Atardeceres</span></div>
-      </div>
-      <div class="exp-card exp-card-5" onclick="filtrarCategoria('familiar')">
-        <div class="exp-icon">👨‍👩‍👧‍👦</div>
-        <div class="exp-titulo">Familia y comunidad</div>
-        <div class="exp-desc">Playas seguras, actividades para niños, visitas a artesanos locales.</div>
-        <div class="exp-tags"><span class="exp-tag">Familiar</span><span class="exp-tag">Artesanía</span></div>
-      </div>
-      <div class="exp-card exp-card-6" onclick="filtrarCategoria('cultura')">
-        <div class="exp-icon">🏺</div>
-        <div class="exp-titulo">Cultura y arqueología</div>
-        <div class="exp-desc">Chirije, San Isidro y otras joyas de la cultura Jama-Coaque.</div>
-        <div class="exp-tags"><span class="exp-tag">Chirije</span><span class="exp-tag">Museos</span></div>
-      </div>
+    <div class="filtros-row-nuevo" style="margin-bottom:16px;">
+      <select id="mapa-filtro-canton" onchange="cargarMapa()">
+        <option value="">Todos los cantones</option>
+        <option value="pedernales">Pedernales</option>
+        <option value="jama">Jama</option>
+        <option value="san vicente">San Vicente — Canoa</option>
+        <option value="sucre">Sucre — Bahía de Caráquez</option>
+        <option value="chone">Chone</option>
+      </select>
+      <select id="mapa-filtro-categoria" onchange="cargarMapa()">
+        <option value="">Todas las categorías</option>
+        <option value="alojamiento">Alojamiento</option>
+        <option value="restaurante">Restaurantes</option>
+        <option value="playa">Playas</option>
+        <option value="naturaleza">Naturaleza</option>
+        <option value="cultura">Cultura</option>
+        <option value="deporte">Deportes</option>
+      </select>
     </div>
-  </div>
-</section>
-
-<!-- MANA IA SECTION -->
-<section class="seccion seccion-arena" id="mana-ia">
-  <div class="container">
-    <div class="mana-section-grid">
-      <div class="mana-texto">
-        <h2>Conoce a <span>Mana</span>,<br>tu guía inteligente</h2>
-        <p>Mana es una guía entrenada con información verificada sobre los cinco cantones del norte de Manabí. Hazle preguntas en lenguaje natural y recibe recomendaciones personalizadas al instante.</p>
-        <div class="mana-features">
-          <div class="mana-feature">
-            <div class="mana-feature-icon">🗺️</div>
-            <div class="mana-feature-text"><strong>Descubre lugares y playas</strong><span>Hoteles, restaurantes, reservas naturales y más</span></div>
-          </div>
-          <div class="mana-feature">
-            <div class="mana-feature-icon">📅</div>
-            <div class="mana-feature-text"><strong>Consulta eventos y festivales</strong><span>Lo que pasa esta semana en el norte de Manabí</span></div>
-          </div>
-          <div class="mana-feature">
-            <div class="mana-feature-icon">🎤</div>
-            <div class="mana-feature-text"><strong>Disponible por voz</strong><span>Habla directamente con Mana desde tu celular</span></div>
-          </div>
-          <div class="mana-feature">
-            <div class="mana-feature-icon">🕐</div>
-            <div class="mana-feature-text"><strong>24/7, en español</strong><span>Siempre disponible, sin tiempos de espera</span></div>
-          </div>
-        </div>
-        <div class="mana-aviso">⚠️ Mana usa información verificada para sus respuestas. Te recomendamos confirmar precios y horarios directamente con los establecimientos.</div>
-      </div>
-      <div class="mana-demo">
-        <div class="mana-demo-header">
-          <div class="mana-demo-avatar">
-            <svg width="24" height="18" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#4DD9AC"/></svg>
-          </div>
-          <div><strong>Mana</strong><small>Tu guía del Norte de Manabí</small></div>
-        </div>
-        <div class="mana-demo-mensajes" id="demo-mensajes">
-          <div class="demo-burbuja-mana">¡Hola! Soy Mana 🌊<br>Tu guía del Norte de Manabí. ¿Qué quieres descubrir hoy?</div>
-          <div class="demo-burbuja-user">Quiero ver ballenas y comer buen ceviche este fin de semana</div>
-          <div class="demo-burbuja-mana">¡Perfecto momento! Jun–Sep es temporada de ballenas jorobadas 🐋<br><br>Te recomiendo:<br>📍 <strong>Bahía de Caráquez</strong> — tours de avistamiento desde el muelle a las 7h00<br>🦐 <strong>La Herradura</strong> — el mejor ceviche en el malecón de Bahía<br>🏡 Hospedaje en San Vicente desde $35/noche con vista al mar<br><br>¿Quieres que te arme el itinerario completo?</div>
-        </div>
-        <div class="mana-demo-input">
-          <input type="text" id="demo-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')enviarDemo()"/>
-          <button onclick="enviarDemo()">➤</button>
-        </div>
-      </div>
-    </div>
+    <div id="mapa-contenedor">Cargando mapa...</div>
   </div>
 </section>
 
 <!-- PLANIFICAR -->
-<section class="seccion seccion-blanca" id="planificar">
+<section class="seccion-gen" id="planificar">
   <div class="container">
-    <div class="seccion-header">
-      <div>
-        <div class="seccion-titulo">Planifica tu <span>viaje</span></div>
-        <div class="seccion-subtitulo">Todo lo que necesitas saber antes de llegar</div>
-      </div>
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Planifica tu <span>viaje</span></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
-      <div onclick="preguntarHero('Hospedaje en el norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
-        <div style="font-size:28px;margin-bottom:8px">🏨</div>
-        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Hospedaje</div>
-        <div style="font-size:13px;color:var(--texto-suave)">Hoteles, hosterías, glamping y cabañas</div>
+    <div class="cantones-grid-nuevo" style="grid-template-columns:repeat(3,1fr);">
+      <div class="canton-card-nuevo" onclick="preguntar('Rutas recomendadas norte de Manabí')">
+        <div class="canton-icono" style="color:var(--verde);">🗺️</div>
+        <div class="canton-nombre-nuevo">Rutas</div>
+        <div class="canton-sub-nuevo">Itinerarios de 2, 4 y 7 días</div>
       </div>
-      <div onclick="preguntarHero('Cómo llegar al norte de Manabí desde Quito')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
-        <div style="font-size:28px;margin-bottom:8px">🚌</div>
-        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Transporte</div>
-        <div style="font-size:13px;color:var(--texto-suave)">Cómo llegar desde Quito, Guayaquil y Manta</div>
+      <div class="canton-card-nuevo" onclick="preguntar('Cómo llegar al norte de Manabí desde Quito')">
+        <div class="canton-icono" style="color:var(--navy2);">🚌</div>
+        <div class="canton-nombre-nuevo">Transporte</div>
+        <div class="canton-sub-nuevo">Desde Quito, Guayaquil y Manta</div>
       </div>
-      <div onclick="preguntarHero('Rutas recomendadas norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
-        <div style="font-size:28px;margin-bottom:8px">🗺️</div>
-        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Rutas</div>
-        <div style="font-size:13px;color:var(--texto-suave)">Itinerarios de 2, 4 y 7 días</div>
-      </div>
-      <div onclick="preguntarHero('Clima norte de Manabí mejor época para visitar')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
-        <div style="font-size:28px;margin-bottom:8px">🌤️</div>
-        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Clima</div>
-        <div style="font-size:13px;color:var(--texto-suave)">Mejor época para visitar cada cantón</div>
-      </div>
-      <div onclick="preguntarHero('Emergencias y hospitales norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
-        <div style="font-size:28px;margin-bottom:8px">🏥</div>
-        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Salud</div>
-        <div style="font-size:13px;color:var(--texto-suave)">Hospitales y clínicas por cantón</div>
-      </div>
-      <div onclick="preguntarHero('Bancos y cajeros norte de Manabí')" style="background:var(--arena);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--turquesa)'" onmouseout="this.style.borderColor='transparent'">
-        <div style="font-size:28px;margin-bottom:8px">🏧</div>
-        <div style="font-weight:700;color:var(--azul);margin-bottom:4px">Bancos</div>
-        <div style="font-size:13px;color:var(--texto-suave)">Cajeros ATM y cooperativas por cantón</div>
+      <div class="canton-card-nuevo" onclick="preguntar('Clima norte de Manabí mejor época para visitar')">
+        <div class="canton-icono" style="color:#E8792E;">🌤️</div>
+        <div class="canton-nombre-nuevo">Clima</div>
+        <div class="canton-sub-nuevo">Mejor época por cantón</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <h3>Mana<span>bía</span></h3>
-      <p>Tu guía de turismo, cultura, gastronomía y aventura para los cinco cantones del Norte de Manabí, Ecuador.</p>
-      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px">Una iniciativa de la Corporación para el Desarrollo del Norte de Manabí · Tecnología impulsada por Mana IA.</p>
+<footer class="footer-nuevo">
+  <div class="footer-grid-nuevo">
+    <div class="footer-brand-nuevo">
+      <div class="logo">
+        <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
+        Manabía
+      </div>
+      <p>Manabía es tu guía turística con inteligencia artificial. Conecta, pregunta y vive el norte de Manabí.</p>
+      <div class="footer-social">
+        <a href="#" title="Instagram">📷</a>
+        <a href="#" title="Facebook">📘</a>
+        <a href="#" title="TikTok">🎵</a>
+        <a href="#" title="YouTube">▶️</a>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Destinos</h4>
-      <a href="#destinos">Pedernales</a>
-      <a href="#destinos">Jama</a>
-      <a href="#destinos">San Vicente</a>
-      <a href="#destinos">Sucre — Bahía</a>
-      <a href="#destinos">Chone</a>
+    <div class="footer-col-nuevo">
+      <h4>Explora</h4>
+      <a href="#categorias">Playas</a>
+      <a href="#categorias">Naturaleza</a>
+      <a href="#categorias">Cultura</a>
+      <a href="#categorias">Gastronomía</a>
     </div>
-    <div class="footer-col">
-      <h4>Explorar</h4>
-      <a href="#explorar">Playas y surf</a>
-      <a href="#explorar">Naturaleza</a>
-      <a href="#explorar">Gastronomía</a>
-      <a href="#explorar">Cultura</a>
-      <a href="#explorar">Aventura</a>
+    <div class="footer-col-nuevo">
+      <h4>Información</h4>
+      <a href="#planificar">Transporte</a>
+      <a href="#explorar">Hospedaje</a>
+      <a href="#planificar">Consejos de viaje</a>
+      <a href="#planificar">Clima</a>
     </div>
-    <div class="footer-col">
-      <h4>Sobre Manabía</h4>
-      <a href="#">Quiénes somos</a>
-      <a href="#">Misión y visión</a>
+    <div class="footer-col-nuevo">
+      <h4>Manabía</h4>
+      <a href="#">Sobre Manabía</a>
       <a href="#">Aliados</a>
-      <a href="#">Contacto</a>
       <a href="#">Prensa</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2026 Manabía. Todos los derechos reservados.</p>
-    <div class="footer-links">
-      <a href="#">Política de Privacidad</a>
-      <a href="#">Términos y Condiciones</a>
-      <a href="#">Cookies</a>
       <a href="#">Contacto</a>
     </div>
   </div>
+  <div class="footer-plant">🌿</div>
 </footer>
 
-<!-- FABs -->
-<a class="whatsapp-fab" href="https://wa.me/" target="_blank" title="WhatsApp">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-</a>
-<div class="chat-fab" id="chat-fab" onclick="abrirChat()" title="Hablar con Mana">
-  <svg width="28" height="22" viewBox="0 0 28 22" fill="none"><path d="M3 11 Q10 2 17 11 Q24 20 31 11" stroke="#4DD9AC" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="30" cy="10" r="2.5" fill="#4DD9AC"/></svg>
+<!-- BARRA DE CHAT INFERIOR -->
+<div class="bottom-bar">
+  <div class="bottom-bar-avatar">
+    <svg width="22" height="17" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#1CAE79"/></svg>
+  </div>
+  <div class="bottom-bar-info"><strong>Habla con Mana</strong><small>Tu guía del Norte de Manabí</small></div>
+  <div class="bottom-bar-input-row">
+    <input type="text" id="bottom-bar-input" placeholder="Escribe o habla con Mana..." onkeypress="if(event.key==='Enter')enviarBottomBar()"/>
+    <span class="bottom-bar-mic" onclick="toggleVozGlobal('bottom-bar-input')">🎤</span>
+    <button class="bottom-bar-send" onclick="enviarBottomBar()">➤</button>
+  </div>
 </div>
 
-<!-- CHAT PANEL -->
+<!-- CHAT PANEL (popup) -->
 <div class="chat-overlay" id="chat-overlay" onclick="cerrarChat()"></div>
 <div class="chat-panel" id="chat-panel">
   <div class="chat-header">
     <div class="chat-header-info">
       <div class="chat-avatar-circle">
-        <svg width="24" height="18" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#4DD9AC"/></svg>
+        <svg width="22" height="17" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#4DD9AC"/></svg>
       </div>
       <div><strong>Mana</strong><small>Tu guía del Norte de Manabí · 24/7</small></div>
     </div>
@@ -845,244 +519,325 @@
       </div>
     </div>
   </div>
-  <div class="chat-input-bar">
-    <span class="btn-voz" id="btn-voz" onclick="toggleVoz()" title="Hablar">🎤</span>
-    <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter')enviarMensaje()"/>
-    <button onclick="enviarMensaje()">➤</button>
+  <div class="chat-input-bar" style="padding:14px;border-top:1px solid #f0f0f0;display:flex;gap:8px;align-items:center;">
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." style="flex:1;padding:10px 14px;border:1.5px solid var(--borde);border-radius:50px;font-size:13px;outline:none;" onkeypress="if(event.key==='Enter')enviarMensaje()"/>
+    <button onclick="enviarMensaje()" style="background:var(--navy2);color:#fff;border:none;width:38px;height:38px;border-radius:50%;font-size:15px;cursor:pointer;">➤</button>
   </div>
 </div>
 
 <script>
 const BACKEND = "https://manabia-backend.onrender.com";
 
-// Despertar backend al cargar
-async function despertarBackend() {
-  try {
-    await fetch(BACKEND + '/', { signal: AbortSignal.timeout(70000) });
-    console.log('Backend activo');
-  } catch(e) {
-    console.log('Backend tardando...');
-  }
-}
+async function despertarBackend(){ try{ await fetch(BACKEND+'/',{signal:AbortSignal.timeout(70000)}); }catch(e){} }
 despertarBackend();
-setInterval(() => fetch(BACKEND + '/').catch(()=>{}), 14 * 60 * 1000);
+setInterval(()=>fetch(BACKEND+'/').catch(()=>{}), 14*60*1000);
 
-// ── CHAT ──
-function abrirChat() {
+// ── CHAT (popup) ──
+function abrirChat(){
   document.getElementById('chat-panel').classList.add('abierto');
   document.getElementById('chat-overlay').classList.add('abierto');
-  setTimeout(() => document.getElementById('chat-input').focus(), 200);
+  setTimeout(()=>document.getElementById('chat-input').focus(),200);
 }
-function cerrarChat() {
+function cerrarChat(){
   document.getElementById('chat-panel').classList.remove('abierto');
   document.getElementById('chat-overlay').classList.remove('abierto');
 }
-
-function preguntar(txt) {
-  if (!txt || !txt.trim()) return;
+function preguntar(txt){
+  if(!txt||!txt.trim())return;
   abrirChat();
-  setTimeout(() => {
-    document.getElementById('chat-input').value = txt.trim();
-    enviarMensaje();
-  }, 250);
+  setTimeout(()=>{ document.getElementById('chat-input').value=txt.trim(); enviarMensaje(); },250);
+}
+function enviarHeroNuevo(){
+  const v=document.getElementById('hero-input-nuevo').value.trim();
+  if(!v)return;
+  document.getElementById('hero-input-nuevo').value='';
+  preguntar(v);
+}
+function enviarBottomBar(){
+  const v=document.getElementById('bottom-bar-input').value.trim();
+  if(!v)return;
+  document.getElementById('bottom-bar-input').value='';
+  preguntar(v);
 }
 
-function preguntarHero(txt) {
-  if (!txt || !txt.trim()) return;
-  preguntar(txt);
-}
+let ultimoContexto = {};
 
-function enviarDemo() {
-  const inp = document.getElementById('demo-input');
-  const txt = inp.value.trim();
-  if (!txt) return;
-  inp.value = '';
-  preguntar(txt);
-}
+async function enviarMensaje(){
+  const input=document.getElementById('chat-input');
+  const texto=input.value.trim();
+  if(!texto)return;
+  input.value='';
+  agregarMsg(texto,'usuario');
+  const typing=agregarTyping();
 
-async function enviarMensaje() {
-  const input = document.getElementById('chat-input');
-  const texto = input.value.trim();
-  if (!texto) return;
-  input.value = '';
-  agregarMsg(texto, 'usuario');
-  const typing = agregarTyping();
-
-  let avisoTimeout = setTimeout(() => {
-    const aviso = document.createElement('div');
-    aviso.className = 'msg-mana';
-    aviso.id = 'aviso-carga';
-    aviso.innerHTML = '⏳ Mana está despertando, puede tardar hasta 50 seg la primera vez...';
+  let avisoTimeout=setTimeout(()=>{
+    const aviso=document.createElement('div');
+    aviso.className='msg-mana'; aviso.id='aviso-carga';
+    aviso.innerHTML='⏳ Mana está despertando, puede tardar hasta 50 seg la primera vez...';
     document.getElementById('chat-mensajes').appendChild(aviso);
     scrollChat();
-  }, 5000);
+  },5000);
 
-  try {
-    const res = await fetch(BACKEND + '/mana/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto }),
-      signal: AbortSignal.timeout(70000)
+  try{
+    const res=await fetch(BACKEND+'/mana/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({texto, contexto: ultimoContexto}),
+      signal:AbortSignal.timeout(70000)
     });
     clearTimeout(avisoTimeout);
-    const aviso = document.getElementById('aviso-carga');
-    if (aviso) aviso.remove();
-    const data = await res.json();
+    const aviso=document.getElementById('aviso-carga'); if(aviso)aviso.remove();
+    const data=await res.json();
     typing.remove();
-    agregarMsg(data.respuesta || 'No pude procesar eso, intenta de nuevo.', 'mana');
-  } catch(e) {
+    ultimoContexto = data.contexto || {};
+    agregarMsg(data.respuesta||'No pude procesar eso, intenta de nuevo.','mana');
+  }catch(e){
     clearTimeout(avisoTimeout);
-    const aviso = document.getElementById('aviso-carga');
-    if (aviso) aviso.remove();
+    const aviso=document.getElementById('aviso-carga'); if(aviso)aviso.remove();
     typing.remove();
-    agregarMsg('Mana tardó en responder. El servidor gratuito se apaga con inactividad. Espera 1 minuto y vuelve a intentar. 🌊', 'mana');
+    ultimoContexto = {};
+    agregarMsg('Mana tardó en responder. El servidor gratuito se apaga con inactividad. Espera 1 minuto y vuelve a intentar. 🌊','mana');
   }
 }
-
-function agregarMsg(txt, tipo) {
-  const div = document.createElement('div');
-  div.className = tipo === 'mana' ? 'msg-mana' : 'msg-usuario';
-  div.innerHTML = txt.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+function agregarMsg(txt,tipo){
+  const div=document.createElement('div');
+  div.className=tipo==='mana'?'msg-mana':'msg-usuario';
+  div.innerHTML=txt.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
   document.getElementById('chat-mensajes').appendChild(div);
   scrollChat();
 }
-
-function agregarTyping() {
-  const div = document.createElement('div');
-  div.className = 'typing';
-  div.innerHTML = '<span></span><span></span><span></span>';
+function agregarTyping(){
+  const div=document.createElement('div');
+  div.className='typing';
+  div.innerHTML='<span></span><span></span><span></span>';
   document.getElementById('chat-mensajes').appendChild(div);
   scrollChat();
   return div;
 }
+function scrollChat(){ const m=document.getElementById('chat-mensajes'); m.scrollTop=m.scrollHeight; }
 
-function scrollChat() {
-  const m = document.getElementById('chat-mensajes');
-  m.scrollTop = m.scrollHeight;
-}
-
-// ── BÚSQUEDA ──
-async function buscar() {
-  const consulta = document.getElementById('buscador').value.trim();
-  const canton = document.getElementById('filtro-canton').value;
-  const categoria = document.getElementById('filtro-categoria').value;
-  if (!consulta && !canton && !categoria) return;
-
-  const sec = document.getElementById('resultados-section');
-  const grid = document.getElementById('resultados-grid');
-  sec.style.display = 'block';
-  grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">⏳ Buscando... (si es la primera visita puede tardar hasta 50 seg)</p>';
-  sec.scrollIntoView({ behavior: 'smooth' });
-
-  const params = new URLSearchParams();
-  if (consulta) params.append('consulta', consulta);
-  if (canton) params.append('canton', canton);
-  if (categoria) params.append('categoria', categoria);
-
-  try {
-    const res = await fetch(BACKEND + '/lugares?' + params, { signal: AbortSignal.timeout(70000) });
-    const data = await res.json();
-    mostrarResultados(data.lugares || []);
-  } catch(e) {
-    grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">⚠️ Mana está despertando. Espera 1 minuto y vuelve a buscar.</p>';
+// ── VOZ (reutilizable para cualquier input) ──
+let rec=null, escuchando=false, inputVozActivo=null;
+function toggleVozGlobal(inputId){
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){
+    alert('Usa Chrome para activar la voz'); return;
   }
-}
-
-function mostrarResultados(lugares) {
-  const sec = document.getElementById('resultados-section');
-  const grid = document.getElementById('resultados-grid');
-  grid.innerHTML = '';
-  if (!lugares.length) {
-    grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">No encontramos resultados. Intenta con otros términos o pregúntale a Mana.</p>';
-  } else {
-    lugares.forEach(l => {
-      const c = document.createElement('div');
-      c.className = 'lugar-card';
-      c.innerHTML = `<span class="lugar-tag">${l.Categoría || l.Subcategoría || 'Lugar'}</span>
-        <div class="lugar-nombre">${l.Nombre || ''}</div>
-        <div class="lugar-desc">${l.Descripción || ''}</div>
-        <div class="lugar-info">📍 ${l.Parroquia || ''}, ${l.Cantón || ''}${l.Horario ? '<br>🕐 ' + l.Horario : ''}${l.Teléfono ? '<br>📞 ' + l.Teléfono : ''}${l.Precio ? '<br>💰 ' + l.Precio : ''}</div>`;
-      grid.appendChild(c);
-    });
-  }
-  sec.style.display = 'block';
-  sec.scrollIntoView({ behavior: 'smooth' });
-}
-
-function filtrarCanton(canton) {
-  document.getElementById('filtro-canton').value = canton;
-  document.getElementById('buscador').value = '';
-  document.getElementById('explorar').scrollIntoView({ behavior: 'smooth' });
-  setTimeout(buscar, 400);
-}
-
-function filtrarCategoria(tag) {
-  document.getElementById('buscador').value = tag;
-  document.getElementById('filtro-canton').value = '';
-  document.getElementById('explorar').scrollIntoView({ behavior: 'smooth' });
-  setTimeout(buscar, 400);
-}
-
-// ── EVENTOS ──
-async function cargarEventos() {
-  try {
-    const res = await fetch(BACKEND + '/eventos', { signal: AbortSignal.timeout(70000) });
-    const data = await res.json();
-    const grid = document.getElementById('eventos-grid');
-    const eventos = data.eventos || [];
-    if (!eventos.length) {
-      grid.innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">No hay eventos próximos todavía.</p>';
-      return;
-    }
-    grid.innerHTML = '';
-    eventos.slice(0, 4).forEach(ev => {
-      const fecha = ev['Fecha Inicio'] || ev.Fecha_Inicio || '';
-      let dia = '', mes = '';
-      if (fecha) {
-        const d = new Date(fecha);
-        dia = d.getDate();
-        mes = d.toLocaleString('es', { month: 'short' }).toUpperCase();
-      }
-      const c = document.createElement('div');
-      c.className = 'evento-card';
-      c.innerHTML = `<div class="evento-fecha-bar">
-          <div><div class="fecha-num">${dia || '—'}</div><div class="fecha-mes">${mes}</div></div>
-          <span class="evento-badge">${ev.Categoría || 'Evento'}</span>
-        </div>
-        <div class="evento-body">
-          <div class="evento-nombre">${ev.Nombre || ''}</div>
-          <div class="evento-lugar">📍 ${ev.Cantón || ''}</div>
-          <div class="evento-desc">${(ev.Descripción || '').substring(0, 90)}...</div>
-        </div>`;
-      grid.appendChild(c);
-    });
-  } catch(e) {
-    document.getElementById('eventos-grid').innerHTML = '<p style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</p>';
-  }
-}
-cargarEventos();
-
-// ── VOZ ──
-let rec = null, escuchando = false;
-function toggleVoz() {
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    alert('Usa Chrome para activar la voz');
-    return;
-  }
-  if (escuchando) { rec.stop(); return; }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  rec = new SR();
-  rec.lang = 'es-EC';
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.onstart = () => { escuchando = true; document.getElementById('btn-voz').classList.add('escuchando'); };
-  rec.onresult = (e) => { document.getElementById('chat-input').value = e.results[0][0].transcript; enviarMensaje(); };
-  rec.onend = () => { escuchando = false; document.getElementById('btn-voz').classList.remove('escuchando'); };
-  rec.onerror = () => { escuchando = false; document.getElementById('btn-voz').classList.remove('escuchando'); };
+  if(escuchando){ rec.stop(); return; }
+  inputVozActivo=inputId;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  rec=new SR(); rec.lang='es-EC'; rec.continuous=false; rec.interimResults=false;
+  rec.onstart=()=>{ escuchando=true; };
+  rec.onresult=(e)=>{
+    document.getElementById(inputVozActivo).value=e.results[0][0].transcript;
+    if(inputVozActivo==='hero-input-nuevo') enviarHeroNuevo();
+    else if(inputVozActivo==='bottom-bar-input') enviarBottomBar();
+  };
+  rec.onend=()=>{ escuchando=false; };
+  rec.onerror=()=>{ escuchando=false; };
   rec.start();
 }
 
-document.getElementById('buscador').addEventListener('keypress', e => { if (e.key === 'Enter') buscar(); });
+// ── HELPERS: WHATSAPP Y MAPS ──
+function whatsappLink(numero){
+  if(!numero)return null;
+  let digitos=String(numero).replace(/\D/g,'');
+  if(!digitos||digitos.length<7)return null;
+  if(digitos.startsWith('0')) digitos='593'+digitos.slice(1);
+  else if(!digitos.startsWith('593')) digitos='593'+digitos;
+  return `https://wa.me/${digitos}`;
+}
+function mapsLink(lat,lng){ if(!lat||!lng)return null; return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`; }
+
+// ── BÚSQUEDA ──
+async function buscar(){
+  const consulta=document.getElementById('buscador').value.trim();
+  const canton=document.getElementById('filtro-canton').value;
+  const categoria=document.getElementById('filtro-categoria').value;
+  if(!consulta&&!canton&&!categoria)return;
+
+  const sec=document.getElementById('resultados-section');
+  const grid=document.getElementById('resultados-grid');
+  sec.style.display='block';
+  grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">⏳ Buscando... (si es la primera visita puede tardar hasta 50 seg)</p>';
+  sec.scrollIntoView({behavior:'smooth'});
+
+  const params=new URLSearchParams();
+  if(consulta)params.append('consulta',consulta);
+  if(canton)params.append('canton',canton);
+  if(categoria)params.append('categoria',categoria);
+
+  try{
+    const res=await fetch(BACKEND+'/lugares?'+params,{signal:AbortSignal.timeout(70000)});
+    const data=await res.json();
+    mostrarResultados(data.lugares||[]);
+  }catch(e){
+    grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">⚠️ Mana está despertando. Espera 1 minuto y vuelve a buscar.</p>';
+  }
+}
+function mostrarResultados(lugares){
+  const sec=document.getElementById('resultados-section');
+  const grid=document.getElementById('resultados-grid');
+  grid.innerHTML='';
+  if(!lugares.length){
+    grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No encontramos resultados. Intenta con otros términos o pregúntale a Mana.</p>';
+  }else{
+    lugares.forEach(l=>{
+      const c=document.createElement('div');
+      c.className='lugar-card-nuevo';
+      const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
+      const linkMaps=mapsLink(l.Lat,l.Lng);
+      const botones=(linkWa||linkMaps)?`<div class="lugar-botones-nuevo">
+          ${linkWa?`<a class="btn-wa-nuevo" href="${linkWa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
+          ${linkMaps?`<a class="btn-maps-nuevo" href="${linkMaps}" target="_blank" rel="noopener">📍 Cómo llegar</a>`:''}
+        </div>`:'';
+      c.innerHTML=`<span class="lugar-tag-nuevo">${l.Categoría||l.Subcategoría||'Lugar'}</span>
+        <div class="lugar-nombre-nuevo">${l.Nombre||''}</div>
+        <div class="lugar-desc-nuevo">${l.Descripción||''}</div>
+        <div class="lugar-info-nuevo">📍 ${l.Parroquia||''}, ${l.Cantón||''}${l.Horario?'<br>🕐 '+l.Horario:''}${l.Teléfono?'<br>📞 '+l.Teléfono:''}${l.Precio?'<br>💰 '+l.Precio:''}</div>
+        ${botones}`;
+      grid.appendChild(c);
+    });
+  }
+  sec.style.display='block';
+  sec.scrollIntoView({behavior:'smooth'});
+}
+function filtrarCanton(canton){
+  document.getElementById('filtro-canton').value=canton;
+  document.getElementById('buscador').value='';
+  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+  setTimeout(buscar,400);
+}
+function filtrarCategoria(tag){
+  document.getElementById('buscador').value=tag;
+  document.getElementById('filtro-canton').value='';
+  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+  setTimeout(buscar,400);
+}
+document.getElementById('buscador').addEventListener('keypress', e=>{ if(e.key==='Enter') buscar(); });
+
+// ── EVENTOS (con pestañas) ──
+let eventosCache=[];
+async function cargarEventos(){
+  try{
+    const res=await fetch(BACKEND+'/eventos',{signal:AbortSignal.timeout(70000)});
+    const data=await res.json();
+    eventosCache=data.eventos||[];
+    renderEventos(eventosCache);
+  }catch(e){
+    document.getElementById('eventos-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</p>';
+  }
+}
+function filtrarEventosTab(rango, btn){
+  document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
+  btn.classList.add('activo');
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  let filtrados=eventosCache.filter(ev=>{
+    const f=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
+    if(!f)return rango==='proximos';
+    const d=new Date(f); if(isNaN(d))return rango==='proximos';
+    const diffDias=(d-hoy)/(1000*60*60*24);
+    if(rango==='hoy') return diffDias>=0 && diffDias<1;
+    if(rango==='semana') return diffDias>=0 && diffDias<7;
+    if(rango==='mes') return diffDias>=0 && diffDias<31;
+    if(rango==='proximos') return diffDias>=31 || isNaN(diffDias);
+    return true;
+  });
+  if(!filtrados.length) filtrados=eventosCache; // si no hay nada en ese rango, mostrar todos igual
+  renderEventos(filtrados);
+}
+function renderEventos(eventos){
+  const grid=document.getElementById('eventos-grid');
+  if(!eventos.length){
+    grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No hay eventos próximos todavía.</p>';
+    return;
+  }
+  const colores=['#C2662D','#E8792E','#2E86FF','#8B5CF6','#1CAE79'];
+  grid.innerHTML='';
+  eventos.slice(0,4).forEach((ev,i)=>{
+    const fecha=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
+    let dia='',mes='';
+    if(fecha){ const d=new Date(fecha); if(!isNaN(d)){ dia=d.getDate(); mes=d.toLocaleString('es',{month:'short'}).toUpperCase(); } }
+    const color=colores[i%colores.length];
+    const c=document.createElement('div');
+    c.className='evento-card-nuevo';
+    c.innerHTML=`<div class="evento-fecha-nuevo" style="background:${color};">
+        <div><div class="num">${dia||'—'}</div><div class="mes">${mes}</div></div>
+        <span class="tag-evento">${ev.Categoría||'Evento'}</span>
+      </div>
+      <div class="evento-body-nuevo">
+        <div class="evento-nombre-nuevo">${ev.Nombre||''}</div>
+        <div class="evento-lugar-nuevo">📍 ${ev.Cantón||''}</div>
+        <div class="evento-desc-nuevo">${(ev.Descripción||'').substring(0,80)}${(ev.Descripción||'').length>80?'...':''}</div>
+        <div class="evento-cta">Más información →</div>
+      </div>`;
+    grid.appendChild(c);
+  });
+}
+cargarEventos();
+
+// ── MAPA INTERACTIVO ──
+const GOOGLE_MAPS_API_KEY = "AIzaSyBIsCPy4KBZAM_Tquj0SWBygQetboFG0xE";
+let mapaInstancia=null, mapaMarcadores=[], googleMapsCargado=false;
+
+function cargarScriptGoogleMaps(){
+  if(googleMapsCargado){ cargarMapa(); return; }
+  if(!GOOGLE_MAPS_API_KEY||GOOGLE_MAPS_API_KEY==="TU_API_KEY_AQUI"){
+    const cont=document.getElementById('mapa-contenedor');
+    if(cont) cont.innerHTML='<p style="padding:20px;text-align:center;color:#888;font-size:13px;">Falta configurar la API Key de Google Maps.</p>';
+    return;
+  }
+  const script=document.createElement('script');
+  script.src=`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMapaManabia`;
+  script.async=true; script.defer=true;
+  document.head.appendChild(script);
+}
+window.initMapaManabia=function(){ googleMapsCargado=true; cargarMapa(); };
+function inicializarMapaBase(){
+  mapaInstancia=new google.maps.Map(document.getElementById('mapa-contenedor'),{
+    center:{lat:0.35,lng:-80.15}, zoom:10,
+  });
+}
+async function cargarMapa(){
+  if(!googleMapsCargado){ cargarScriptGoogleMaps(); return; }
+  if(!mapaInstancia) inicializarMapaBase();
+  mapaMarcadores.forEach(m=>m.setMap(null)); mapaMarcadores=[];
+
+  const canton=document.getElementById('mapa-filtro-canton').value;
+  const categoria=document.getElementById('mapa-filtro-categoria').value;
+  const params=new URLSearchParams();
+  if(canton)params.append('canton',canton);
+  if(categoria)params.append('categoria',categoria);
+
+  try{
+    const res=await fetch(BACKEND+'/lugares?'+params,{signal:AbortSignal.timeout(70000)});
+    const data=await res.json();
+    const lugares=(data.lugares||[]).filter(l=>l.Lat&&l.Lng);
+    if(!lugares.length)return;
+    const bounds=new google.maps.LatLngBounds();
+    lugares.forEach(l=>{
+      const pos={lat:l.Lat,lng:l.Lng};
+      const marker=new google.maps.Marker({position:pos,map:mapaInstancia,title:l.Nombre});
+      const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
+      const info=new google.maps.InfoWindow({content:`<div style="max-width:220px;font-family:Inter,sans-serif;">
+          <strong style="color:#16305A;">${l.Nombre}</strong><br>
+          <span style="font-size:12px;color:#666;">${l.Subcategoría||l.Categoría||''}</span><br>
+          <span style="font-size:12px;">${(l.Descripción||'').substring(0,100)}</span>
+          ${linkWa?`<br><a href="${linkWa}" target="_blank" style="font-size:12px;color:#25D366;font-weight:600;">💬 WhatsApp</a>`:''}
+        </div>`});
+      marker.addListener('click',()=>info.open(mapaInstancia,marker));
+      mapaMarcadores.push(marker); bounds.extend(pos);
+    });
+    mapaInstancia.fitBounds(bounds);
+  }catch(e){
+    const cont=document.getElementById('mapa-contenedor');
+    if(cont) cont.innerHTML='<p style="padding:20px;text-align:center;color:#888;font-size:13px;">No se pudo cargar el mapa. Intenta de nuevo.</p>';
+  }
+}
+const observerMapa=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{ if(entry.isIntersecting){ cargarScriptGoogleMaps(); observerMapa.disconnect(); } });
+},{threshold:0.2});
+const seccionMapa=document.getElementById('mapa');
+if(seccionMapa) observerMapa.observe(seccionMapa);
 </script>
 </body>
 </html>
