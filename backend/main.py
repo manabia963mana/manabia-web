@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from data import buscar_lugares, buscar_eventos, obtener_cantones, interpretar_consulta, normalizar, construir_whatsapp_link
+from data import buscar_lugares, buscar_eventos, obtener_cantones, interpretar_consulta, normalizar, construir_whatsapp_link, construir_maps_link
 
 app = FastAPI(title="Mana API", description="Backend del portal turistico Manabia")
 
@@ -135,14 +135,15 @@ def verificar_saludo(texto_norm: str):
         "temperatura": "clima",
         "itinerario": "rutas",
         "recorrido": "rutas",
+        "ruta": "rutas",
+        "rutas": "rutas",
         "ballenas": "ballenas",
         "seguridad": "seguridad",
     }
 
-    if len(palabras_texto) <= 4:
-        for palabra, clave in PALABRAS_CORTAS.items():
-            if palabra in palabras_texto:
-                return RESPUESTAS_FIJAS[clave]["respuesta"]
+    for palabra, clave in PALABRAS_CORTAS.items():
+        if palabra in palabras_texto:
+            return RESPUESTAS_FIJAS[clave]["respuesta"]
 
     return None
 
@@ -327,6 +328,9 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         wa_link = construir_whatsapp_link(whatsapp)
         if wa_link:
             linea += f"\n   <a href='{wa_link}' target='_blank' rel='noopener' style='color:#25D366;font-weight:600;text-decoration:none;'>💬 Escribir por WhatsApp</a>"
+        maps_link = construir_maps_link(lugar.get("Lat"), lugar.get("Lng"), nombre, parroquia, canton_lugar)
+        if maps_link:
+            linea += f"\n   <a href='{maps_link}' target='_blank' rel='noopener' style='color:#1E3A6E;font-weight:600;text-decoration:none;'>📍 Cómo llegar</a>"
         items.append(linea)
 
     cuerpo = "\n\n".join(items)
