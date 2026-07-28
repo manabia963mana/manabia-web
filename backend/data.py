@@ -65,15 +65,29 @@ def limpiar(valor):
         return ""
     return s
 
-def limpiar_coordenada(valor):
-    """Convierte una coordenada a float, o None si no es válida"""
+def limpiar_coordenada(valor, tipo="lat"):
+    """Convierte una coordenada a float. Corrige automáticamente el error de captura
+    más común en el Sheet: coordenadas guardadas sin separador decimal
+    (ej. '-804239' en vez de '-80.4239'). Rango esperado para Norte de Manabí:
+    latitud entre -2 y 2, longitud entre -82 y -75."""
     s = limpiar(valor)
     if not s:
         return None
     try:
-        return float(str(s).replace(",", "."))
+        val = float(str(s).replace(",", "."))
     except (ValueError, TypeError):
         return None
+    limite = 2 if tipo == "lat" else 90
+    intentos = 0
+    while abs(val) >= limite and intentos < 6:
+        val /= 10
+        intentos += 1
+    # Si tras corregir sigue fuera de rango razonable, se descarta en vez de mandar un pin roto
+    if tipo == "lng" and not (-82 <= val <= -75):
+        return None
+    if tipo == "lat" and not (-3 <= val <= 3):
+        return None
+    return val
 
 def construir_whatsapp_link(numero: str):
     """Convierte un número de teléfono ecuatoriano en un link wa.me válido"""
@@ -183,8 +197,8 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Horario": limpiar(row.get(col_horario, "")) if col_horario else "",
             "Precio": limpiar(row.get(col_precio, "")) if col_precio else "",
             "Tags": limpiar(row.get(col_tags, "")) if col_tags else "",
-            "Lat": limpiar_coordenada(row.get(col_lat, "")) if col_lat else None,
-            "Lng": limpiar_coordenada(row.get(col_lng, "")) if col_lng else None,
+            "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
+            "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
         }
         result.append(item)
 
