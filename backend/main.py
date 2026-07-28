@@ -14,6 +14,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Los <select> del frontend usan palabras simples que no siempre son subcadena exacta
+# del nombre real de la categoría en el Sheet (ej. "deporte" no está contenido en
+# "Instalaciones Deportivas"). Esta tabla traduce el filtro al nombre real antes de buscar.
+CATEGORIA_ALIAS = {
+    "alojamiento": "Alojamiento",
+    "restaurante": "Alimentos, Bebidas Y Entretenimiento",
+    "naturaleza": "Ecología Y Naturaleza",
+    "cultura": "Cultura y Patrimonio",
+    "deporte": "Instalaciones Deportivas",
+}
+
+def resolver_categoria(categoria: str) -> str:
+    return CATEGORIA_ALIAS.get(normalizar(categoria), categoria) if categoria else categoria
+
 class PreguntaRequest(BaseModel):
     texto: str
     contexto: dict = {}
@@ -33,7 +47,7 @@ def health():
 
 @app.get("/lugares")
 def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
-    resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria)
+    resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=resolver_categoria(categoria))
     return {"total": len(resultados), "lugares": resultados}
 
 @app.get("/eventos")
@@ -64,7 +78,7 @@ RESPUESTAS_FIJAS = {
         "respuesta": "🚌 **Cómo llegar al Norte de Manabí:**\n\n**Desde Quito:**\n- Bus directo a Pedernales (~5 hrs), Bahía (~6 hrs) o Chone (~5 hrs)\n- Cooperativas: Flota Bolívar, Reina del Camino, CITM\n\n**Desde Guayaquil:**\n- Bus a Bahía (~4 hrs) o Pedernales (~5 hrs)\n\n**Desde Manta:**\n- Bus a Bahía (~2 hrs) o Canoa (~2.5 hrs)\n\n**Movilidad interna:**\n- Taxis y mototaxis en todos los cantones\n- Ferry entre Bahía y San Vicente (5 minutos)\n\n¿Necesitas info sobre transporte en algún cantón?"
     },
     "rutas": {
-        "respuesta": "🗺️ **Rutas recomendadas:**\n\n**Fin de semana (2 días):**\n📍 Día 1: Bahía de Caráquez → San Vicente → Canoa\n📍 Día 2: Jama → Pedernales\n\n**4 días:** Todo lo anterior + Chone\n\n**7 días:** Recorrido completo por los 5 cantones\n\n💡 Hospédate al menos una noche en Canoa y una en Bahía. ¿Busco opciones de hospedaje en alguna zona?"
+        "respuesta": "🗺️ **Rutas recomendadas:**\n\n**Fin de semana (2 días):**\n📍 Día 1: Bahía de Caráquez → San Vicente → Canoa\n📍 Día 2: Jama → Pedernales\n\n**3 días:** Todo lo anterior + una noche extra en Canoa para surfear con calma\n\n**4 días:** Todo lo anterior + Chone\n\n**7 días:** Recorrido completo por los 5 cantones\n\n💡 Hospédate al menos una noche en Canoa y una en Bahía. ¿Busco opciones de hospedaje en alguna zona?"
     },
     "ballenas": {
         "respuesta": "🐋 **Avistamiento de ballenas jorobadas:**\n\nMejor época: **junio a septiembre**.\n\n📍 Principal punto de salida: **Bahía de Caráquez** — tours desde el muelle turístico entre 7h00 y 9h00.\n\n¿Busco agencias de turismo en Bahía que ofrezcan este tour?"
@@ -166,11 +180,12 @@ PALABRAS_IGNORAR = {
 }
 
 # ── MEMORIA DE 1 MENSAJE ──
-# Frases cortas que solo tienen sentido si vienen después de una pregunta de Mana
+# Frases cortas que SOLO tienen sentido si vienen después de una pregunta de Mana.
+# Ojo: nunca incluir palabras que empiecen una pregunta real (ej. "quiero", "busco"),
+# o interceptarían preguntas nuevas como si fueran continuaciones.
 PALABRAS_CONTINUACION = {
-    "si", "dale", "ok", "okay", "claro", "va", "vale", "quiero",
-    "porfa", "porfavor", "mas", "siguiente", "sip", "obvio", "aja",
-    "bueno", "listo", "eso"
+    "si", "dale", "ok", "okay", "claro", "vale",
+    "porfa", "porfavor", "sip", "obvio", "aja", "listo", "mas", "eso"
 }
 
 def es_continuacion(texto_norm: str) -> bool:
@@ -190,7 +205,14 @@ def chat_mana(request: PreguntaRequest):
 
     texto_norm = normalizar(texto)
 
-    # 0. Memoria de 1 mensaje: el usuario responde algo corto tipo "sí" / "dale" / "más"
+    # 1. Verificar respuestas fijas PRIMERO (saludo, ballenas, clima, rutas, etc.)
+    #    Esto tiene prioridad sobre la memoria de continuación, para que una pregunta
+    #    real como "quiero ver ballenas" nunca sea interceptada por error.
+    respuesta_fija = verificar_saludo(texto_norm)
+    if respuesta_fija:
+        return {"respuesta": respuesta_fija, "contexto": {}}
+
+    # 2. Memoria de 1 mensaje: el usuario responde algo corto tipo "sí" / "dale" / "más"
     if es_continuacion(texto_norm):
         total_previo = contexto_previo.get("total", 0)
         mostrados_previo = contexto_previo.get("mostrados", 0)
@@ -210,12 +232,7 @@ def chat_mana(request: PreguntaRequest):
                 "contexto": {}
             }
 
-    # 1. Verificar respuestas fijas primero
-    respuesta_fija = verificar_saludo(texto_norm)
-    if respuesta_fija:
-        return {"respuesta": respuesta_fija, "contexto": {}}
-
-    # 2. Interpretar categoría y cantón
+    # 3. Interpretar categoría y cantón
     categoria, canton = interpretar_consulta(texto)
 
     resultados = []
