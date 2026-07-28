@@ -275,6 +275,9 @@ PALABRAS_CLAVE = {
     "Servicios Públicos": ["municipio", "gobierno", "policia", "tramite"],
     "Wellness": ["spa", "masaje", "relajacion", "wellness", "belleza"],
     "Educación Y Formación": ["universidad", "instituto", "idiomas", "curso", "educacion"],
+    "Guianza Turística": ["guia turistico", "guia turistica", "guianza", "tour guiado", "acompañante turistico"],
+    "Organizadores De Eventos, Congresos Y Convenciones": ["organizador de eventos", "planificador de bodas", "organizacion de congresos", "convenciones", "organizador de bodas"],
+    "Parques Temáticos Y Atracciones Estables": ["parque tematico", "parque de diversiones", "juegos mecanicos", "atracciones"],
 }
 
 def interpretar_consulta(texto: str):
