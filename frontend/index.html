@@ -209,13 +209,12 @@ a{text-decoration:none;}
       Manabía
     </a>
     <nav class="nav-links">
-      <a href="#">Descubre ▾</a>
-      <a href="#categorias">Qué hacer ▾</a>
+      <a href="#categorias">Qué hacer</a>
       <a href="#explorar">Lugares</a>
       <a href="#eventos">Eventos</a>
+      <a href="#destinos">Cantones</a>
       <a href="#planificar">Rutas</a>
-      <a href="#categorias">Gastronomía</a>
-      <a href="#">Blog</a>
+      <a href="#explorar" onclick="event.preventDefault(); irACategoria('restaurante');">Gastronomía</a>
     </nav>
     <div class="header-right">
       <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
@@ -275,7 +274,7 @@ a{text-decoration:none;}
         <div class="cat-foto-label">Cultura</div>
         <div class="cat-foto-sub">Jama-Coaque, Historia viva</div>
       </div>
-      <div class="cat-foto-item" onclick="filtrarCategoria('ceviche')">
+      <div class="cat-foto-item" onclick="irACategoria('restaurante')">
         <div class="cat-foto-img"><img src="https://i.ibb.co/VYYDSksW/martin-baron-1-P81h-KRBzrg-unsplash.jpg" alt="Gastronomía" onerror="this.parentElement.style.background='#E14848';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#E14848">🍽️</span>
         <div class="cat-foto-label">Gastronomía</div>
         <div class="cat-foto-sub">Sabores manabitas</div>
@@ -736,6 +735,13 @@ function filtrarCanton(canton){
 function filtrarCategoria(tag){
   document.getElementById('buscador').value=tag;
   document.getElementById('filtro-canton').value='';
+  document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
+  setTimeout(buscar,400);
+}
+function irACategoria(valorSelect){
+  document.getElementById('buscador').value='';
+  document.getElementById('filtro-canton').value='';
+  document.getElementById('filtro-categoria').value=valorSelect;
   document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
   setTimeout(buscar,400);
 }
