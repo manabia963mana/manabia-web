@@ -436,7 +436,9 @@ a{text-decoration:none;}
         <option value="deporte">Deportes</option>
       </select>
     </div>
-    <div id="mapa-contenedor">Cargando mapa...</div>
+    <div id="mapa-contenedor">
+      <button onclick="cargarScriptGoogleMaps()" style="background:var(--navy2);color:#fff;border:none;padding:14px 26px;border-radius:50px;font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">🗺️ Ver mapa interactivo</button>
+    </div>
   </div>
 </section>
 
@@ -902,11 +904,10 @@ async function cargarMapa(){
     if(cont) cont.innerHTML='<p style="padding:20px;text-align:center;color:#888;font-size:13px;">No se pudo cargar el mapa. Intenta de nuevo.</p>';
   }
 }
-const observerMapa=new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{ if(entry.isIntersecting){ cargarScriptGoogleMaps(); observerMapa.disconnect(); } });
-},{threshold:0.2});
-const seccionMapa=document.getElementById('mapa');
-if(seccionMapa) observerMapa.observe(seccionMapa);
+// El mapa NO carga automáticamente al hacer scroll — solo cuando el usuario presiona
+// el botón "Ver mapa interactivo" o cambia un filtro (cargarMapa() ya llama a
+// cargarScriptGoogleMaps() la primera vez que se necesita). Esto evita gastar cuota
+// de Google Maps con visitantes que nunca llegan a usar el mapa.
 </script>
 </body>
 </html>
