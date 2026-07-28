@@ -75,6 +75,20 @@ def limpiar_coordenada(valor):
     except (ValueError, TypeError):
         return None
 
+def construir_whatsapp_link(numero: str):
+    """Convierte un número de teléfono ecuatoriano en un link wa.me válido"""
+    import re as _re
+    if not numero:
+        return None
+    digitos = _re.sub(r'\D', '', str(numero))
+    if not digitos or len(digitos) < 7:
+        return None
+    if digitos.startswith('0'):
+        digitos = '593' + digitos[1:]
+    elif not digitos.startswith('593'):
+        digitos = '593' + digitos
+    return f"https://wa.me/{digitos}"
+
 def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", tags: str = ""):
     df = cargar_hoja("lugares")
     if df.empty:
