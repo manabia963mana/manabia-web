@@ -223,6 +223,13 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
     col_desc = encontrar_columna(df, ["Descripción", "Descripcion", "Descripción corta"])
     col_fecha = encontrar_columna(df, ["Fecha Inicio", "Fecha_Inicio"])
     col_org = encontrar_columna(df, ["Organizador", "Entidad o Persona organizadora"])
+    col_horario = encontrar_columna(df, ["Horario"])
+    col_tel = encontrar_columna(df, ["Teléfono", "Telefono"])
+    col_wa = encontrar_columna(df, ["WhatsApp"])
+    col_web = encontrar_columna(df, ["Sitio web", "Sitio Web"])
+    col_precios = encontrar_columna(df, ["Precios", "Precio"])
+    col_direccion = encontrar_columna(df, ["Dirección", "Direccion"])
+    col_parroquia = encontrar_columna(df, ["Parroquia"])
 
     if canton and col_canton:
         df = df[df[col_canton].astype(str).apply(normalizar).str.contains(normalizar(canton), na=False)]
@@ -241,6 +248,13 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
             "Fecha Inicio": limpiar(row.get(col_fecha, "")) if col_fecha else "",
             "Descripción": limpiar(row.get(col_desc, "")) if col_desc else "",
             "Organizador": limpiar(row.get(col_org, "")) if col_org else "",
+            "Horario": limpiar(row.get(col_horario, "")) if col_horario else "",
+            "Teléfono": limpiar(row.get(col_tel, "")) if col_tel else "",
+            "WhatsApp": limpiar(row.get(col_wa, "")) if col_wa else "",
+            "Sitio web": limpiar(row.get(col_web, "")) if col_web else "",
+            "Precios": limpiar(row.get(col_precios, "")) if col_precios else "",
+            "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
+            "Parroquia": limpiar(row.get(col_parroquia, "")) if col_parroquia else "",
         }
         result.append(item)
     return result
