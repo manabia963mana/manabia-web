@@ -179,9 +179,14 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
         if palabras_consulta:
             columnas_busqueda = [c for c in [col_nombre, col_desc, col_subcategoria, col_parroquia, col_canton, col_tags, col_categoria] if c]
             if columnas_busqueda:
-                texto_fila = df[columnas_busqueda].astype(str).apply(
-                    lambda fila: normalizar(" ".join(fila.values)), axis=1
-                )
+                def _texto_fila(fila):
+                    # Cada valor se convierte a texto explícitamente; los vacíos (NaN) se
+                    # tratan como cadena vacía en vez de dejar que astype(str) los mezcle
+                    # con floats, que es lo que causaba que la búsqueda fallara en filas
+                    # con campos incompletos.
+                    valores = [str(v) if pd.notna(v) else "" for v in fila]
+                    return normalizar(" ".join(valores))
+                texto_fila = df[columnas_busqueda].apply(_texto_fila, axis=1)
                 mask = texto_fila.apply(lambda t: all(p in t for p in palabras_consulta))
                 df = df[mask]
         print(f"Después de búsqueda libre '{consulta}': {len(df)} filas")
