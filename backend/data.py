@@ -63,6 +63,11 @@ def limpiar(valor):
     s = str(valor).strip()
     if s.lower() in ("nan", "none", "n/a", "-", ""):
         return ""
+    # Excel/Sheets a veces guarda columnas de texto que "parecen número" (teléfonos,
+    # WhatsApp con código de país) como float, y al convertir a texto queda un ".0"
+    # final falso (ej. "593990192915.0"). Si el resto son solo dígitos, se descarta.
+    if s.endswith(".0") and s[:-2].replace("+", "").isdigit():
+        s = s[:-2]
     return s
 
 def limpiar_coordenada(valor, tipo="lat"):
@@ -94,7 +99,13 @@ def construir_whatsapp_link(numero: str):
     import re as _re
     if not numero:
         return None
-    digitos = _re.sub(r'\D', '', str(numero))
+    s = str(numero).strip()
+    # Excel guarda números largos (ej. WhatsApp con código de país "593990192915")
+    # como float, y al convertirlos a texto quedan como "593990192915.0" — ese ".0"
+    # se debe descartar entero, no solo el punto, o se cuela un dígito falso al final.
+    if s.endswith(".0"):
+        s = s[:-2]
+    digitos = _re.sub(r'\D', '', s)
     if not digitos or len(digitos) < 7:
         return None
     if digitos.startswith('0'):
@@ -217,6 +228,44 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     print(f"Resultado final: {len(result)} lugares")
     return result
 
+MESES_ES = {
+    "enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6,
+    "julio": 7, "agosto": 8, "septiembre": 9, "setiembre": 9, "octubre": 10,
+    "noviembre": 11, "diciembre": 12,
+}
+
+def construir_fecha_evento(fecha_raw, mes_raw):
+    """Muchas fiestas patronales anuales solo tienen el día en 'Fecha Inicio' (ej. 7)
+    y el mes en una columna aparte ('Agosto'), porque se repiten cada año. Sin esto,
+    el frontend intenta convertir el número suelto en fecha y da resultados absurdos.
+    Aquí se arma la fecha real de la próxima ocurrencia. Si ya viene una fecha completa
+    (o es texto como 'Variable'), se deja tal cual."""
+    import datetime as _dt
+    if isinstance(fecha_raw, (_dt.datetime, _dt.date)):
+        return fecha_raw.strftime("%Y-%m-%d")
+    fecha_str = limpiar(fecha_raw)
+    if not fecha_str:
+        return fecha_str
+    if "-" in fecha_str or "/" in fecha_str:
+        return fecha_str
+    if fecha_str.isdigit():
+        dia = int(fecha_str)
+        mes_num = MESES_ES.get(normalizar(limpiar(mes_raw)))
+        if mes_num and 1 <= dia <= 31:
+            hoy = _dt.date.today()
+            for anio in (hoy.year, hoy.year + 1):
+                try:
+                    fecha_evento = _dt.date(anio, mes_num, dia)
+                except ValueError:
+                    continue
+                if fecha_evento >= hoy:
+                    return fecha_evento.strftime("%Y-%m-%d")
+            try:
+                return _dt.date(hoy.year, mes_num, dia).strftime("%Y-%m-%d")
+            except ValueError:
+                return fecha_str
+    return fecha_str
+
 def buscar_eventos(canton: str = "", categoria: str = ""):
     df = cargar_hoja("eventos")
     if df.empty:
@@ -227,6 +276,7 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
     col_nombre = encontrar_columna(df, ["Nombre", "Nombre Evento o Actividad"])
     col_desc = encontrar_columna(df, ["Descripción", "Descripcion", "Descripción corta"])
     col_fecha = encontrar_columna(df, ["Fecha Inicio", "Fecha_Inicio"])
+    col_mes = encontrar_columna(df, ["Mes"])
     col_org = encontrar_columna(df, ["Organizador", "Entidad o Persona organizadora"])
     col_horario = encontrar_columna(df, ["Horario"])
     col_tel = encontrar_columna(df, ["Teléfono", "Telefono"])
@@ -250,7 +300,7 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
             "Nombre": nombre,
             "Categoría": limpiar(row.get(col_categoria, "")) if col_categoria else "",
             "Cantón": limpiar(row.get(col_canton, "")) if col_canton else "",
-            "Fecha Inicio": limpiar(row.get(col_fecha, "")) if col_fecha else "",
+            "Fecha Inicio": construir_fecha_evento(row.get(col_fecha, ""), row.get(col_mes, "") if col_mes else "") if col_fecha else "",
             "Descripción": limpiar(row.get(col_desc, "")) if col_desc else "",
             "Organizador": limpiar(row.get(col_org, "")) if col_org else "",
             "Horario": limpiar(row.get(col_horario, "")) if col_horario else "",
