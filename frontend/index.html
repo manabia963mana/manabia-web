@@ -385,7 +385,7 @@ a{text-decoration:none;}
   <div class="container">
     <div class="seccion-gen-header">
       <div class="seccion-gen-titulo">Eventos en <span>Manabí</span></div>
-      <a href="#" class="seccion-gen-link">Ver calendario completo →</a>
+      <a href="#eventos" class="seccion-gen-link" onclick="event.preventDefault(); mostrarTodosEventos();">Ver calendario completo →</a>
     </div>
     <div class="eventos-tabs">
       <button class="activo" data-rango="hoy" onclick="filtrarEventosTab('hoy', this)">Hoy</button>
@@ -757,7 +757,7 @@ function filtrarEventosTab(rango, btn){
   document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
   btn.classList.add('activo');
   const hoy=new Date(); hoy.setHours(0,0,0,0);
-  let filtrados=eventosCache.filter(ev=>{
+  const filtrados=eventosCache.filter(ev=>{
     const f=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
     if(!f)return rango==='proximos';
     const d=new Date(f); if(isNaN(d))return rango==='proximos';
@@ -768,13 +768,24 @@ function filtrarEventosTab(rango, btn){
     if(rango==='proximos') return diffDias>=31 || isNaN(diffDias);
     return true;
   });
-  if(!filtrados.length) filtrados=eventosCache; // si no hay nada en ese rango, mostrar todos igual
-  renderEventos(filtrados);
+  renderEventos(filtrados, rango);
 }
-function renderEventos(eventos){
+function mostrarTodosEventos(){
+  document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
+  renderEventos(eventosCache);
+  document.getElementById('eventos').scrollIntoView({behavior:'smooth'});
+}
+const MENSAJE_VACIO_RANGO={
+  hoy:'No hay eventos programados para hoy. Prueba con otra pestaña.',
+  semana:'No hay eventos esta semana. Prueba con "Este mes" o "Próximamente".',
+  mes:'No hay eventos este mes. Prueba con "Próximamente".',
+  proximos:'No hay más eventos próximos registrados por ahora.'
+};
+function renderEventos(eventos, rango){
   const grid=document.getElementById('eventos-grid');
   if(!eventos.length){
-    grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No hay eventos próximos todavía.</p>';
+    const msg = rango ? (MENSAJE_VACIO_RANGO[rango]||'No hay eventos en este rango.') : 'No hay eventos próximos todavía.';
+    grid.innerHTML=`<p style="color:#888;font-size:14px;grid-column:1/-1">${msg}</p>`;
     return;
   }
   const colores=['#C2662D','#E8792E','#2E86FF','#8B5CF6','#1CAE79'];
@@ -786,6 +797,9 @@ function renderEventos(eventos){
     const color=colores[i%colores.length];
     const c=document.createElement('div');
     c.className='evento-card-nuevo';
+    const descCorta=(ev.Descripción||'').substring(0,80)+((ev.Descripción||'').length>80?'...':'');
+    const linkWa=whatsappLink(ev.WhatsApp||ev.Teléfono);
+    const detalleId='evdet-'+Math.random().toString(36).slice(2,9);
     c.innerHTML=`<div class="evento-fecha-nuevo" style="background:${color};">
         <div><div class="num">${dia||'—'}</div><div class="mes">${mes}</div></div>
         <span class="tag-evento">${ev.Categoría||'Evento'}</span>
@@ -793,8 +807,16 @@ function renderEventos(eventos){
       <div class="evento-body-nuevo">
         <div class="evento-nombre-nuevo">${ev.Nombre||''}</div>
         <div class="evento-lugar-nuevo">📍 ${ev.Cantón||''}</div>
-        <div class="evento-desc-nuevo">${(ev.Descripción||'').substring(0,80)}${(ev.Descripción||'').length>80?'...':''}</div>
-        <div class="evento-cta">Más información →</div>
+        <div class="evento-desc-nuevo">${descCorta}</div>
+        <div id="${detalleId}" style="display:none;font-size:12px;color:var(--gris);line-height:1.7;margin-top:8px;border-top:1px solid var(--borde);padding-top:8px;">
+          ${ev.Descripción?`<div>${ev.Descripción}</div>`:''}
+          ${ev.Horario?`<div>🕐 ${ev.Horario}</div>`:''}
+          ${ev.Organizador?`<div>👤 Organiza: ${ev.Organizador}</div>`:''}
+          ${ev.Precios?`<div>💰 ${ev.Precios}</div>`:''}
+          ${linkWa?`<div><a href="${linkWa}" target="_blank" rel="noopener" style="color:#25D366;font-weight:600;">💬 Escribir por WhatsApp</a></div>`:''}
+          ${ev['Sitio web']?`<div><a href="${ev['Sitio web'].startsWith('http')?ev['Sitio web']:'https://'+ev['Sitio web']}" target="_blank" rel="noopener" style="color:var(--navy2);font-weight:600;">🔗 Sitio web</a></div>`:''}
+        </div>
+        <div class="evento-cta" style="cursor:pointer;" onclick="const d=document.getElementById('${detalleId}'); const abierto=d.style.display!=='none'; d.style.display=abierto?'none':'block'; this.textContent=abierto?'Más información →':'Ocultar ▲';">Más información →</div>
       </div>`;
     grid.appendChild(c);
   });
