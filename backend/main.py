@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from data import buscar_lugares, buscar_eventos, obtener_cantones, interpretar_consulta, normalizar
+from data import buscar_lugares, buscar_eventos, obtener_cantones, interpretar_consulta, normalizar, construir_whatsapp_link
 
 app = FastAPI(title="Mana API", description="Backend del portal turistico Manabia")
 
@@ -306,6 +306,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         parroquia = escapar_markdown(lugar.get("Parroquia", ""))
         subcategoria = escapar_markdown(lugar.get("Subcategoría", ""))
         telefono = lugar.get("Teléfono", "")
+        whatsapp = lugar.get("WhatsApp", "") or telefono
         horario = escapar_markdown(lugar.get("Horario", ""))
         precio = escapar_markdown(lugar.get("Precio", ""))
 
@@ -323,6 +324,9 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
             linea += f"\n   💰 {precio}"
         if telefono:
             linea += f"\n   📞 {telefono}"
+        wa_link = construir_whatsapp_link(whatsapp)
+        if wa_link:
+            linea += f"\n   <a href='{wa_link}' target='_blank' rel='noopener' style='color:#25D366;font-weight:600;text-decoration:none;'>💬 Escribir por WhatsApp</a>"
         items.append(linea)
 
     cuerpo = "\n\n".join(items)
