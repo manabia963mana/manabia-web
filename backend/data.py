@@ -103,12 +103,17 @@ def construir_whatsapp_link(numero: str):
         digitos = '593' + digitos
     return f"https://wa.me/{digitos}"
 
-def construir_maps_link(lat, lng, nombre="", parroquia="", canton=""):
-    """Link de Google Maps: usa coordenadas si existen, si no busca por texto (nombre + ubicación)"""
+def construir_maps_link(lat, lng, nombre="", parroquia="", canton="", direccion=""):
+    """Link de Google Maps: usa coordenadas si existen; si no, busca por dirección real;
+    si tampoco hay dirección, busca por nombre + ubicación como último recurso."""
     import urllib.parse
     if lat and lng:
         return f"https://www.google.com/maps/search/?api=1&query={lat},{lng}"
-    partes = [p for p in [nombre, parroquia, canton, "Ecuador"] if p]
+    if direccion:
+        partes = [direccion, canton, "Ecuador"]
+    else:
+        partes = [nombre, parroquia, canton, "Ecuador"]
+    partes = [p for p in partes if p]
     if not partes:
         return None
     query = urllib.parse.quote(" ".join(partes))
@@ -134,6 +139,7 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     col_wa = encontrar_columna(df, ["WhatsApp"])
     col_lat = encontrar_columna(df, ["Latitud", "Lat"])
     col_lng = encontrar_columna(df, ["Longitud", "Lng", "Long"])
+    col_direccion = encontrar_columna(df, ["Dirección", "Direccion"])
 
     print(f"Columnas detectadas -> canton:{col_canton}, categoria:{col_categoria}, nombre:{col_nombre}, parroquia:{col_parroquia}, lat:{col_lat}, lng:{col_lng}")
 
@@ -199,6 +205,7 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Tags": limpiar(row.get(col_tags, "")) if col_tags else "",
             "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
             "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
+            "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
         }
         result.append(item)
 
