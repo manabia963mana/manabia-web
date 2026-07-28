@@ -728,6 +728,7 @@ function mostrarResultados(lugares){
 }
 function filtrarCanton(canton){
   document.getElementById('filtro-canton').value=canton;
+  document.getElementById('filtro-categoria').value='';
   document.getElementById('buscador').value='';
   document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
   setTimeout(buscar,400);
@@ -735,6 +736,7 @@ function filtrarCanton(canton){
 function filtrarCategoria(tag){
   document.getElementById('buscador').value=tag;
   document.getElementById('filtro-canton').value='';
+  document.getElementById('filtro-categoria').value='';
   document.getElementById('explorar').scrollIntoView({behavior:'smooth'});
   setTimeout(buscar,400);
 }
