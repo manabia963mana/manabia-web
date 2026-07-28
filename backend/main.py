@@ -345,7 +345,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         wa_link = construir_whatsapp_link(whatsapp)
         if wa_link:
             linea += f"\n   <a href='{wa_link}' target='_blank' rel='noopener' style='color:#25D366;font-weight:600;text-decoration:none;'>💬 Escribir por WhatsApp</a>"
-        maps_link = construir_maps_link(lugar.get("Lat"), lugar.get("Lng"), nombre, parroquia, canton_lugar)
+        maps_link = construir_maps_link(lugar.get("Lat"), lugar.get("Lng"), nombre, parroquia, canton_lugar, lugar.get("Dirección", ""))
         if maps_link:
             linea += f"\n   <a href='{maps_link}' target='_blank' rel='noopener' style='color:#1E3A6E;font-weight:600;text-decoration:none;'>📍 Cómo llegar</a>"
         items.append(linea)
