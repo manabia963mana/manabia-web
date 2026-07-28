@@ -37,13 +37,14 @@ a{text-decoration:none;}
 .lang-sel{font-size:13px;color:#374151;font-weight:500;display:flex;align-items:center;gap:3px;cursor:pointer;}
 
 /* HERO */
-.hero-nuevo{padding:56px 24px 0;}
-.hero-nuevo-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+.hero-nuevo{position:relative;min-height:480px;display:flex;align-items:center;overflow:hidden;padding:56px 24px 0;}
+.hero-nuevo-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;z-index:0;}
+.hero-nuevo-overlay{position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.9) 32%, rgba(255,255,255,0.35) 58%, rgba(255,255,255,0.05) 78%);z-index:1;}
+.hero-nuevo-grid{position:relative;z-index:2;max-width:1180px;margin:0 auto;width:100%;}
+.hero-nuevo-texto{max-width:560px;}
 .hero-nuevo-texto h1{font-size:44px;font-weight:800;line-height:1.15;letter-spacing:-0.5px;color:var(--navy);}
 .hero-nuevo-texto h1 .verde{color:var(--verde);display:block;}
 .hero-nuevo-texto p{margin-top:18px;font-size:16px;color:var(--gris);line-height:1.6;max-width:440px;}
-.hero-nuevo-img{border-radius:24px;overflow:hidden;height:380px;box-shadow:0 20px 50px rgba(20,50,90,0.18);}
-.hero-nuevo-img img{width:100%;height:100%;object-fit:cover;display:block;}
 
 /* SEARCH CARD (superpuesta) */
 .hero-search-wrap{max-width:1180px;margin:-58px auto 0;padding:0 24px;position:relative;z-index:5;}
@@ -176,8 +177,9 @@ a{text-decoration:none;}
 /* RESPONSIVE */
 @media(max-width:980px){
   .nav-links{display:none;}
-  .hero-nuevo-grid{grid-template-columns:1fr;}
-  .hero-nuevo-img{height:260px;order:-1;}
+  .hero-nuevo{min-height:420px;}
+  .hero-nuevo-texto{max-width:100%;}
+  .hero-nuevo-overlay{background:linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.9) 55%, rgba(255,255,255,0.98) 80%);}
   .hero-search-wrap{margin-top:24px;}
   .cat-foto-grid{grid-template-columns:repeat(3,1fr);}
   .cantones-grid-nuevo{grid-template-columns:repeat(2,1fr);}
@@ -224,13 +226,12 @@ a{text-decoration:none;}
 
 <!-- HERO -->
 <section class="hero-nuevo">
+  <div class="hero-nuevo-bg" style="background-image:url('https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg')"></div>
+  <div class="hero-nuevo-overlay"></div>
   <div class="hero-nuevo-grid">
     <div class="hero-nuevo-texto">
       <h1>Descubre el Norte de Manabí<span class="verde">Con Mana es más fácil.</span></h1>
       <p>Playas, naturaleza, gastronomía, cultura y eventos. Pregunta a Mana y encuentra el plan perfecto para hoy.</p>
-    </div>
-    <div class="hero-nuevo-img">
-      <img src="https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg" alt="Playa Norte de Manabí"/>
     </div>
   </div>
 </section>
@@ -413,7 +414,6 @@ a{text-decoration:none;}
       </select>
     </div>
     <div id="mapa-contenedor">Cargando mapa...</div>
-    <div id="mapa-contador" style="font-size:12.5px;color:var(--gris);margin-top:10px;"></div>
   </div>
 </section>
 
@@ -569,7 +569,7 @@ async function enviarMensaje(){
   let avisoTimeout=setTimeout(()=>{
     const aviso=document.createElement('div');
     aviso.className='msg-mana'; aviso.id='aviso-carga';
-    aviso.innerHTML='⏳ Mana está despertando, puede tardar hasta 50 seg la primera vez...';
+    aviso.innerHTML='⏳ Mana está pensando...';
     document.getElementById('chat-mensajes').appendChild(aviso);
     scrollChat();
   },5000);
@@ -592,7 +592,7 @@ async function enviarMensaje(){
     const aviso=document.getElementById('aviso-carga'); if(aviso)aviso.remove();
     typing.remove();
     ultimoContexto = {};
-    agregarMsg('Mana tardó en responder. El servidor gratuito se apaga con inactividad. Espera 1 minuto y vuelve a intentar. 🌊','mana');
+    agregarMsg('Mana tardó en responder. Espera un momento y vuelve a intentar. 🌊','mana');
   }
 }
 function agregarMsg(txt,tipo){
@@ -659,7 +659,7 @@ async function buscar(){
   const sec=document.getElementById('resultados-section');
   const grid=document.getElementById('resultados-grid');
   sec.style.display='block';
-  grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">⏳ Buscando... (si es la primera visita puede tardar hasta 50 seg)</p>';
+  grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">⏳ Buscando...</p>';
   sec.scrollIntoView({behavior:'smooth'});
 
   const params=new URLSearchParams();
@@ -798,6 +798,45 @@ function inicializarMapaBase(){
     center:{lat:0.35,lng:-80.15}, zoom:10,
   });
 }
+let geocoder=null;
+const geocodeCache={};
+
+function geocodeDireccion(query){
+  if(geocodeCache.hasOwnProperty(query)) return Promise.resolve(geocodeCache[query]);
+  if(!geocoder) geocoder=new google.maps.Geocoder();
+  return new Promise((resolve)=>{
+    geocoder.geocode({address:query},(results,status)=>{
+      if(status==='OK' && results && results[0]){
+        const loc=results[0].geometry.location;
+        const coords={lat:loc.lat(),lng:loc.lng()};
+        geocodeCache[query]=coords;
+        resolve(coords);
+      }else{
+        geocodeCache[query]=null;
+        resolve(null);
+      }
+    });
+  });
+}
+
+function colocarMarcador(l, pos, bounds, aproximado){
+  const marker=new google.maps.Marker({
+    position:pos, map:mapaInstancia, title:l.Nombre,
+    icon: aproximado ? 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png' : undefined
+  });
+  const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
+  const info=new google.maps.InfoWindow({content:`<div style="max-width:220px;font-family:Inter,sans-serif;">
+      <strong style="color:#16305A;">${l.Nombre}</strong><br>
+      <span style="font-size:12px;color:#666;">${l.Subcategoría||l.Categoría||''}</span><br>
+      <span style="font-size:12px;">${(l.Descripción||'').substring(0,100)}</span>
+      ${aproximado?'<br><span style="font-size:11px;color:#E8792E;">📍 Ubicación aproximada</span>':''}
+      ${linkWa?`<br><a href="${linkWa}" target="_blank" style="font-size:12px;color:#25D366;font-weight:600;">💬 WhatsApp</a>`:''}
+    </div>`});
+  marker.addListener('click',()=>info.open(mapaInstancia,marker));
+  mapaMarcadores.push(marker);
+  bounds.extend(pos);
+}
+
 async function cargarMapa(){
   if(!googleMapsCargado){ cargarScriptGoogleMaps(); return; }
   if(!mapaInstancia) inicializarMapaBase();
@@ -813,30 +852,28 @@ async function cargarMapa(){
     const res=await fetch(BACKEND+'/lugares?'+params,{signal:AbortSignal.timeout(70000)});
     const data=await res.json();
     const todos=data.lugares||[];
-    const lugares=todos.filter(l=>l.Lat&&l.Lng);
-    const contador=document.getElementById('mapa-contador');
-    if(contador){
-      const faltantes=todos.length-lugares.length;
-      contador.textContent = faltantes>0
-        ? `Mostrando ${lugares.length} de ${todos.length} lugares en el mapa — ${faltantes} aún no tienen coordenadas registradas en la base de datos.`
-        : (todos.length ? `Mostrando los ${lugares.length} lugares disponibles.` : '');
-    }
-    if(!lugares.length)return;
+    const conCoords=todos.filter(l=>l.Lat&&l.Lng);
+    const sinCoords=todos.filter(l=>!(l.Lat&&l.Lng) && (l.Dirección||l.Nombre));
+    if(!conCoords.length && !sinCoords.length) return;
+
     const bounds=new google.maps.LatLngBounds();
-    lugares.forEach(l=>{
-      const pos={lat:l.Lat,lng:l.Lng};
-      const marker=new google.maps.Marker({position:pos,map:mapaInstancia,title:l.Nombre});
-      const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
-      const info=new google.maps.InfoWindow({content:`<div style="max-width:220px;font-family:Inter,sans-serif;">
-          <strong style="color:#16305A;">${l.Nombre}</strong><br>
-          <span style="font-size:12px;color:#666;">${l.Subcategoría||l.Categoría||''}</span><br>
-          <span style="font-size:12px;">${(l.Descripción||'').substring(0,100)}</span>
-          ${linkWa?`<br><a href="${linkWa}" target="_blank" style="font-size:12px;color:#25D366;font-weight:600;">💬 WhatsApp</a>`:''}
-        </div>`});
-      marker.addListener('click',()=>info.open(mapaInstancia,marker));
-      mapaMarcadores.push(marker); bounds.extend(pos);
-    });
-    mapaInstancia.fitBounds(bounds);
+
+    // Lugares con coordenadas reales: se colocan de inmediato
+    conCoords.forEach(l=>colocarMarcador(l,{lat:l.Lat,lng:l.Lng},bounds,false));
+    if(conCoords.length) mapaInstancia.fitBounds(bounds);
+
+    // Lugares sin coordenadas: se ubican por dirección (geocodificación), uno por uno
+    for(const l of sinCoords){
+      const partes=[l.Dirección, l.Parroquia, l.Cantón, 'Ecuador'].filter(Boolean);
+      if(!partes.length) continue;
+      const query=partes.join(', ');
+      const coords=await geocodeDireccion(query);
+      if(coords){
+        colocarMarcador(l,coords,bounds,true);
+        mapaInstancia.fitBounds(bounds);
+      }
+      await new Promise(r=>setTimeout(r,180)); // evita saturar la API de Geocoding
+    }
   }catch(e){
     const cont=document.getElementById('mapa-contenedor');
     if(cont) cont.innerHTML='<p style="padding:20px;text-align:center;color:#888;font-size:13px;">No se pudo cargar el mapa. Intenta de nuevo.</p>';
