@@ -63,6 +63,9 @@ def limpiar(valor):
     s = str(valor).strip()
     if s.lower() in ("nan", "none", "n/a", "-", ""):
         return ""
+    # Errores de fórmula rota de Google Sheets/Excel que no se le deben mostrar al usuario
+    if s.upper() in ("#ERROR!", "#REF!", "#N/A", "#DIV/0!", "#VALUE!", "#NULL!", "#NAME?", "#NUM!"):
+        return ""
     # Excel/Sheets a veces guarda columnas de texto que "parecen número" (teléfonos,
     # WhatsApp con código de país) como float, y al convertir a texto queda un ".0"
     # final falso (ej. "593990192915.0"). Si el resto son solo dígitos, se descarta.
