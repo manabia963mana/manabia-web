@@ -270,6 +270,10 @@ def chat_mana(request: PreguntaRequest):
     categoria, canton = interpretar_consulta(texto)
 
     resultados = []
+    # Filtros que realmente produjeron 'resultados' — se guardan en el contexto
+    # tal cual se usaron, para que "sí"/"más" reproduzca la MISMA búsqueda
+    # exacta en vez de combinar cantón+categoría+texto a la fuerza.
+    canton_usado, categoria_usado, consulta_usada = "", "", ""
 
     # 3. Búsqueda por nombre específico — limpia palabras vacías
     palabras_busqueda = [p for p in texto.split() if normalizar(p) not in PALABRAS_IGNORAR]
@@ -277,24 +281,36 @@ def chat_mana(request: PreguntaRequest):
 
     if len(palabras_busqueda) >= 1 and not canton and not categoria:
         resultados = buscar_lugares(consulta=texto_limpio_busqueda)
+        if resultados:
+            consulta_usada = texto_limpio_busqueda
 
     # 4. Si hay categoría Y cantón
     if not resultados and categoria and categoria != "GENERAL" and canton:
         resultados = buscar_lugares(categoria=categoria, canton=canton)
+        if resultados:
+            categoria_usado, canton_usado = categoria, canton
 
     # 5. Si hay solo categoría
     if not resultados and categoria and categoria != "GENERAL" and not canton:
         resultados = buscar_lugares(categoria=categoria)
+        if resultados:
+            categoria_usado = categoria
 
     # 6. Si hay cantón con categoría GENERAL → buscar todo en ese cantón
     if not resultados and canton:
         resultados = buscar_lugares(canton=canton, consulta=texto_limpio_busqueda)
+        if resultados:
+            canton_usado, consulta_usada = canton, texto_limpio_busqueda
         if not resultados:
             resultados = buscar_lugares(canton=canton)
+            if resultados:
+                canton_usado = canton
 
     # 7. Búsqueda libre general
     if not resultados:
         resultados = buscar_lugares(consulta=texto_limpio_busqueda)
+        if resultados:
+            consulta_usada = texto_limpio_busqueda
 
     # 8. Sin resultados → mostrar eventos
     if not resultados:
@@ -313,7 +329,7 @@ def chat_mana(request: PreguntaRequest):
             "contexto": {}
         }
 
-    respuesta, nuevo_contexto = armar_respuesta(resultados, canton, categoria, offset=0, consulta=texto_limpio_busqueda)
+    respuesta, nuevo_contexto = armar_respuesta(resultados, canton_usado, categoria_usado, offset=0, consulta=consulta_usada)
     return {"respuesta": respuesta, "contexto": nuevo_contexto}
 
 
