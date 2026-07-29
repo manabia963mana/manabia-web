@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from data import buscar_lugares, buscar_eventos, obtener_cantones, interpretar_consulta, normalizar, construir_whatsapp_link, construir_maps_link
+from data import buscar_lugares, buscar_eventos, obtener_cantones, obtener_comunidad, interpretar_consulta, normalizar, construir_whatsapp_link, construir_maps_link
 
 app = FastAPI(title="Mana API", description="Backend del portal turistico Manabia")
 
@@ -59,6 +59,10 @@ def eventos(canton: str = "", categoria: str = ""):
 @app.head("/cantones")
 def cantones():
     return {"cantones": obtener_cantones()}
+
+@app.get("/comunidad")
+def comunidad():
+    return {"publicaciones": obtener_comunidad()}
 
 # ── RESPUESTAS FIJAS ──
 RESPUESTAS_FIJAS = {
