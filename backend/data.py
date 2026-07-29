@@ -154,6 +154,20 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     col_lat = encontrar_columna(df, ["Latitud", "Lat"])
     col_lng = encontrar_columna(df, ["Longitud", "Lng", "Long"])
     col_direccion = encontrar_columna(df, ["Dirección", "Direccion"])
+    col_desc_larga = encontrar_columna(df, ["Descripción larga", "Descripcion larga"])
+    col_email = encontrar_columna(df, ["Email", "Correo"])
+    col_web = encontrar_columna(df, ["Sitio web", "Sitio Web"])
+    col_fb = encontrar_columna(df, ["Facebook"])
+    col_ig = encontrar_columna(df, ["Instagram"])
+    col_pago = encontrar_columna(df, ["Métodos de pago", "Metodos de pago"])
+    col_idiomas = encontrar_columna(df, ["Idiomas"])
+    col_servicios = encontrar_columna(df, ["Servicios"])
+    col_pet = encontrar_columna(df, ["Pet Friendly"])
+    col_wifi = encontrar_columna(df, ["WiFi", "Wifi"])
+    col_parking = encontrar_columna(df, ["Parking"])
+    col_accesibilidad = encontrar_columna(df, ["Accesibilidad"])
+    col_nivel = encontrar_columna(df, ["Nivel turístico", "Nivel turistico"])
+    col_publico = encontrar_columna(df, ["Público objetivo", "Publico objetivo"])
 
     print(f"Columnas detectadas -> canton:{col_canton}, categoria:{col_categoria}, nombre:{col_nombre}, parroquia:{col_parroquia}, lat:{col_lat}, lng:{col_lng}")
 
@@ -225,6 +239,20 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
             "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
+            "Descripción larga": limpiar(row.get(col_desc_larga, "")) if col_desc_larga else "",
+            "Email": limpiar(row.get(col_email, "")) if col_email else "",
+            "Sitio web": limpiar(row.get(col_web, "")) if col_web else "",
+            "Facebook": limpiar(row.get(col_fb, "")) if col_fb else "",
+            "Instagram": limpiar(row.get(col_ig, "")) if col_ig else "",
+            "Métodos de pago": limpiar(row.get(col_pago, "")) if col_pago else "",
+            "Idiomas": limpiar(row.get(col_idiomas, "")) if col_idiomas else "",
+            "Servicios": limpiar(row.get(col_servicios, "")) if col_servicios else "",
+            "Pet Friendly": limpiar(row.get(col_pet, "")) if col_pet else "",
+            "WiFi": limpiar(row.get(col_wifi, "")) if col_wifi else "",
+            "Parking": limpiar(row.get(col_parking, "")) if col_parking else "",
+            "Accesibilidad": limpiar(row.get(col_accesibilidad, "")) if col_accesibilidad else "",
+            "Nivel turístico": limpiar(row.get(col_nivel, "")) if col_nivel else "",
+            "Público objetivo": limpiar(row.get(col_publico, "")) if col_publico else "",
         }
         result.append(item)
 
