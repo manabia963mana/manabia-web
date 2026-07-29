@@ -19,15 +19,64 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;color:var(--navy);background:var(--blanco);padding-bottom:78px;}
+body{font-family:'Inter',sans-serif;color:var(--navy);background:var(--blanco);}
 .container{max-width:1180px;margin:0 auto;padding:0 24px;}
 a{text-decoration:none;}
+
+/* PROMO MAPA / CALENDARIO */
+.promo-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.promo-card{border-radius:20px;padding:36px 30px;cursor:pointer;color:#fff;transition:transform .2s;min-height:170px;display:flex;flex-direction:column;justify-content:center;}
+.promo-card:hover{transform:translateY(-4px);}
+.promo-mapa{background:linear-gradient(135deg,var(--navy),var(--navy2));}
+.promo-calendario{background:linear-gradient(135deg,#0d7377,var(--verde));}
+.promo-eyebrow{font-size:12.5px;font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.promo-titulo{font-size:24px;font-weight:800;margin-bottom:8px;}
+.promo-sub{font-size:13.5px;opacity:.9;line-height:1.5;}
+
+/* FAQ ACORDEÓN */
+.faq-item{border-bottom:1px solid var(--borde);}
+.faq-pregunta{padding:14px 4px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--navy);}
+.faq-flecha{color:var(--verde-osc);font-size:12px;}
+.faq-respuesta{padding:0 4px 16px;font-size:13.5px;color:var(--gris);line-height:1.7;}
+
+/* MODAL PANTALLA COMPLETA (mapa / calendario) */
+.modal-fullscreen{display:none;position:fixed;top:0;right:0;bottom:0;width:min(880px,100vw);background:#fff;z-index:1010;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,0.25);}
+.modal-fullscreen.abierto{display:flex;}
+.modal-fullscreen-header{padding:20px 28px;border-bottom:1px solid var(--borde);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-fullscreen-header h2{font-size:19px;color:var(--navy);}
+.modal-fullscreen-header button{background:var(--gris-claro);border:none;width:36px;height:36px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--navy);}
+.modal-fullscreen-body{padding:24px 28px;overflow-y:auto;flex:1;}
+
+/* MODAL DETALLE DE LUGAR */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,25,40,0.55);z-index:1000;}
+.modal-overlay.abierto{display:block;}
+.modal-detalle{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,92vw);max-height:86vh;overflow-y:auto;background:#fff;border-radius:20px;z-index:1001;padding:32px;box-shadow:0 30px 80px rgba(0,0,0,0.35);}
+.modal-detalle.abierto{display:block;}
+.modal-cerrar{position:sticky;top:0;float:right;background:var(--gris-claro);border:none;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--navy);}
+.detalle-tag{display:inline-block;background:var(--verde-claro);color:var(--verde-osc);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:10px;}
+.detalle-nombre{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:14px;clear:both;}
+.detalle-desc{font-size:14px;color:var(--gris);line-height:1.6;margin-bottom:18px;}
+.detalle-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:18px;}
+.detalle-campo{font-size:13px;}
+.detalle-campo strong{display:block;color:var(--navy);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+.detalle-campo span{color:var(--gris);}
+.detalle-acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.detalle-acciones a{padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;text-decoration:none;}
+.detalle-btn-wa{background:#25D366;color:#fff;}
+.detalle-btn-maps{background:var(--navy2);color:#fff;}
+.detalle-btn-web{background:var(--gris-claro);color:var(--navy);}
+
+/* WIDGETS */
+.widgets-strip{display:flex;gap:10px;overflow-x:auto;padding:10px 24px;background:var(--gris-claro);border-bottom:1px solid var(--borde);}
+.widget-item{flex-shrink:0;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--borde);border-radius:20px;padding:7px 14px;font-size:12.5px;color:var(--navy);font-weight:600;white-space:nowrap;}
+.widget-sugerencia{background:var(--verde-claro);border-color:transparent;color:var(--verde-osc);}
+.wa-placeholder{margin-left:auto;font-size:16px;opacity:.55;cursor:default;}
 
 /* HEADER */
 .header{position:sticky;top:0;z-index:300;background:rgba(255,255,255,0.98);backdrop-filter:blur(10px);border-bottom:1px solid var(--borde);}
 .header-inner{max-width:1180px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-.logo{display:flex;align-items:center;gap:6px;font-size:21px;font-weight:800;color:var(--navy);flex-shrink:0;}
-.logo svg{flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:11px;font-size:21px;font-weight:800;color:var(--navy);flex-shrink:0;}
+.logo svg{flex-shrink:0;margin-right:1px;}
 .nav-links{display:flex;align-items:center;gap:26px;flex:1;justify-content:center;}
 .nav-links a{color:#374151;font-size:14.5px;font-weight:500;transition:color .2s;white-space:nowrap;}
 .nav-links a:hover{color:var(--verde);}
@@ -118,42 +167,40 @@ a{text-decoration:none;}
 .lugar-desc-nuevo{font-size:12.5px;color:var(--gris);line-height:1.5;}
 .lugar-info-nuevo{font-size:11.5px;color:#8a93a3;margin-top:9px;line-height:1.8;}
 .lugar-botones-nuevo{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.btn-wa-nuevo,.btn-maps-nuevo{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:700;color:#fff;}
-.btn-wa-nuevo{background:#25D366;}
-.btn-maps-nuevo{background:var(--navy2);}
+.lugar-enlaces-nuevo{display:flex;gap:16px;margin-top:10px;}
+.link-wa{color:#1eb857;font-size:12px;font-weight:700;text-decoration:none;border-bottom:1.5px solid #1eb857;padding-bottom:1px;}
+.link-maps{color:var(--navy2);font-size:12px;font-weight:700;text-decoration:none;border-bottom:1.5px solid var(--navy2);padding-bottom:1px;}
+.lugar-ver-mas{margin-top:10px;font-size:11.5px;color:var(--gris);font-weight:600;}
+.lugar-card-nuevo:hover .lugar-ver-mas{color:var(--verde-osc);}
 
 /* MAPA */
 #mapa-contenedor{width:100%;height:460px;border-radius:18px;overflow:hidden;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:#888;font-size:14px;}
 
 /* FOOTER */
 .footer-nuevo{background:#fff;border-top:1px solid var(--borde);padding:52px 24px 28px;position:relative;overflow:hidden;}
-.footer-grid-nuevo{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;}
-.footer-brand-nuevo .logo{margin-bottom:12px;}
-.footer-brand-nuevo p{font-size:13px;color:var(--gris);line-height:1.7;max-width:280px;margin-bottom:16px;}
-.footer-social{display:flex;gap:12px;}
-.footer-social a{width:34px;height:34px;border-radius:50%;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:15px;transition:all .2s;}
-.footer-social a:hover{background:var(--verde);color:#fff;}
+.footer-grid-nuevo{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:32px;margin-bottom:36px;}
+.footer-brand-nuevo .logo{margin-bottom:8px;}
+.logo-footer-row{max-width:280px;}
+.footer-tagline{font-size:12.5px;color:var(--gris);line-height:1.6;margin-top:4px;}
+.footer-social-nueva{display:flex;gap:10px;}
+.footer-social-nueva a{width:32px;height:32px;border-radius:50%;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:14px;transition:all .2s;text-decoration:none;}
+.footer-social-nueva a:hover{background:var(--verde);color:#fff;}
 .footer-col-nuevo h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;}
-.footer-col-nuevo a{display:block;color:var(--gris);font-size:13px;margin-bottom:10px;transition:color .2s;}
+.footer-col-nuevo a{display:block;color:var(--gris);font-size:13px;margin-bottom:10px;transition:color .2s;text-decoration:none;}
 .footer-col-nuevo a:hover{color:var(--verde-osc);}
+.footer-legal-row{max-width:1180px;margin:0 auto;border-top:1px solid var(--borde);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-legal-row p{font-size:12px;color:#999;}
+.footer-legal-links{display:flex;gap:18px;flex-wrap:wrap;}
+.footer-legal-links a{font-size:12px;color:#999;text-decoration:none;}
+.footer-legal-links a:hover{color:var(--verde-osc);}
 .footer-plant{position:absolute;bottom:-10px;right:-10px;font-size:110px;opacity:0.9;pointer-events:none;transform:rotate(-8deg);}
-
-/* BARRA DE CHAT FLOTANTE INFERIOR */
-.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:800;background:var(--navy);padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 -8px 30px rgba(0,0,0,0.18);}
-.bottom-bar-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--verde),#0d7377);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.bottom-bar-info{color:#fff;flex-shrink:0;display:none;}
-.bottom-bar-info strong{display:block;font-size:13.5px;}
-.bottom-bar-info small{font-size:11px;opacity:.7;}
-.bottom-bar-input-row{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border-radius:50px;padding:6px 8px 6px 18px;max-width:760px;margin:0 auto;}
-.bottom-bar-input-row input{flex:1;border:none;background:transparent;outline:none;color:#fff;font-size:14px;padding:8px 0;}
-.bottom-bar-input-row input::placeholder{color:rgba(255,255,255,0.55);}
-.bottom-bar-mic{font-size:17px;cursor:pointer;color:rgba(255,255,255,0.75);padding:6px;}
-.bottom-bar-send{background:var(--verde);color:#fff;border:none;width:38px;height:38px;border-radius:50%;font-size:15px;cursor:pointer;flex-shrink:0;}
 
 /* CHAT PANEL (popup) */
 .chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:900;}
 .chat-overlay.abierto{display:block;}
-.chat-panel{display:none;position:fixed;bottom:86px;right:28px;width:380px;max-height:560px;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.22);z-index:950;flex-direction:column;overflow:hidden;}
+.chat-fab-flotante{position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;background:var(--navy2);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(20,50,90,0.35);cursor:pointer;z-index:940;transition:transform .2s;}
+.chat-fab-flotante:hover{transform:scale(1.08);}
+.chat-panel{display:none;position:fixed;bottom:96px;right:24px;width:380px;max-height:560px;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.22);z-index:950;flex-direction:column;overflow:hidden;}
 .chat-panel.abierto{display:flex;}
 .chat-header{background:var(--navy2);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
 .chat-header-info{display:flex;align-items:center;gap:12px;}
@@ -185,7 +232,7 @@ a{text-decoration:none;}
   .cantones-grid-nuevo{grid-template-columns:repeat(2,1fr);}
   .eventos-grid-nuevo{grid-template-columns:repeat(2,1fr);}
   .footer-grid-nuevo{grid-template-columns:1fr 1fr;}
-  .bottom-bar-info{display:none;}
+  .promo-grid{grid-template-columns:1fr;}
 }
 @media(max-width:600px){
   .hero-nuevo-texto h1{font-size:32px;}
@@ -195,7 +242,7 @@ a{text-decoration:none;}
   .eventos-grid-nuevo{grid-template-columns:1fr;}
   .footer-grid-nuevo{grid-template-columns:1fr;gap:28px;}
   .chat-panel{width:calc(100vw - 24px);right:12px;bottom:80px;}
-  .bottom-bar{padding:10px 14px;}
+  .modal-fullscreen{width:100vw;}
 }
 </style>
 </head>
@@ -209,27 +256,33 @@ a{text-decoration:none;}
       Manabía
     </a>
     <nav class="nav-links">
-      <a href="#categorias">Qué hacer</a>
-      <a href="#explorar">Lugares</a>
+      <a href="#explorar">Descubre</a>
       <a href="#eventos">Eventos</a>
-      <a href="#destinos">Cantones</a>
-      <a href="#planificar">Rutas</a>
-      <a href="#explorar" onclick="event.preventDefault(); irACategoria('restaurante');">Gastronomía</a>
+      <a href="#" onclick="event.preventDefault(); abrirRutas();">Rutas</a>
+      <a href="#comunidad">Comunidad</a>
+      <a href="#sobre-manabi">Sobre Manabí</a>
     </nav>
     <div class="header-right">
       <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
-      <span class="lang-sel">🌐 ES ▾</span>
     </div>
   </div>
 </header>
 
 <!-- HERO -->
+<div class="widgets-strip" id="widgets-strip">
+  <div class="widget-item" id="widget-clima">🌡️ <span>Cargando clima...</span></div>
+  <div class="widget-item" id="widget-ballenas">🐋 <span>—</span></div>
+  <div class="widget-item" id="widget-oleaje">🌊 <span>Cargando mar...</span></div>
+  <div class="widget-item" id="widget-eventos">📅 <span>—</span></div>
+  <div class="widget-item widget-sugerencia">💡 <span>Mayo–Septiembre: mejor época para visitar</span></div>
+</div>
+
 <section class="hero-nuevo">
   <div class="hero-nuevo-bg" style="background-image:url('https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg')"></div>
   <div class="hero-nuevo-overlay"></div>
   <div class="hero-nuevo-grid">
     <div class="hero-nuevo-texto">
-      <h1>Descubre el Norte de Manabí<span class="verde">Con Mana es más fácil.</span></h1>
+      <h1>Descubre el Norte de Manabí<span class="verde">Como nunca antes.</span></h1>
       <p>Playas, naturaleza, gastronomía, cultura y eventos. Pregunta a Mana y encuentra el plan perfecto para hoy.</p>
     </div>
   </div>
@@ -239,6 +292,7 @@ a{text-decoration:none;}
   <div class="hero-search-card">
     <div class="hero-search-header">
       <span>🌊</span><strong>¡Hola! Soy Mana 👋</strong>
+      <span class="wa-placeholder" title="WhatsApp — muy pronto">💬</span>
     </div>
     <div class="hero-search-titulo">¿Qué quieres descubrir hoy?</div>
     <div class="hero-search-input-row">
@@ -379,13 +433,40 @@ a{text-decoration:none;}
   </div>
 </section>
 
-<!-- EVENTOS -->
+<!-- AGENDA + PROMO MAPA/CALENDARIO -->
 <section class="seccion-gen" id="eventos">
   <div class="container">
-    <div class="seccion-gen-header">
-      <div class="seccion-gen-titulo">Eventos en <span>Manabí</span></div>
-      <a href="#eventos" class="seccion-gen-link" onclick="event.preventDefault(); mostrarTodosEventos();">Ver calendario completo →</a>
+    <div class="promo-grid">
+      <div class="promo-card promo-mapa" onclick="abrirModalMapa()">
+        <div class="promo-eyebrow">Explora todo el norte de Manabí</div>
+        <div class="promo-titulo">🗺️ MAPA INTERACTIVO</div>
+        <div class="promo-sub">Playas, restaurantes, atractivos, rutas, hoteles y más</div>
+      </div>
+      <div class="promo-card promo-calendario" onclick="abrirModalCalendario()">
+        <div class="promo-eyebrow">No te pierdas nada</div>
+        <div class="promo-titulo">📅 CALENDARIO DE EVENTOS</div>
+        <div class="promo-sub">Festivales, ferias, deportes, conciertos y actividades para todos</div>
+      </div>
     </div>
+
+    <div class="seccion-gen-header" style="margin-top:40px;">
+      <div class="seccion-gen-titulo">Agenda de <span>Eventos</span></div>
+      <a href="#" class="seccion-gen-link" onclick="event.preventDefault(); abrirModalCalendario();">Ver todo el calendario →</a>
+    </div>
+    <div class="eventos-grid-nuevo" id="agenda-grid">
+      <div style="color:#888;font-size:14px;grid-column:1/-1;">Cargando eventos...</div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL: CALENDARIO COMPLETO -->
+<div class="modal-overlay" id="modal-calendario-overlay" onclick="cerrarModalCalendario()"></div>
+<div class="modal-fullscreen" id="modal-calendario-panel">
+  <div class="modal-fullscreen-header">
+    <h2>Calendario de eventos</h2>
+    <button onclick="cerrarModalCalendario()">✕</button>
+  </div>
+  <div class="modal-fullscreen-body">
     <div class="eventos-tabs">
       <button class="activo" data-rango="hoy" onclick="filtrarEventosTab('hoy', this)">Hoy</button>
       <button data-rango="semana" onclick="filtrarEventosTab('semana', this)">Esta semana</button>
@@ -396,14 +477,16 @@ a{text-decoration:none;}
       <div style="color:#888;font-size:14px;grid-column:1/-1;">Cargando eventos...</div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- MAPA -->
-<section class="seccion-gen" id="mapa" style="background:var(--gris-claro);">
-  <div class="container">
-    <div class="seccion-gen-header">
-      <div class="seccion-gen-titulo">Mapa <span>interactivo</span></div>
-    </div>
+<!-- MODAL: MAPA INTERACTIVO -->
+<div class="modal-overlay" id="modal-mapa-overlay" onclick="cerrarModalMapa()"></div>
+<div class="modal-fullscreen" id="modal-mapa-panel">
+  <div class="modal-fullscreen-header">
+    <h2>Mapa interactivo</h2>
+    <button onclick="cerrarModalMapa()">✕</button>
+  </div>
+  <div class="modal-fullscreen-body">
     <div class="filtros-row-nuevo" style="margin-bottom:16px;">
       <select id="mapa-filtro-canton" onchange="cargarMapa()">
         <option value="">Todos los cantones</option>
@@ -432,14 +515,13 @@ a{text-decoration:none;}
         <option value="Organizadores De Eventos, Congresos Y Convenciones">Organizadores de eventos</option>
         <option value="Parques Temáticos Y Atracciones Estables">Parques y atracciones</option>
         <option value="Guianza Turística">Guías turísticos</option>
-        <option value="deporte">Deportes</option>
       </select>
     </div>
     <div id="mapa-contenedor">
       <button onclick="cargarScriptGoogleMaps()" style="background:var(--navy2);color:#fff;border:none;padding:14px 26px;border-radius:50px;font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">🗺️ Ver mapa interactivo</button>
     </div>
   </div>
-</section>
+</div>
 
 <!-- PLANIFICAR -->
 <section class="seccion-gen" id="planificar">
@@ -467,55 +549,139 @@ a{text-decoration:none;}
   </div>
 </section>
 
+<!-- SOBRE MANABÍ -->
+<section class="seccion-gen" id="sobre-manabi" style="background:var(--gris-claro);">
+  <div class="container" style="max-width:820px;">
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Sobre <span>Manabía</span></div>
+    </div>
+    <p style="font-size:15px;color:var(--gris);line-height:1.8;margin-bottom:20px;">El Norte de Manabí posee uno de los territorios con mayor riqueza natural, cultural y gastronómica del Ecuador. Sin embargo, esa riqueza continúa fragmentada, poco visible y escasamente articulada. La información se encuentra dispersa entre instituciones, municipios, empresas, organizaciones y ciudadanos, dificultando que visitantes, inversionistas y los propios habitantes descubran todo su potencial.</p>
+    <p style="font-size:15px;color:var(--navy);line-height:1.8;margin-bottom:20px;font-weight:600;">Manabía nace para resolver ese problema. No como una guía turística tradicional, sino como la Plataforma Inteligente para el Desarrollo Territorial del Norte de Manabí, basada en Inteligencia Artificial, Datos Abiertos y conocimiento local.</p>
+    <p style="font-size:15px;color:var(--gris);line-height:1.8;margin-bottom:32px;">Uno de sus servicios es Mana, un asistente conversacional capaz de ayudar a planificar viajes, descubrir experiencias y responder preguntas en lenguaje natural. Pero su visión va mucho más allá del turismo: convertirse en la infraestructura digital que conecte personas, instituciones, empresas y conocimiento para impulsar el desarrollo regional.</p>
+
+    <div style="background:#fff;border-radius:16px;padding:28px;margin-bottom:16px;">
+      <h3 style="font-size:16px;color:var(--verde-osc);margin-bottom:10px;">Quiénes somos</h3>
+      <p style="font-size:14px;color:var(--gris);line-height:1.7;">Manabía es la plataforma inteligente del Norte de Manabí. Conectamos personas, lugares y experiencias para ayudarte a descubrir, disfrutar y valorar nuestra región mediante inteligencia artificial y conocimiento local.</p>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:28px;">
+      <h3 style="font-size:16px;color:var(--verde-osc);margin-bottom:10px;">Nuestra visión</h3>
+      <p style="font-size:14px;color:var(--gris);line-height:1.7;">Imaginamos un Norte de Manabí donde cualquier persona pueda descubrir, comprender y disfrutar el territorio mediante una conversación con una inteligencia artificial. Una región donde empresarios, municipios, universidades, organizaciones y ciudadanos compartan una misma infraestructura digital.</p>
+    </div>
+
+    <div class="cantones-grid-nuevo" style="grid-template-columns:repeat(5,1fr);margin-top:32px;">
+      <div class="canton-card-nuevo" style="cursor:default;">
+        <div class="canton-icono" style="color:#2E86FF;">🏖️</div>
+        <div class="canton-nombre-nuevo" style="font-size:13px;">Pedernales</div>
+      </div>
+      <div class="canton-card-nuevo" style="cursor:default;">
+        <div class="canton-icono" style="color:#1CAE79;">🌿</div>
+        <div class="canton-nombre-nuevo" style="font-size:13px;">Jama</div>
+      </div>
+      <div class="canton-card-nuevo" style="cursor:default;">
+        <div class="canton-icono" style="color:#E8792E;">🏄</div>
+        <div class="canton-nombre-nuevo" style="font-size:13px;">San Vicente</div>
+      </div>
+      <div class="canton-card-nuevo" style="cursor:default;">
+        <div class="canton-icono" style="color:var(--navy);">⛵</div>
+        <div class="canton-nombre-nuevo" style="font-size:13px;">Sucre</div>
+      </div>
+      <div class="canton-card-nuevo" style="cursor:default;">
+        <div class="canton-icono" style="color:#8B5A2B;">🐄</div>
+        <div class="canton-nombre-nuevo" style="font-size:13px;">Chone</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMUNIDAD -->
+<section class="seccion-gen" id="comunidad">
+  <div class="container" style="max-width:820px;">
+    <div class="seccion-gen-header">
+      <div class="seccion-gen-titulo">Comunidad <span>Manabía</span></div>
+    </div>
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.7;margin-bottom:24px;">¿Descubriste algo interesante, tienes una sugerencia o una crítica constructiva? Compártela con la comunidad. Cada publicación pasa por una revisión antes de mostrarse públicamente, para mantener este un espacio útil y respetuoso para todos.</p>
+    <div style="background:var(--gris-claro);border-radius:18px;padding:30px;margin-bottom:32px;text-align:center;">
+      <p style="font-size:14.5px;color:var(--navy);margin-bottom:16px;font-weight:600;">Comparte tu comentario, sugerencia o recomendación con la comunidad</p>
+      <a href="https://forms.gle/9Nkvu7PrGU8XhBPK6" target="_blank" rel="noopener" style="display:inline-block;background:var(--navy2);color:#fff;text-decoration:none;padding:13px 32px;border-radius:50px;font-size:14.5px;font-weight:700;">✏️ Publicar en Comunidad</a>
+      <p style="font-size:12px;color:var(--gris);margin-top:12px;">Se abre en una pestaña nueva · tu publicación queda en revisión antes de mostrarse aquí</p>
+    </div>
+    <div class="seccion-gen-titulo" style="font-size:18px;margin-bottom:16px;">Publicaciones <span>recientes</span></div>
+    <div id="comunidad-lista">
+      <p style="text-align:center;color:#999;font-size:13.5px;padding:20px;">Cargando publicaciones...</p>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer class="footer-nuevo">
   <div class="footer-grid-nuevo">
     <div class="footer-brand-nuevo">
-      <div class="logo">
-        <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
-        Manabía
+      <div class="logo-footer-row">
+        <div class="logo">
+          <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
+          Manabía
+        </div>
+        <p class="footer-tagline">Mana está aprendiendo cada día para ayudarte a descubrir lo mejor del Norte de Manabí</p>
       </div>
-      <p>Manabía es tu guía turística con inteligencia artificial. Conecta, pregunta y vive el norte de Manabí.</p>
     </div>
     <div class="footer-col-nuevo">
-      <h4>Explora</h4>
-      <a href="#categorias">Playas</a>
-      <a href="#categorias">Naturaleza</a>
-      <a href="#categorias">Cultura</a>
-      <a href="#categorias">Gastronomía</a>
+      <h4>Sobre Manabí</h4>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('quienes-somos')">Quiénes somos</a>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('para-negocios')">Para negocios</a>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('aliados')">Aliados</a>
     </div>
     <div class="footer-col-nuevo">
-      <h4>Información</h4>
-      <a href="#planificar">Transporte</a>
-      <a href="#explorar">Hospedaje</a>
-      <a href="#planificar">Consejos de viaje</a>
-      <a href="#planificar">Clima</a>
+      <h4>Ayuda</h4>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('faq')">Preguntas frecuentes</a>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('contacto')">Contáctanos</a>
     </div>
     <div class="footer-col-nuevo">
-      <h4>Manabía</h4>
-      <a href="#">Sobre Manabía</a>
-      <a href="#">Aliados</a>
-      <a href="#">Prensa</a>
-      <a href="#">Contacto</a>
+      <h4>Síguenos</h4>
+      <div class="footer-social-nueva">
+        <a href="#" title="Instagram">📷</a>
+        <a href="#" title="Facebook">📘</a>
+        <a href="#" title="TikTok">🎵</a>
+        <a href="#" title="YouTube">▶️</a>
+      </div>
+    </div>
+    <div class="footer-col-nuevo">
+      <h4>Para instituciones</h4>
+      <a href="https://docs.google.com/spreadsheets/d/1CT5CrCetBCzVY49vtabbomFnSXUpIGmtsu2v0vRZtrg/edit?usp=sharing" target="_blank" rel="noopener">Centro de Datos</a>
+      <span style="display:block;font-size:11.5px;color:var(--gris);margin-top:-6px;">Observatorio del Norte de Manabí</span>
+    </div>
+  </div>
+  <div class="footer-legal-row">
+    <p>© 2026 Manabía. Todos los derechos reservados.</p>
+    <div class="footer-legal-links">
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('terminos')">Términos y Condiciones</a>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('privacidad')">Política de Privacidad</a>
+      <a href="#" onclick="event.preventDefault(); abrirModalFooter('cookies')">Cookies</a>
     </div>
   </div>
   <div class="footer-plant">🌿</div>
 </footer>
 
-<!-- BARRA DE CHAT INFERIOR -->
-<div class="bottom-bar">
-  <div class="bottom-bar-avatar">
-    <svg width="22" height="17" viewBox="0 0 24 18" fill="none"><path d="M2 9 Q7 2 12 9 Q17 16 22 9" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="23" cy="8.5" r="2" fill="#1CAE79"/></svg>
+<!-- MODAL GENÉRICO DE FOOTER (Quiénes somos, FAQ, Contacto, Legal, etc.) -->
+<div class="modal-overlay" id="modal-footer-overlay" onclick="cerrarModalFooter()"></div>
+<div class="modal-fullscreen" id="modal-footer-panel">
+  <div class="modal-fullscreen-header">
+    <h2 id="modal-footer-titulo">Manabía</h2>
+    <button onclick="cerrarModalFooter()">✕</button>
   </div>
-  <div class="bottom-bar-info"><strong>Habla con Mana</strong><small>Tu guía del Norte de Manabí</small></div>
-  <div class="bottom-bar-input-row">
-    <input type="text" id="bottom-bar-input" placeholder="Escribe o habla con Mana..." onkeypress="if(event.key==='Enter')enviarBottomBar()"/>
-    <span class="bottom-bar-mic" onclick="toggleVozGlobal('bottom-bar-input')">🎤</span>
-    <button class="bottom-bar-send" onclick="enviarBottomBar()">➤</button>
-  </div>
+  <div class="modal-fullscreen-body" id="modal-footer-contenido"></div>
 </div>
 
 <!-- CHAT PANEL (popup) -->
+<!-- MODAL DETALLE DE LUGAR -->
+<div class="modal-overlay" id="detalle-overlay" onclick="cerrarDetalleLugar()"></div>
+<div class="modal-detalle" id="detalle-panel">
+  <button class="modal-cerrar" onclick="cerrarDetalleLugar()">✕</button>
+  <div id="detalle-contenido"></div>
+</div>
+
+<div class="chat-fab-flotante" onclick="abrirChat()" title="Hablar con Mana">
+  <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
+</div>
 <div class="chat-overlay" id="chat-overlay" onclick="cerrarChat()"></div>
 <div class="chat-panel" id="chat-panel">
   <div class="chat-header">
@@ -541,6 +707,7 @@ a{text-decoration:none;}
   </div>
   <div class="chat-input-bar" style="padding:14px;border-top:1px solid #f0f0f0;display:flex;gap:8px;align-items:center;">
     <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." style="flex:1;padding:10px 14px;border:1.5px solid var(--borde);border-radius:50px;font-size:13px;outline:none;" onkeypress="if(event.key==='Enter')enviarMensaje()"/>
+    <span onclick="toggleVozGlobal('chat-input')" style="font-size:18px;cursor:pointer;color:var(--gris);padding:4px;">🎤</span>
     <button onclick="enviarMensaje()" style="background:var(--navy2);color:#fff;border:none;width:38px;height:38px;border-radius:50%;font-size:15px;cursor:pointer;">➤</button>
   </div>
 </div>
@@ -550,6 +717,75 @@ const BACKEND = "https://manabia-backend.onrender.com";
 
 async function despertarBackend(){ try{ await fetch(BACKEND+'/',{signal:AbortSignal.timeout(70000)}); }catch(e){} }
 despertarBackend();
+
+// ── WIDGETS (clima y oleaje en vivo vía Open-Meteo, sin API key) ──
+const COORD_NORTE_MANABI = { lat: 0.6, lng: -80.4 }; // punto central aproximado, Bahía de Caráquez
+
+const CODIGOS_CLIMA = {
+  0:'Despejado ☀️',1:'Mayormente despejado 🌤️',2:'Parcialmente nublado ⛅',3:'Nublado ☁️',
+  45:'Neblina 🌫️',48:'Neblina 🌫️',51:'Llovizna leve 🌦️',53:'Llovizna 🌦️',55:'Llovizna fuerte 🌧️',
+  61:'Lluvia leve 🌧️',63:'Lluvia 🌧️',65:'Lluvia fuerte 🌧️',80:'Chubascos 🌦️',81:'Chubascos 🌦️',
+  82:'Chubascos fuertes ⛈️',95:'Tormenta ⛈️',96:'Tormenta ⛈️',99:'Tormenta ⛈️'
+};
+
+async function cargarWidgetClima(){
+  const el = document.querySelector('#widget-clima span');
+  try{
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${COORD_NORTE_MANABI.lat}&longitude=${COORD_NORTE_MANABI.lng}&current=temperature_2m,weather_code&timezone=auto`, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    const temp = Math.round(data.current.temperature_2m);
+    const desc = CODIGOS_CLIMA[data.current.weather_code] || 'Clima variable';
+    el.textContent = `${temp}°C — ${desc}`;
+  }catch(e){
+    el.textContent = 'No disponible';
+  }
+}
+
+async function cargarWidgetOleaje(){
+  const el = document.querySelector('#widget-oleaje span');
+  try{
+    const res = await fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${COORD_NORTE_MANABI.lat}&longitude=${COORD_NORTE_MANABI.lng}&current=wave_height`, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    const h = data.current.wave_height;
+    let nivel = 'bajo';
+    if(h >= 1.5) nivel = 'alto';
+    else if(h >= 0.8) nivel = 'moderado';
+    el.textContent = `Oleaje ${nivel} (${h.toFixed(1)}m)`;
+  }catch(e){
+    el.textContent = 'No disponible';
+  }
+}
+
+function cargarWidgetBallenas(){
+  const el = document.querySelector('#widget-ballenas span');
+  const mes = new Date().getMonth() + 1; // 1-12
+  const activa = mes >= 6 && mes <= 9;
+  el.textContent = activa ? 'Temporada de ballenas activa' : 'Temporada de ballenas: jun-sep';
+}
+
+function actualizarWidgetEventos(){
+  const el = document.querySelector('#widget-eventos span');
+  if(!eventosCache || !eventosCache.length){ el.textContent = 'Sin eventos próximos'; return; }
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const hoyMismo = eventosCache.filter(ev=>{
+    const f = ev['Fecha Inicio']||''; if(!f) return false;
+    const d = new Date(f); if(isNaN(d)) return false;
+    const diff = (d-hoy)/(1000*60*60*24);
+    return diff>=0 && diff<1;
+  }).length;
+  if(hoyMismo>0){ el.textContent = `${hoyMismo} evento${hoyMismo>1?'s':''} hoy`; return; }
+  const proximos = eventosCache.filter(ev=>{
+    const f = ev['Fecha Inicio']||''; if(!f) return false;
+    const d = new Date(f); if(isNaN(d)) return false;
+    const diff = (d-hoy)/(1000*60*60*24);
+    return diff>=0 && diff<30;
+  }).length;
+  el.textContent = proximos>0 ? `${proximos} evento${proximos>1?'s':''} próximamente` : 'Sin eventos próximos';
+}
+
+cargarWidgetClima();
+cargarWidgetOleaje();
+cargarWidgetBallenas();
 setInterval(()=>fetch(BACKEND+'/').catch(()=>{}), 14*60*1000);
 
 // ── CHAT (popup) ──
@@ -566,6 +802,48 @@ function preguntar(txt){
   if(!txt||!txt.trim())return;
   abrirChat();
   setTimeout(()=>{ document.getElementById('chat-input').value=txt.trim(); enviarMensaje(); },250);
+}
+const TIPO_ICONO={"Comentario":"💬","Sugerencia":"💡","Crítica constructiva":"📝","Recomendación de un lugar":"📍"};
+async function cargarComunidad(){
+  const lista=document.getElementById('comunidad-lista');
+  try{
+    const res=await fetch(BACKEND+'/comunidad',{signal:AbortSignal.timeout(20000)});
+    const data=await res.json();
+    const posts=data.publicaciones||[];
+    if(!posts.length){
+      lista.innerHTML='<p style="text-align:center;color:#999;font-size:13.5px;padding:20px;">Todavía no hay publicaciones aprobadas. ¡Sé el primero en compartir algo!</p>';
+      return;
+    }
+    lista.innerHTML=posts.map(p=>`
+      <div style="background:#fff;border:1px solid var(--borde);border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:13.5px;color:var(--navy);">${TIPO_ICONO[p.Tipo]||'💬'} ${p.Nombre}</strong>
+          <span style="font-size:11px;color:#999;">${p.Tipo||''}</span>
+        </div>
+        <p style="font-size:13.5px;color:var(--gris);line-height:1.6;">${p.Mensaje}</p>
+      </div>`).join('');
+  }catch(e){
+    lista.innerHTML='<p style="text-align:center;color:#999;font-size:13.5px;padding:20px;">No se pudieron cargar las publicaciones. Intenta más tarde.</p>';
+  }
+}
+cargarComunidad();
+function abrirRutas(){
+  abrirChat();
+  const cont=document.getElementById('chat-mensajes');
+  const div=document.createElement('div');
+  div.className='msg-mana';
+  div.innerHTML=`¡Vamos a planear tu ruta! 🗺️ ¿Qué tipo de viaje tienes en mente?
+    <div class="sugs" style="margin-top:10px">
+      <button onclick="preguntar('2 días')">📅 2 días</button>
+      <button onclick="preguntar('3 días')">📅 3 días</button>
+      <button onclick="preguntar('1 semana')">📅 1 semana</button>
+      <button onclick="preguntar('2 semanas')">📅 2 semanas</button>
+      <button onclick="preguntar('viaje en pareja')">💑 Plan en pareja</button>
+      <button onclick="preguntar('viaje en familia')">👨‍👩‍👧‍👦 Viaje en familia</button>
+      <button onclick="preguntar('conocer un cantón en un día')">☀️ Conocer un cantón en un día</button>
+    </div>`;
+  cont.appendChild(div);
+  scrollChat();
 }
 function enviarHeroNuevo(){
   const v=document.getElementById('hero-input-nuevo').value.trim();
@@ -651,6 +929,7 @@ function toggleVozGlobal(inputId){
     document.getElementById(inputVozActivo).value=e.results[0][0].transcript;
     if(inputVozActivo==='hero-input-nuevo') enviarHeroNuevo();
     else if(inputVozActivo==='bottom-bar-input') enviarBottomBar();
+    else if(inputVozActivo==='chat-input') enviarMensaje();
   };
   rec.onend=()=>{ escuchando=false; };
   rec.onerror=()=>{ escuchando=false; };
@@ -699,27 +978,79 @@ async function buscar(){
     grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">⚠️ Mana está despertando. Espera 1 minuto y vuelve a buscar.</p>';
   }
 }
+function abrirDetalleLugar(i){
+  const l=ultimosResultadosLugares[i];
+  if(!l) return;
+  const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
+  const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón);
+  const web=l['Sitio web']?(l['Sitio web'].startsWith('http')?l['Sitio web']:'https://'+l['Sitio web']):null;
+
+  const campos=[
+    ['Ubicación', [l.Dirección, l.Parroquia, l.Cantón].filter(Boolean).join(', ')],
+    ['Horario', l.Horario],
+    ['Precio', l.Precio],
+    ['Email', l.Email],
+    ['Métodos de pago', l['Métodos de pago']],
+    ['Idiomas', l.Idiomas],
+    ['Servicios', l.Servicios],
+    ['Pet Friendly', l['Pet Friendly']],
+    ['WiFi', l.WiFi],
+    ['Parking', l.Parking],
+    ['Accesibilidad', l.Accesibilidad],
+    ['Nivel turístico', l['Nivel turístico']],
+    ['Público objetivo', l['Público objetivo']],
+    ['Instagram', l.Instagram],
+    ['Facebook', l.Facebook],
+  ].filter(([_,v])=>v);
+
+  const html=`
+    <span class="detalle-tag">${l.Categoría||l.Subcategoría||'Lugar'}</span>
+    <div class="detalle-nombre">${l.Nombre||''}</div>
+    <div class="detalle-desc">${l['Descripción larga']||l.Descripción||'Sin descripción disponible todavía.'}</div>
+    <div class="detalle-grid">
+      ${campos.map(([label,valor])=>`<div class="detalle-campo"><strong>${label}</strong><span>${valor}</span></div>`).join('')}
+    </div>
+    <div class="detalle-acciones">
+      ${linkWa?`<a class="detalle-btn-wa" href="${linkWa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
+      ${linkMaps?`<a class="detalle-btn-maps" href="${linkMaps}" target="_blank" rel="noopener">📍 Cómo llegar</a>`:''}
+      ${web?`<a class="detalle-btn-web" href="${web}" target="_blank" rel="noopener">🔗 Sitio web</a>`:''}
+    </div>`;
+  document.getElementById('detalle-contenido').innerHTML=html;
+  document.getElementById('detalle-overlay').classList.add('abierto');
+  document.getElementById('detalle-panel').classList.add('abierto');
+}
+function cerrarDetalleLugar(){
+  document.getElementById('detalle-overlay').classList.remove('abierto');
+  document.getElementById('detalle-panel').classList.remove('abierto');
+}
+
+let ultimosResultadosLugares=[];
 function mostrarResultados(lugares){
   const sec=document.getElementById('resultados-section');
   const grid=document.getElementById('resultados-grid');
   grid.innerHTML='';
+  ultimosResultadosLugares=lugares;
   if(!lugares.length){
     grid.innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No encontramos resultados. Intenta con otros términos o pregúntale a Mana.</p>';
   }else{
-    lugares.forEach(l=>{
+    lugares.forEach((l,i)=>{
       const c=document.createElement('div');
       c.className='lugar-card-nuevo';
+      c.style.cursor='pointer';
+      c.onclick=()=>abrirDetalleLugar(i);
       const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
       const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón);
-      const botones=(linkWa||linkMaps)?`<div class="lugar-botones-nuevo">
-          ${linkWa?`<a class="btn-wa-nuevo" href="${linkWa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
-          ${linkMaps?`<a class="btn-maps-nuevo" href="${linkMaps}" target="_blank" rel="noopener">📍 Cómo llegar</a>`:''}
+      const enlaces=(linkWa||linkMaps)?`<div class="lugar-enlaces-nuevo">
+          ${linkWa?`<a class="link-wa" href="${linkWa}" target="_blank" rel="noopener" onclick="event.stopPropagation()">WhatsApp</a>`:''}
+          ${linkMaps?`<a class="link-maps" href="${linkMaps}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Cómo llegar</a>`:''}
         </div>`:'';
+      const infoLinea=[l.Parroquia,l.Cantón].filter(Boolean).join(', ');
       c.innerHTML=`<span class="lugar-tag-nuevo">${l.Categoría||l.Subcategoría||'Lugar'}</span>
         <div class="lugar-nombre-nuevo">${l.Nombre||''}</div>
         <div class="lugar-desc-nuevo">${l.Descripción||''}</div>
-        <div class="lugar-info-nuevo">📍 ${l.Parroquia||''}, ${l.Cantón||''}${l.Horario?'<br>🕐 '+l.Horario:''}${l.Teléfono?'<br>📞 '+l.Teléfono:''}${l.Precio?'<br>💰 '+l.Precio:''}</div>
-        ${botones}`;
+        <div class="lugar-info-nuevo">${infoLinea}${l.Horario?' · '+l.Horario:''}${l.Precio?' · '+l.Precio:''}${l.Teléfono?'<br>📞 '+l.Teléfono:''}</div>
+        ${enlaces}
+        <div class="lugar-ver-mas">Ver más información →</div>`;
       grid.appendChild(c);
     });
   }
@@ -756,10 +1087,21 @@ async function cargarEventos(){
     const res=await fetch(BACKEND+'/eventos',{signal:AbortSignal.timeout(70000)});
     const data=await res.json();
     eventosCache=data.eventos||[];
-    renderEventos(eventosCache);
+    actualizarWidgetEventos();
+    renderEventos(eventosCache, null, 'eventos-grid');
+    renderAgenda();
   }catch(e){
-    document.getElementById('eventos-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">Cargando eventos...</p>';
+    document.getElementById('agenda-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No se pudieron cargar los eventos.</p>';
   }
+}
+function renderAgenda(){
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const cercanos=eventosCache.filter(ev=>{
+    const f=ev['Fecha Inicio']||''; if(!f)return false;
+    const d=new Date(f); if(isNaN(d))return false;
+    return (d-hoy)/(1000*60*60*24) >= 0;
+  }).sort((a,b)=> new Date(a['Fecha Inicio']) - new Date(b['Fecha Inicio']));
+  renderEventos(cercanos.length?cercanos:eventosCache, null, 'agenda-grid');
 }
 function filtrarEventosTab(rango, btn){
   document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
@@ -776,12 +1118,7 @@ function filtrarEventosTab(rango, btn){
     if(rango==='proximos') return diffDias>=31 || isNaN(diffDias);
     return true;
   });
-  renderEventos(filtrados, rango);
-}
-function mostrarTodosEventos(){
-  document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
-  renderEventos(eventosCache);
-  document.getElementById('eventos').scrollIntoView({behavior:'smooth'});
+  renderEventos(filtrados, rango, 'eventos-grid');
 }
 const MENSAJE_VACIO_RANGO={
   hoy:'No hay eventos programados para hoy. Prueba con otra pestaña.',
@@ -789,8 +1126,8 @@ const MENSAJE_VACIO_RANGO={
   mes:'No hay eventos este mes. Prueba con "Próximamente".',
   proximos:'No hay más eventos próximos registrados por ahora.'
 };
-function renderEventos(eventos, rango){
-  const grid=document.getElementById('eventos-grid');
+function renderEventos(eventos, rango, gridId){
+  const grid=document.getElementById(gridId||'eventos-grid');
   if(!eventos.length){
     const msg = rango ? (MENSAJE_VACIO_RANGO[rango]||'No hay eventos en este rango.') : 'No hay eventos próximos todavía.';
     grid.innerHTML=`<p style="color:#888;font-size:14px;grid-column:1/-1">${msg}</p>`;
@@ -830,6 +1167,189 @@ function renderEventos(eventos, rango){
   });
 }
 cargarEventos();
+
+// ── MODALES: MAPA Y CALENDARIO ──
+// ── MODALES DEL FOOTER ──
+const FAQ_DATOS=[
+  ["¿Qué es Manabía?","Manabía es la plataforma inteligente del Norte de Manabí. Reúne en un solo lugar información sobre playas, naturaleza, gastronomía, cultura, eventos, rutas y experiencias para ayudarte a descubrir la región de forma sencilla y personalizada."],
+  ["¿Qué es Mana?","Mana es el asistente inteligente de Manabía. Puedes conversar con ella para recibir recomendaciones, organizar un viaje, descubrir lugares de interés y resolver tus dudas sobre el Norte de Manabí."],
+  ["¿Cómo funciona Mana?","Solo escribe o habla con Mana como lo harías con una persona. Por ejemplo: ¿Dónde puedo comer un buen ceviche?, ¿Qué puedo hacer este fin de semana?, ¿Cuál es la mejor playa para ir con niños?, ¿Dónde puedo ver ballenas? Mana analizará tu consulta y te ofrecerá recomendaciones personalizadas."],
+  ["¿Cuánto cuesta utilizar Manabía?","El acceso a la plataforma y las consultas a Mana son completamente gratuitos."],
+  ["¿Necesito registrarme?","No. Puedes utilizar la mayor parte de Manabía sin crear una cuenta. En el futuro existirán funciones adicionales para usuarios registrados."],
+  ["¿Qué lugares puedo descubrir en Manabía?","Actualmente encontrarás información sobre los cinco cantones del Norte de Manabí: Pedernales, Jama, San Vicente, Sucre (Bahía de Caráquez) y Chone."],
+  ["¿Cómo encuentro lugares para visitar?","Puedes hacerlo de tres maneras: conversando con Mana, explorando el mapa interactivo, o navegando por categorías como playas, gastronomía, naturaleza, cultura y eventos."],
+  ["¿Qué información puedo encontrar?","Playas, restaurantes, hoteles, cafeterías, museos, iglesias, miradores, senderos, reservas naturales, deportes, eventos, ferias, fiestas tradicionales y servicios turísticos."],
+  ["¿Qué es el Mapa Interactivo?","Es una herramienta que permite localizar fácilmente playas, restaurantes, hoteles, atractivos turísticos, eventos y otros lugares de interés."],
+  ["¿Qué es el Calendario de Eventos?","Es una agenda permanentemente actualizada donde encontrarás festivales, actividades culturales, eventos deportivos, ferias gastronómicas y celebraciones del Norte de Manabí."],
+  ["¿Las recomendaciones de Mana son personalizadas?","Sí. Mana adapta sus sugerencias según tu consulta: viajes en pareja, familias, aventura, naturaleza, gastronomía, presupuesto o tiempo disponible."],
+  ["¿Cómo puede aparecer mi negocio en Manabía?","Puedes solicitar la incorporación de tu establecimiento mediante nuestro formulario de contacto. Hoteles, restaurantes, cafeterías, operadores turísticos, artesanos, museos y otros emprendimientos son bienvenidos."],
+  ["¿Existen perfiles destacados?","Sí. Manabía contará con perfiles Premium para empresas que deseen mejorar su presencia, mostrar más fotografías, incluir promociones y acceder a herramientas adicionales."],
+  ["¿Puedo publicar un evento?","Sí. Instituciones públicas, organizaciones, empresas y gestores culturales podrán solicitar la publicación de eventos en el calendario oficial."],
+  ["¿Cómo se financia Manabía?","La plataforma se sostiene mediante servicios Premium para empresas, campañas promocionales, alianzas institucionales y otros servicios especializados, manteniendo siempre una experiencia clara y transparente para el usuario."],
+  ["¿Las recomendaciones patrocinadas estarán identificadas?","Sí. Cuando un contenido sea patrocinado aparecerá claramente identificado. Mana prioriza siempre la utilidad y la relevancia para el usuario."],
+  ["¿De dónde proviene la información?","Trabajamos con fuentes oficiales, instituciones locales, organizaciones, empresas y colaboradores del territorio. Toda la información es revisada y actualizada periódicamente."],
+  ["¿Con qué frecuencia se actualiza?","La plataforma se encuentra en actualización permanente. Los eventos, horarios y servicios se revisan continuamente para ofrecer información lo más precisa posible."],
+  ["Encontré un dato incorrecto. ¿Cómo lo reporto?","Puedes utilizar nuestro formulario de contacto para notificarnos cualquier error. Revisaremos la información y la corregiremos en el menor tiempo posible."],
+  ["¿Cómo protege Manabía mi información?","Respetamos tu privacidad. Los datos personales se utilizan únicamente para mejorar tu experiencia y se gestionan conforme a nuestra Política de Privacidad."],
+  ["¿Puedo utilizar Manabía desde el teléfono móvil?","Sí. La plataforma está diseñada para funcionar correctamente en computadoras, tabletas y teléfonos móviles."],
+  ["¿Cómo puedo contactar al equipo de Manabía?","Mediante formulario de contacto, WhatsApp, correo electrónico o redes sociales oficiales. Estaremos encantados de ayudarte."],
+];
+
+const MODALES_FOOTER={
+  'quienes-somos': { titulo:'Quiénes somos', html:`
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:16px;">El Norte de Manabí posee uno de los territorios con mayor riqueza natural, cultural y gastronómica del Ecuador. Sin embargo, esa riqueza continúa fragmentada, poco visible y escasamente articulada.</p>
+    <p style="font-size:14.5px;color:var(--navy);font-weight:600;line-height:1.8;margin-bottom:16px;">Manabía nace para resolver ese problema: la Plataforma Inteligente para el Desarrollo Territorial del Norte de Manabí, basada en Inteligencia Artificial, Datos Abiertos y conocimiento local.</p>
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;">Manabía es la plataforma inteligente del Norte de Manabí. Conectamos personas, lugares y experiencias para ayudarte a descubrir, disfrutar y valorar nuestra región mediante inteligencia artificial y conocimiento local.</p>` },
+  'para-negocios': { titulo:'Negocios y Patrocinios', html:`
+    <h3 style="font-size:15px;color:var(--verde-osc);margin-bottom:8px;">Registra tu negocio</h3>
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:24px;">¿Tienes un negocio, espacio cultural, deportivo, ambiental o religioso en el Norte de Manabí? Súmate a Manabía escribiéndonos a <strong>manabia963@gmail.com</strong>.</p>
+    <h3 style="font-size:15px;color:var(--verde-osc);margin-bottom:8px;">Patrocinios y espacios destacados</h3>
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:24px;">Ofrecemos acuerdos de patrocinio y espacios destacados dentro de Manabía para negocios, marcas e instituciones que deseen dar mayor visibilidad a sus servicios, eventos o iniciativas. Para conocer nuestras opciones de patrocinio y posicionamiento, escríbenos a <strong>manabia963@gmail.com</strong>.</p>
+    <button onclick="abrirModalFooter('contacto')" style="background:var(--navy2);color:#fff;border:none;padding:13px 26px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;">Ir al formulario de contacto</button>` },
+  'aliados': { titulo:'Aliados', html:`
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Manabía trabaja de la mano con instituciones públicas, municipios, universidades, organizaciones y empresas del Norte de Manabí para construir una infraestructura digital compartida.</p>
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:24px;">Si representas una institución u organización y quieres formar parte de esta red, o quieres promocionar tu marca dentro de la plataforma, escríbenos a <strong>manabia963@gmail.com</strong> y conversamos sobre las opciones disponibles.</p>
+    <button onclick="abrirModalFooter('contacto')" style="background:var(--navy2);color:#fff;border:none;padding:13px 26px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;">Quiero ser aliado</button>` },
+  'faq': { titulo:'Preguntas frecuentes', html:`
+    <div class="faq-lista">${FAQ_DATOS.map(([p,r],i)=>`
+      <div class="faq-item">
+        <div class="faq-pregunta" onclick="const r=document.getElementById('faqr${i}'); const ab=r.style.display!=='none'; r.style.display=ab?'none':'block'; this.querySelector('.faq-flecha').textContent=ab?'▾':'▴';">
+          <span>${p}</span><span class="faq-flecha">▾</span>
+        </div>
+        <div class="faq-respuesta" id="faqr${i}" style="display:none;">${r}</div>
+      </div>`).join('')}
+    </div>
+    <p style="margin-top:24px;font-size:13.5px;color:var(--gris);">¿No encontraste tu respuesta? <a href="#" onclick="event.preventDefault(); cerrarModalFooter(); preguntar('Tengo una pregunta');" style="color:var(--verde-osc);font-weight:700;">Pregúntale directamente a Mana →</a></p>` },
+  'contacto': { titulo:'Contáctanos', html:`
+    <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:20px;">¿Tienes preguntas, sugerencias o quieres reportar información desactualizada? Escríbenos a <strong>manabia963@gmail.com</strong> o por WhatsApp (próximamente disponible).</p>
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:480px;">
+      <input placeholder="Nombre completo" style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;"/>
+      <input placeholder="Correo electrónico" type="email" style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;"/>
+      <input placeholder="Teléfono (opcional)" style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;"/>
+      <input placeholder="Ciudad o país" style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;"/>
+      <select style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;background:#fff;">
+        <option>¿Sobre qué deseas contactarnos?</option>
+        <option>Información general</option><option>Turismo y experiencias</option>
+        <option>Publicar un evento</option><option>Registrar un negocio</option>
+        <option>Publicidad y alianzas</option><option>Instituciones públicas</option>
+        <option>Universidades e investigación</option><option>Medios de comunicación</option>
+        <option>Reportar información incorrecta</option><option>Sugerencias para Manabía</option><option>Otro</option>
+      </select>
+      <input placeholder="Asunto" style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;"/>
+      <textarea placeholder="Tu mensaje" rows="4" style="padding:12px 16px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;font-family:inherit;resize:vertical;"></textarea>
+      <label style="font-size:12px;color:var(--gris);display:flex;gap:8px;align-items:flex-start;"><input type="checkbox" style="margin-top:2px;"/> He leído y acepto la Política de Privacidad.</label>
+      <button onclick="alert('Este formulario todavía no está conectado a un correo real. Mientras tanto, escríbenos directo a manabia963@gmail.com')" style="background:var(--navy2);color:#fff;border:none;padding:13px;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;">Enviar mensaje</button>
+    </div>
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--borde);font-size:12.5px;color:#999;line-height:1.8;">
+      © 2026 Manabia.org — Una iniciativa para impulsar el turismo como motor de desarrollo territorial del Norte de Manabí.
+    </div>` },
+  'terminos': { titulo:'Términos y Condiciones', html:`
+    <p style="font-size:12px;color:#999;margin-bottom:16px;">Última actualización: julio de 2026</p>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Bienvenido a Manabía, la plataforma digital de promoción turística del Norte de Manabí (cantones de Pedernales, Jama, San Vicente, Sucre y Chone). Al acceder y utilizar este sitio web, incluido nuestro asistente virtual Mana, aceptas los siguientes términos y condiciones. Si no estás de acuerdo con ellos, te pedimos no utilizar la plataforma.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Aceptación</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Al acceder y utilizar Manabia.org, el usuario acepta estos Términos y Condiciones. Si no está de acuerdo con ellos, deberá abstenerse de utilizar el sitio.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Objeto de la plataforma</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Manabía es un espacio informativo y promocional que reúne contenido sobre atractivos turísticos, servicios, eventos y cultura del Norte de Manabí, con el fin de apoyar el desarrollo territorial y la difusión del destino. No somos una agencia de viajes ni operador turístico, y no gestionamos reservas ni pagos directamente a través del sitio.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Uso permitido</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">El contenido de este sitio puede consultarse libremente con fines informativos y personales. Queda prohibido reproducir, distribuir o modificar los contenidos con fines comerciales sin autorización previa, así como usar la plataforma para actividades ilícitas, fraudulentas o que afecten a terceros.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Asistente virtual Mana</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Mana es un asistente conversacional basado en inteligencia artificial que ofrece información orientativa sobre el destino (atractivos, servicios, rutas, eventos, entre otros). Sus respuestas pueden contener imprecisiones o quedar desactualizadas y no deben interpretarse como asesoría profesional, oficial o vinculante. Te recomendamos confirmar horarios, precios, disponibilidad y condiciones directamente con los establecimientos o prestadores de servicios antes de tomar decisiones.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Exactitud de la información</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Procuramos mantener la información actualizada y verificada, pero no garantizamos su exactitud absoluta en todo momento, ya que depende de datos proporcionados por terceros (negocios locales, entidades públicas, comunidad) que pueden cambiar sin previo aviso.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Enlaces a terceros</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">El sitio puede incluir enlaces a páginas, redes sociales o servicios de terceros (por ejemplo, WhatsApp Business, Instagram, u operadores locales). No somos responsables del contenido, políticas o prácticas de esos sitios externos.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Propiedad intelectual</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Los textos, imágenes, marca "Manabía", "Manabia.org" y el nombre "Mana" y demás elementos gráficos de la plataforma, así como estructura, bases de datos, imágenes propias y software desarrollado para la plataforma, son propiedad de sus titulares o se usan con la debida autorización. Su uso no autorizado está prohibido. Los contenidos pertenecientes a terceros mantienen los derechos de sus respectivos propietarios.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Limitación de responsabilidad</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Manabía no se hace responsable por daños, pérdidas o inconvenientes derivados del uso de la información publicada, de decisiones de viaje tomadas con base en ella, o de la interacción con terceros contactados a través de la plataforma.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Disponibilidad del servicio</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Nos esforzamos por mantener la plataforma disponible permanentemente. No obstante, podremos suspender temporalmente el servicio por mantenimiento, mejoras técnicas o causas ajenas a nuestro control.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Modificaciones</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Estos términos pueden actualizarse periódicamente para reflejar cambios en la plataforma o en la normativa aplicable. La versión vigente será siempre la publicada en este sitio.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Legislación aplicable</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Estos términos se rigen por las leyes de la República del Ecuador. Cuando sea posible, cualquier controversia será resuelta inicialmente mediante mecanismos de diálogo y solución amistosa entre las partes.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Contacto</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Para cualquier consulta relacionada con estos Términos y Condiciones, el usuario podrá utilizar el formulario oficial de contacto disponible en manabia.org.</p>` },
+  'privacidad': { titulo:'Política de Privacidad', html:`
+    <p style="font-size:12px;color:#999;margin-bottom:16px;">Última actualización: julio de 2026</p>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En Manabía respetamos tu privacidad y tratamos tus datos personales conforme a la Ley Orgánica de Protección de Datos Personales (LOPDP) del Ecuador.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Datos que recopilamos</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Podemos recopilar: (a) datos de navegación (páginas visitadas, dispositivo, ubicación aproximada) mediante cookies y herramientas analíticas; (b) datos que nos proporcionas voluntariamente a través de formularios de contacto, suscripción o interacción con Mana (nombre, correo, número de WhatsApp, mensajes enviados); (c) preferencias de viaje que compartas con el asistente para personalizar sus recomendaciones.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Finalidad del tratamiento</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Usamos estos datos para: operar y mejorar la plataforma; responder consultas; personalizar recomendaciones turísticas; enviar información sobre eventos o novedades (solo si lo autorizas); y elaborar estadísticas agregadas y anónimas para fines de planificación territorial.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Base legal</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">El tratamiento se basa en tu consentimiento al usar la plataforma, en la ejecución de la relación que estableces al contactarnos, y en nuestro interés legítimo de mejorar el servicio, siempre respetando tus derechos.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Conservación y terceros</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">No vendemos tus datos personales. Podemos compartir información con proveedores tecnológicos que nos ayudan a operar el sitio (hosting, mensajería, analítica) bajo obligaciones de confidencialidad, o cuando lo exija la ley. Conservamos los datos solo el tiempo necesario para cumplir las finalidades descritas.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Inteligencia Artificial</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Manabía utiliza herramientas de Inteligencia Artificial para responder consultas y facilitar recomendaciones. Las respuestas son generadas automáticamente y, aunque procuramos mantener la mayor precisión posible, pueden contener errores u omisiones. Las recomendaciones no sustituyen información oficial ni asesoramiento profesional.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Tus derechos</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Conforme a la LOPDP, puedes ejercer en cualquier momento tus derechos de acceso, rectificación, actualización, eliminación, oposición y portabilidad de tus datos, escribiendo a manabia963@gmail.com.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Cookies</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Usamos cookies propias y de terceros para el funcionamiento básico del sitio y para analizar el uso de la plataforma. Puedes gestionar o desactivar las cookies desde la configuración de tu navegador.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Menores de edad</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">La plataforma no está dirigida a recopilar intencionalmente datos personales de menores de edad sin el consentimiento de sus padres o tutores.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Seguridad</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Aplicamos medidas técnicas y organizativas razonables para proteger tus datos frente a accesos no autorizados, pérdida o alteración.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Enlaces externos</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Nuestro sitio puede contener enlaces hacia páginas de terceros. No somos responsables de sus contenidos ni de sus políticas de privacidad.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Cambios a esta política</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Podemos actualizar esta política para reflejar cambios legales, técnicos u operativos. Te recomendamos revisarla periódicamente.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">Contacto</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Para ejercer tus derechos o resolver dudas sobre el tratamiento de tus datos, escríbenos a manabia963@gmail.com.</p>` },
+  'cookies': { titulo:'Política de Cookies', html:`
+    <p style="font-size:12px;color:#999;margin-bottom:16px;">Última actualización: julio de 2026</p>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En Manabía utilizamos cookies y tecnologías similares para que la plataforma funcione correctamente, entender cómo se usa el sitio y mejorar tu experiencia al explorar el Norte de Manabí (Pedernales, Jama, San Vicente, Sucre y Chone), incluida tu interacción con nuestro asistente virtual Mana.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">1. ¿Qué son las cookies?</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Las cookies son pequeños archivos de texto que se almacenan en tu navegador o dispositivo cuando visitas un sitio web. Nos permiten recordar tus preferencias, reconocer visitas recurrentes y analizar el uso general de la plataforma.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">2. Tipos de cookies que utilizamos</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;"><strong>Cookies necesarias:</strong> indispensables para que el sitio funcione (navegación básica, seguridad, recordar configuraciones de idioma o accesibilidad). No pueden desactivarse sin afectar el funcionamiento del sitio.</p>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;"><strong>Cookies analíticas:</strong> nos ayudan a entender cómo los visitantes usan Manabía (páginas más visitadas, tiempo de permanencia, origen del tráfico), de forma agregada y anónima, para mejorar contenidos y la experiencia del destino.</p>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;"><strong>Cookies de funcionalidad:</strong> recuerdan tus preferencias de navegación (por ejemplo, cantón de interés, idioma o interacciones previas con Mana) para ofrecerte una experiencia más personalizada.</p>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;"><strong>Cookies de terceros:</strong> algunos servicios integrados en el sitio (como mapas, redes sociales o herramientas de analítica) pueden instalar sus propias cookies conforme a sus propias políticas de privacidad.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">3. Cookies y el asistente Mana</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Al interactuar con Mana, podemos usar cookies o almacenamiento local para mantener el contexto de la conversación durante tu sesión (por ejemplo, recordar qué cantón o tipo de atractivo estabas consultando). Esta información se usa únicamente para mejorar la continuidad de la conversación y no se comparte con fines publicitarios.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">4. Gestión de cookies</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Puedes aceptar, rechazar o eliminar las cookies en cualquier momento desde la configuración de tu navegador. Ten en cuenta que desactivar ciertas cookies puede afectar el funcionamiento de algunas secciones del sitio, incluida la personalización de Mana. Además, en tu primera visita a Manabía te mostraremos un aviso de cookies donde podrás elegir qué categorías (analíticas y de funcionalidad) deseas aceptar; las cookies necesarias no requieren consentimiento por ser esenciales para el funcionamiento del sitio.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">5. Conservación</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Las cookies permanecen en tu dispositivo por distintos períodos según su tipo: algunas se eliminan al cerrar el navegador (cookies de sesión) y otras permanecen por más tiempo para recordar tus preferencias (cookies persistentes), hasta que las elimines manualmente o caduquen.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">6. Cambios a esta política</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Podemos actualizar esta Política de Cookies para reflejar cambios en la plataforma, en las herramientas que utilizamos o en la normativa aplicable. Te recomendamos revisarla periódicamente.</p>
+    <h4 style="font-size:13.5px;color:var(--navy);margin:18px 0 6px;">7. Contacto</h4>
+    <p style="font-size:13.5px;color:var(--gris);line-height:1.8;">Si tienes preguntas sobre esta Política de Cookies, puedes contactar con Manabía.org mediante el formulario de contacto disponible en la plataforma o a través del correo electrónico oficial que se publique en el sitio.</p>` },
+};
+function abrirModalFooter(key){
+  const datos=MODALES_FOOTER[key];
+  if(!datos) return;
+  document.getElementById('modal-footer-titulo').textContent=datos.titulo;
+  document.getElementById('modal-footer-contenido').innerHTML=datos.html;
+  document.getElementById('modal-footer-overlay').classList.add('abierto');
+  document.getElementById('modal-footer-panel').classList.add('abierto');
+}
+function cerrarModalFooter(){
+  document.getElementById('modal-footer-overlay').classList.remove('abierto');
+  document.getElementById('modal-footer-panel').classList.remove('abierto');
+}
+
+function abrirModalMapa(){
+  document.getElementById('modal-mapa-overlay').classList.add('abierto');
+  document.getElementById('modal-mapa-panel').classList.add('abierto');
+  cargarScriptGoogleMaps();
+}
+function cerrarModalMapa(){
+  document.getElementById('modal-mapa-overlay').classList.remove('abierto');
+  document.getElementById('modal-mapa-panel').classList.remove('abierto');
+}
+function abrirModalCalendario(){
+  document.getElementById('modal-calendario-overlay').classList.add('abierto');
+  document.getElementById('modal-calendario-panel').classList.add('abierto');
+  document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
+  renderEventos(eventosCache, null, 'eventos-grid');
+}
+function cerrarModalCalendario(){
+  document.getElementById('modal-calendario-overlay').classList.remove('abierto');
+  document.getElementById('modal-calendario-panel').classList.remove('abierto');
+}
 
 // ── MAPA INTERACTIVO ──
 const GOOGLE_MAPS_API_KEY = "AIzaSyBIsCPy4KBZAM_Tquj0SWBygQetboFG0xE";
