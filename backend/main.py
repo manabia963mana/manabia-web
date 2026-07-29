@@ -78,7 +78,16 @@ RESPUESTAS_FIJAS = {
         "respuesta": "🚌 **Cómo llegar al Norte de Manabí:**\n\n**Desde Quito:**\n- Bus directo a Pedernales (~5 hrs), Bahía (~6 hrs) o Chone (~5 hrs)\n- Cooperativas: Flota Bolívar, Reina del Camino, CITM\n\n**Desde Guayaquil:**\n- Bus a Bahía (~4 hrs) o Pedernales (~5 hrs)\n\n**Desde Manta:**\n- Bus a Bahía (~2 hrs) o Canoa (~2.5 hrs)\n\n**Movilidad interna:**\n- Taxis y mototaxis en todos los cantones\n- Ferry entre Bahía y San Vicente (5 minutos)\n\n¿Necesitas info sobre transporte en algún cantón?"
     },
     "rutas": {
-        "respuesta": "🗺️ **Rutas recomendadas:**\n\n**Fin de semana (2 días):**\n📍 Día 1: Bahía de Caráquez → San Vicente → Canoa\n📍 Día 2: Jama → Pedernales\n\n**3 días:** Todo lo anterior + una noche extra en Canoa para surfear con calma\n\n**4 días:** Todo lo anterior + Chone\n\n**7 días:** Recorrido completo por los 5 cantones\n\n💡 Hospédate al menos una noche en Canoa y una en Bahía. ¿Busco opciones de hospedaje en alguna zona?"
+        "respuesta": "🗺️ **Rutas recomendadas:**\n\n**Fin de semana (2 días):**\n📍 Día 1: Bahía de Caráquez → San Vicente → Canoa\n📍 Día 2: Jama → Pedernales\n\n**3 días:** Todo lo anterior + una noche extra en Canoa para surfear con calma\n\n**4 días:** Todo lo anterior + Chone\n\n**7 días:** Recorrido completo por los 5 cantones\n\n**2 semanas:** El recorrido completo, sin prisa, con 2-3 noches por cantón para conocer también las parroquias rurales\n\n💡 Hospédate al menos una noche en Canoa y una en Bahía. ¿Busco opciones de hospedaje en alguna zona?"
+    },
+    "ruta_pareja": {
+        "respuesta": "💑 **Ruta romántica para pareja:**\n\n📍 **Bahía de Caráquez** — atardecer en el malecón, cena con vista al mar\n📍 **Canoa** — caminata por la playa al amanecer, surf en pareja\n📍 **San Vicente** — hospedaje boutique con vista al océano\n\n💡 Los ecolodges de la zona suelen tener las vistas más románticas. ¿Busco opciones de hospedaje para dos?"
+    },
+    "ruta_familia": {
+        "respuesta": "👨‍👩‍👧‍👦 **Ruta en familia:**\n\n📍 **Pedernales** — playas extensas y tranquilas, ideal para niños\n📍 **Jama** — naturaleza y espacios abiertos\n📍 **Bahía de Caráquez** — Museo Bahía de Caráquez, actividades culturales\n\n💡 Busca hospedajes con piscina y zonas de juego. ¿Te ayudo a encontrar opciones familiares en algún cantón?"
+    },
+    "ruta_un_dia": {
+        "respuesta": "☀️ **Conoce un cantón en un día:**\n\nCada cantón se puede explorar bien en una jornada:\n📍 **Canoa/San Vicente** — playa, surf y malecón\n📍 **Bahía de Caráquez** — cultura, gastronomía y el muelle\n📍 **Pedernales** — playas tranquilas\n📍 **Jama** — naturaleza y sitios arqueológicos\n📍 **Chone** — gastronomía y vida de río\n\n¿Cuál cantón te interesa? Te doy un itinerario más detallado."
     },
     "ballenas": {
         "respuesta": "🐋 **Avistamiento de ballenas jorobadas:**\n\nMejor época: **junio a septiembre**.\n\n📍 Principal punto de salida: **Bahía de Caráquez** — tours desde el muelle turístico entre 7h00 y 9h00.\n\n¿Busco agencias de turismo en Bahía que ofrezcan este tour?"
@@ -133,6 +142,27 @@ def verificar_saludo(texto_norm: str):
         "avistamiento": "ballenas",
         "fin de semana": "rutas",
         "plan de viaje": "rutas",
+        "2 dias": "rutas",
+        "dos dias": "rutas",
+        "3 dias": "rutas",
+        "tres dias": "rutas",
+        "1 semana": "rutas",
+        "una semana": "rutas",
+        "2 semanas": "rutas",
+        "dos semanas": "rutas",
+        "viaje en pareja": "ruta_pareja",
+        "ruta en pareja": "ruta_pareja",
+        "plan en pareja": "ruta_pareja",
+        "escapada romantica": "ruta_pareja",
+        "viaje romantico": "ruta_pareja",
+        "viaje en familia": "ruta_familia",
+        "ruta en familia": "ruta_familia",
+        "plan en familia": "ruta_familia",
+        "con niños": "ruta_familia",
+        "con ninos": "ruta_familia",
+        "un cantón en un día": "ruta_un_dia",
+        "un canton en un dia": "ruta_un_dia",
+        "conocer un canton": "ruta_un_dia",
         "es seguro": "seguridad",
         "es peligroso": "seguridad",
         "que hacer en el norte": "que_hacer",
@@ -286,6 +316,13 @@ def chat_mana(request: PreguntaRequest):
 def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int = 0, consulta: str = "") -> tuple:
     total = len(resultados)
     tramo = resultados[offset:offset + 5]
+
+    # Defensivo: si esto es una continuación ("sí", "más") y no queda nada que mostrar
+    # (por ejemplo porque la búsqueda en vivo trajo menos resultados que la vez anterior),
+    # se cierra la conversación con honestidad en vez de mostrar una burbuja vacía.
+    if offset > 0 and not tramo:
+        contexto_cerrado = {"canton": canton, "categoria": categoria, "consulta": consulta, "mostrados": offset, "total": offset}
+        return "Eso era todo lo que tenía para esta búsqueda. ¿Te ayudo con algo más? 🌊", contexto_cerrado
 
     NOMBRES_CANTON = {
         "sucre": "Bahía de Caráquez / Sucre",
