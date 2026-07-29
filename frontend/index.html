@@ -75,8 +75,11 @@ a{text-decoration:none;}
 /* HEADER */
 .header{position:sticky;top:0;z-index:300;background:rgba(255,255,255,0.98);backdrop-filter:blur(10px);border-bottom:1px solid var(--borde);}
 .header-inner{max-width:1180px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-.logo{display:flex;align-items:center;gap:11px;font-size:21px;font-weight:800;color:var(--navy);flex-shrink:0;}
-.logo svg{flex-shrink:0;margin-right:1px;}
+.logo{display:inline-flex;flex-direction:column;align-items:flex-start;text-decoration:none;flex-shrink:0;line-height:1;}
+.logo-mark{margin-bottom:3px;margin-left:2px;display:block;}
+.logo-word{font-size:21px;font-weight:800;letter-spacing:-0.3px;}
+.logo-word .logo-mana{color:var(--navy);}
+.logo-word .logo-bia{color:var(--verde);font-weight:600;}
 .nav-links{display:flex;align-items:center;gap:26px;flex:1;justify-content:center;}
 .nav-links a{color:#374151;font-size:14.5px;font-weight:500;transition:color .2s;white-space:nowrap;}
 .nav-links a:hover{color:var(--verde);}
@@ -252,8 +255,8 @@ a{text-decoration:none;}
 <header class="header">
   <div class="header-inner">
     <a class="logo" href="#">
-      <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
-      Manabía
+      <svg class="logo-mark" width="44" height="22" viewBox="0 0 44 22" fill="none"><path d="M0 12 Q6 6 12 12 Q18 18 24 12 Q30 6 36 12" stroke="#1CAE79" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="40" cy="12" r="2.2" fill="#1CAE79"/></svg>
+      <span class="logo-word"><span class="logo-mana">Mana</span><span class="logo-bia">bía</span></span>
     </a>
     <nav class="nav-links">
       <a href="#explorar">Descubre</a>
@@ -618,8 +621,8 @@ a{text-decoration:none;}
     <div class="footer-brand-nuevo">
       <div class="logo-footer-row">
         <div class="logo">
-          <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
-          Manabía
+          <svg class="logo-mark" width="44" height="22" viewBox="0 0 44 22" fill="none"><path d="M0 12 Q6 6 12 12 Q18 18 24 12 Q30 6 36 12" stroke="#1CAE79" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="40" cy="12" r="2.2" fill="#1CAE79"/></svg>
+          <span class="logo-word"><span class="logo-mana">Mana</span><span class="logo-bia">bía</span></span>
         </div>
         <p class="footer-tagline">Mana está aprendiendo cada día para ayudarte a descubrir lo mejor del Norte de Manabí</p>
       </div>
