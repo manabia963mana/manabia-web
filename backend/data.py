@@ -5,7 +5,8 @@ from io import StringIO
 SHEETS = {
     "lugares": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyU7JFnYAE1WvoH1HGbwOzIQyjkdFJrzuGQ0T0xHxh3iqtYpOHXmH1vj5Casg3oxWZEL8OBSFFPSUd/pub?gid=662364550&single=true&output=csv",
     "eventos": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyU7JFnYAE1WvoH1HGbwOzIQyjkdFJrzuGQ0T0xHxh3iqtYpOHXmH1vj5Casg3oxWZEL8OBSFFPSUd/pub?gid=702277477&single=true&output=csv",
-    "cantones": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyU7JFnYAE1WvoH1HGbwOzIQyjkdFJrzuGQ0T0xHxh3iqtYpOHXmH1vj5Casg3oxWZEL8OBSFFPSUd/pub?gid=0&single=true&output=csv"
+    "cantones": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyU7JFnYAE1WvoH1HGbwOzIQyjkdFJrzuGQ0T0xHxh3iqtYpOHXmH1vj5Casg3oxWZEL8OBSFFPSUd/pub?gid=0&single=true&output=csv",
+    "comunidad": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlaKpITkeXMq49lTCZ07fbnHL3WYAP7oacsSrWrxTCKsk4GgZPWVjL6dq_m_nK5JYW8nwDYZIf6qlc/pub?gid=32821269&single=true&output=csv"
 }
 
 def cargar_hoja(nombre):
@@ -350,6 +351,38 @@ def obtener_cantones():
     if df.empty:
         return []
     return df.fillna("").to_dict(orient="records")
+
+def obtener_comunidad():
+    """Lee las respuestas del Google Form de Comunidad y devuelve solo las que
+    el equipo de Manabía marcó manualmente como 'Aprobado' en la columna Estado."""
+    df = cargar_hoja("comunidad")
+    if df.empty:
+        return []
+
+    col_nombre = encontrar_columna(df, ["Tu nombre", "Nombre"])
+    col_tipo = encontrar_columna(df, ["Tipo de publicación", "Tipo de publicacion", "Tipo"])
+    col_mensaje = encontrar_columna(df, ["Tu mensaje", "Mensaje"])
+    col_estado = encontrar_columna(df, ["Estado"])
+    col_fecha = encontrar_columna(df, ["Marca temporal", "Fecha"])
+
+    if not col_estado:
+        return []
+
+    df = df[df[col_estado].astype(str).apply(normalizar) == "aprobado"]
+
+    result = []
+    for _, row in df.tail(30).iloc[::-1].iterrows():
+        nombre = limpiar(row.get(col_nombre, "")) if col_nombre else ""
+        mensaje = limpiar(row.get(col_mensaje, "")) if col_mensaje else ""
+        if not mensaje:
+            continue
+        result.append({
+            "Nombre": nombre or "Anónimo",
+            "Tipo": limpiar(row.get(col_tipo, "")) if col_tipo else "",
+            "Mensaje": mensaje,
+            "Fecha": limpiar(row.get(col_fecha, "")) if col_fecha else "",
+        })
+    return result
 
 PALABRAS_CLAVE = {
     "Alojamiento": ["hotel", "hostal", "cabaña", "glamping", "hosteria", "alojamiento", "camping",
