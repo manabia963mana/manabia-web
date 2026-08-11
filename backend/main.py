@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from data import buscar_lugares, buscar_eventos, obtener_cantones, obtener_comunidad, interpretar_consulta, normalizar, construir_whatsapp_link, construir_maps_link
+from data import buscar_lugares, buscar_eventos, obtener_cantones, obtener_comunidad, interpretar_consulta, normalizar, corregir_typos, construir_whatsapp_link, construir_maps_link
 
 app = FastAPI(title="Mana API", description="Backend del portal turistico Manabia")
 
@@ -237,6 +237,7 @@ def chat_mana(request: PreguntaRequest):
     if not texto:
         return {"respuesta": "¡Hola! Soy Mana 🌊 ¿En qué puedo ayudarte hoy?", "contexto": {}}
 
+    texto = corregir_typos(texto)
     texto_norm = normalizar(texto)
 
     # 1. Verificar respuestas fijas PRIMERO (saludo, ballenas, clima, rutas, etc.)
