@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+import time
 from io import StringIO
 
 SHEETS = {
@@ -9,7 +10,18 @@ SHEETS = {
     "comunidad": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlaKpITkeXMq49lTCZ07fbnHL3WYAP7oacsSrWrxTCKsk4GgZPWVjL6dq_m_nK5JYW8nwDYZIf6qlc/pub?gid=32821269&single=true&output=csv"
 }
 
+# Caché en memoria: evita releer todo el Sheet en cada visita si ya se leyó hace
+# poco. TTL corto (90s) para que los cambios en el Sheet sigan reflejándose casi
+# en vivo, pero sin pedirle a Google los mismos datos una y otra vez en segundos.
+_CACHE = {}
+_CACHE_TTL_SEGUNDOS = 90
+
 def cargar_hoja(nombre):
+    ahora = time.time()
+    if nombre in _CACHE:
+        df_cacheado, guardado_en = _CACHE[nombre]
+        if ahora - guardado_en < _CACHE_TTL_SEGUNDOS:
+            return df_cacheado
     try:
         url = SHEETS[nombre]
         response = requests.get(url, timeout=15)
@@ -20,9 +32,14 @@ def cargar_hoja(nombre):
         # Limpiar nombres de columnas de BOM y espacios
         df.columns = [c.strip().replace('\ufeff', '').replace('\u00c3\u00b3', 'ó').replace('\u00c3\u00a9', 'é').replace('\u00c3\u00a1', 'á') for c in df.columns]
         print(f"Columnas en {nombre}: {list(df.columns[:8])}")
+        _CACHE[nombre] = (df, ahora)
         return df
     except Exception as e:
         print(f"Error cargando {nombre}: {e}")
+        # Si falla la lectura pero hay una versión en caché (aunque esté vencida),
+        # mejor devolver esa que dejar la página sin datos por completo.
+        if nombre in _CACHE:
+            return _CACHE[nombre][0]
         return pd.DataFrame()
 
 def normalizar(texto):
@@ -40,6 +57,43 @@ def normalizar(texto):
     for orig, repl in reemplazos.items():
         texto = texto.replace(orig, repl)
     return texto.lower().strip()
+
+# Palabras clave frecuentes que Mana reconoce — se usan como diccionario de referencia
+# para corregir errores de tipeo comunes (letras faltantes, cambiadas o de más).
+PALABRAS_CONOCIDAS = {
+    "como", "que", "donde", "cuando", "cual", "cuales", "quien", "porque",
+    "hola", "gracias", "quiero", "necesito", "busco", "tener", "informacion",
+    "llegar", "ballenas", "ballena", "clima", "temperatura", "rutas", "ruta",
+    "seguridad", "hospedaje", "hotel", "restaurante", "restaurantes", "playa",
+    "playas", "ceviche", "cultura", "deporte", "deportes", "naturaleza",
+    "eventos", "evento", "pedernales", "jama", "canoa", "sanvicente",
+    "bahia", "sucre", "chone", "caraquez", "familia", "pareja", "semana",
+    "dias", "dia", "gastronomia", "turismo", "guia", "mapa",
+}
+
+def corregir_typos(texto: str) -> str:
+    """Corrige errores de tipeo leves (1-2 letras de diferencia) comparando cada
+    palabra contra el diccionario de palabras clave conocidas de Mana. Se excluyen
+    palabras muy cortas de uso común (el, la, un, de...) para evitar falsos positivos."""
+    import difflib
+    if not texto:
+        return texto
+    STOPWORDS_CORTAS = {
+        "el","la","los","las","un","una","de","en","y","o","a","mi","tu","su",
+        "si","no","es","me","te","se","lo","le","del","al","con","por","para",
+    }
+    palabras = texto.split()
+    corregidas = []
+    for palabra in palabras:
+        base = palabra.strip(".,;:!?¡¿")
+        base_norm = normalizar(base)
+        if len(base) >= 3 and base_norm not in STOPWORDS_CORTAS:
+            coincidencia = difflib.get_close_matches(base_norm, PALABRAS_CONOCIDAS, n=1, cutoff=0.7)
+            if coincidencia and coincidencia[0] != base_norm:
+                corregidas.append(coincidencia[0])
+                continue
+        corregidas.append(palabra)
+    return " ".join(corregidas)
 
 def encontrar_columna(df, opciones):
     """Encuentra columna por nombre, tolerante a tildes y encoding roto"""
