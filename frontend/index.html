@@ -92,6 +92,8 @@ a{text-decoration:none;}
 .nav-links a{color:#374151;font-size:14.5px;font-weight:500;transition:color .2s;white-space:nowrap;}
 .nav-links a:hover{color:var(--verde);}
 .header-right{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.btn-idioma{background:var(--gris-claro);color:var(--navy);border:1.5px solid var(--borde);padding:9px 14px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-idioma.activo{background:var(--navy2);color:#fff;border-color:var(--navy2);}
 .btn-hablar{background:var(--verde);color:#fff;border:none;padding:10px 20px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;}
 .btn-hablar:hover{background:var(--verde-osc);}
 .lang-sel{font-size:13px;color:#374151;font-weight:500;display:flex;align-items:center;gap:3px;cursor:pointer;}
@@ -281,6 +283,7 @@ a{text-decoration:none;}
       <a href="#" onclick="event.preventDefault(); abrirModalSobreManabi();">Sobre Manabí</a>
     </nav>
     <div class="header-right">
+      <button class="btn-idioma" id="btn-idioma" onclick="cambiarIdiomaChat()" title="Chatea con Mana en inglés">🌐 EN</button>
       <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
     </div>
   </div>
@@ -291,7 +294,7 @@ a{text-decoration:none;}
   <div class="hero-nuevo-bg" style="background-image:url('https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg')"></div>
   <div class="hero-nuevo-overlay"></div>
   <div class="widgets-strip" id="widgets-strip">
-    <div class="widget-item" id="widget-clima">🌡️ <span>Cargando clima...</span></div>
+    <div class="widget-item" id="widget-clima" onclick="avanzarClimaManual()" style="cursor:pointer;" title="Toca para ver el clima de otro cantón">🌡️ <span>Cargando clima...</span></div>
     <div class="widget-item" id="widget-ballenas">🐋 <span>—</span></div>
     <div class="widget-item" id="widget-oleaje">🌊 <span>Cargando mar...</span></div>
     <div class="widget-item" id="widget-eventos">📅 <span>—</span></div>
@@ -798,17 +801,46 @@ const CODIGOS_CLIMA = {
   82:'Chubascos fuertes ⛈️',95:'Tormenta ⛈️',96:'Tormenta ⛈️',99:'Tormenta ⛈️'
 };
 
+const CANTONES_COORD = [
+  { nombre: "Pedernales", lat: 0.0667, lng: -80.0500 },
+  { nombre: "Jama", lat: 0.2167, lng: -80.2667 },
+  { nombre: "Canoa", lat: 0.6167, lng: -80.4500 },
+  { nombre: "Bahía", lat: 0.6000, lng: -80.4200 },
+  { nombre: "Chone", lat: 0.7000, lng: -80.0933 },
+];
+
 async function cargarWidgetClima(){
   const el = document.querySelector('#widget-clima span');
   try{
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${COORD_NORTE_MANABI.lat}&longitude=${COORD_NORTE_MANABI.lng}&current=temperature_2m,weather_code&timezone=auto`, { signal: AbortSignal.timeout(8000) });
+    const lats = CANTONES_COORD.map(c=>c.lat).join(',');
+    const lngs = CANTONES_COORD.map(c=>c.lng).join(',');
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weather_code&timezone=auto`, { signal: AbortSignal.timeout(8000) });
     const data = await res.json();
-    const temp = Math.round(data.current.temperature_2m);
-    const desc = CODIGOS_CLIMA[data.current.weather_code] || 'Clima variable';
-    el.textContent = `${temp}°C — ${desc}`;
+    // Open-Meteo devuelve un arreglo (uno por cada par lat/lng) cuando se piden varias ubicaciones
+    const resultados = Array.isArray(data) ? data : [data];
+    window._climaCantones = CANTONES_COORD.map((c,i)=>{
+      const actual = resultados[i]?.current;
+      return {
+        nombre: c.nombre,
+        temp: actual ? Math.round(actual.temperature_2m) : null,
+        desc: actual ? (CODIGOS_CLIMA[actual.weather_code] || 'Variable') : 'No disponible'
+      };
+    });
+    window._climaIndice = 0;
+    window._mostrarClimaSiguiente = function(){
+      const c = window._climaCantones[window._climaIndice % window._climaCantones.length];
+      el.textContent = c.temp!==null ? `${c.nombre}: ${c.temp}°C — ${c.desc}` : `${c.nombre}: no disponible`;
+      window._climaIndice++;
+    };
+    window._mostrarClimaSiguiente();
+    // Rota automáticamente entre los 5 cantones cada 4 segundos
+    setInterval(window._mostrarClimaSiguiente, 4000);
   }catch(e){
-    el.textContent = 'No disponible';
+    el.textContent = 'Clima no disponible';
   }
+}
+function avanzarClimaManual(){
+  if(window._mostrarClimaSiguiente) window._mostrarClimaSiguiente();
 }
 
 async function cargarWidgetOleaje(){
@@ -924,9 +956,78 @@ function enviarHeroNuevo(){
 
 let ultimoContexto = {};
 
+// ── IDIOMA DEL CHAT (traducción EN<->ES para Mana) ──
+let idiomaChat = 'es';
+function cambiarIdiomaChat(){
+  idiomaChat = idiomaChat === 'es' ? 'en' : 'es';
+  const btn = document.getElementById('btn-idioma');
+  if(idiomaChat === 'en'){
+    btn.textContent = '🌐 ES';
+    btn.classList.add('activo');
+    btn.title = 'Switch back to Spanish';
+  }else{
+    btn.textContent = '🌐 EN';
+    btn.classList.remove('activo');
+    btn.title = 'Chatea con Mana en inglés';
+  }
+}
+// Cantones y sus variantes — nunca se deben traducir (ej. "Bahía" -> "Bay", "Canoa" -> "Canoe")
+const NOMBRES_CANTONES_PROTEGIDOS = [
+  "Pedernales", "Jama", "San Vicente", "Canoa", "Sucre",
+  "Bahía de Caráquez", "Bahía", "Chone", "Manabí", "Manabía", "Mana",
+];
+
+function protegerNombresPropios(texto){
+  const mapa = [];
+  let protegido = texto;
+
+  // 1. Cantones y nombres fijos conocidos
+  NOMBRES_CANTONES_PROTEGIDOS.forEach(nombre=>{
+    const regex = new RegExp(`\\b${nombre.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`, 'gi');
+    protegido = protegido.replace(regex, (match)=>{
+      const token = `XPROTEGIDO${mapa.length}X`;
+      mapa.push(match);
+      return token;
+    });
+  });
+
+  // 2. Nombres de lugares dinámicos: en las respuestas de Mana siempre aparecen
+  // justo después del ícono 📍, así que se protegen sin necesitar una lista fija
+  protegido = protegido.replace(/📍\s*([^\n—]+)/g, (match, nombreLugar)=>{
+    const token = `XPROTEGIDO${mapa.length}X`;
+    mapa.push(nombreLugar);
+    return `📍 ${token}`;
+  });
+
+  return { protegido, mapa };
+}
+
+function restaurarNombresPropios(texto, mapa){
+  let restaurado = texto;
+  mapa.forEach((original, i)=>{
+    // Google a veces cambia mayúsculas/espacios del token; se busca con tolerancia
+    const regex = new RegExp(`X\\s*PROTEGIDO\\s*${i}\\s*X`, 'gi');
+    restaurado = restaurado.replace(regex, original);
+  });
+  return restaurado;
+}
+
+async function traducirTexto(texto, de, a){
+  if(!texto || !texto.trim()) return texto;
+  try{
+    const { protegido, mapa } = protegerNombresPropios(texto);
+    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${de}&tl=${a}&dt=t&q=${encodeURIComponent(protegido)}`, { signal: AbortSignal.timeout(6000) });
+    const data = await res.json();
+    const traducido = data[0].map(seg => seg[0]).join('');
+    return restaurarNombresPropios(traducido, mapa);
+  }catch(e){
+    return texto; // si falla la traducción, se manda/muestra el texto original
+  }
+}
+
 async function enviarMensaje(){
   const input=document.getElementById('chat-input');
-  const texto=input.value.trim();
+  let texto=input.value.trim();
   if(!texto)return;
   input.value='';
   agregarMsg(texto,'usuario');
@@ -941,10 +1042,12 @@ async function enviarMensaje(){
   },5000);
 
   try{
+    // Si el chat está en inglés, se traduce la pregunta al español antes de mandarla
+    const textoParaBackend = idiomaChat === 'en' ? await traducirTexto(texto, 'en', 'es') : texto;
     const res=await fetch(BACKEND+'/mana/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({texto, contexto: ultimoContexto}),
+      body:JSON.stringify({texto: textoParaBackend, contexto: ultimoContexto}),
       signal:AbortSignal.timeout(70000)
     });
     clearTimeout(avisoTimeout);
@@ -952,13 +1055,18 @@ async function enviarMensaje(){
     const data=await res.json();
     typing.remove();
     ultimoContexto = data.contexto || {};
-    agregarMsg(data.respuesta||'No pude procesar eso, intenta de nuevo.','mana');
+    let respuesta = data.respuesta || 'No pude procesar eso, intenta de nuevo.';
+    // Y la respuesta de Mana (en español) se traduce de vuelta al inglés antes de mostrarla
+    if(idiomaChat === 'en'){
+      respuesta = await traducirTexto(respuesta, 'es', 'en');
+    }
+    agregarMsg(respuesta,'mana');
   }catch(e){
     clearTimeout(avisoTimeout);
     const aviso=document.getElementById('aviso-carga'); if(aviso)aviso.remove();
     typing.remove();
     ultimoContexto = {};
-    agregarMsg('Mana tardó en responder. Espera un momento y vuelve a intentar. 🌊','mana');
+    agregarMsg(idiomaChat==='en' ? 'Mana took too long to respond. Please wait a moment and try again. 🌊' : 'Mana tardó en responder. Espera un momento y vuelve a intentar. 🌊','mana');
   }
 }
 function agregarMsg(txt,tipo){
