@@ -1268,10 +1268,12 @@ function abrirDetalleLugar(i){
     ['Facebook', l.Facebook],
   ].filter(([_,v])=>v);
 
+  const descripcion = l['Descripción larga'] || l.Descripción || '';
+
   const html=`
     <span class="detalle-tag">${l.Categoría||l.Subcategoría||'Lugar'}</span>
     <div class="detalle-nombre">${l.Nombre||''}</div>
-    <div class="detalle-desc">${l['Descripción larga']||l.Descripción||'Sin descripción disponible todavía.'}</div>
+    ${descripcion?`<div class="detalle-desc">${descripcion}</div>`:''}
     <div class="detalle-grid">
       ${campos.map(([label,valor])=>`<div class="detalle-campo"><strong>${label}</strong><span>${valor}</span></div>`).join('')}
     </div>
