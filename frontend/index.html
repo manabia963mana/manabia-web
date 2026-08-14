@@ -996,7 +996,7 @@ function protegerNombresPropios(texto){
     const escapado = nombre.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
     const regex = new RegExp(`(?<![${LETRA}])${escapado}(?![${LETRA}])`, 'gi');
     protegido = protegido.replace(regex, (match)=>{
-      const token = `XPROTEGIDO${mapa.length}X`;
+      const token = `95035${mapa.length}53059`;
       mapa.push(match);
       return token;
     });
@@ -1005,7 +1005,7 @@ function protegerNombresPropios(texto){
   // 2. Nombres de lugares dinámicos: en las respuestas de Mana siempre aparecen
   // justo después del ícono 📍, así que se protegen sin necesitar una lista fija
   protegido = protegido.replace(/📍\s*([^\n—]+)/g, (match, nombreLugar)=>{
-    const token = `XPROTEGIDO${mapa.length}X`;
+    const token = `95035${mapa.length}53059`;
     mapa.push(nombreLugar);
     return `📍 ${token}`;
   });
@@ -1016,8 +1016,8 @@ function protegerNombresPropios(texto){
 function restaurarNombresPropios(texto, mapa){
   let restaurado = texto;
   mapa.forEach((original, i)=>{
-    // Google a veces cambia mayúsculas/espacios del token; se busca con tolerancia
-    const regex = new RegExp(`X\\s*PROTEGIDO\\s*${i}\\s*X`, 'gi');
+    // Google a veces agrega espacios alrededor del número; se busca con tolerancia
+    const regex = new RegExp(`95035\\s*${i}\\s*53059`, 'g');
     restaurado = restaurado.replace(regex, original);
   });
   return restaurado;
