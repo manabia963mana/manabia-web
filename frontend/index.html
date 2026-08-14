@@ -109,6 +109,7 @@ a{text-decoration:none;}
 .lang-sel{font-size:13px;color:#374151;font-weight:500;display:flex;align-items:center;gap:3px;cursor:pointer;}
 
 /* HERO */
+.hero-wrapper{position:relative;}
 .hero-nuevo{position:relative;min-height:480px;display:flex;align-items:center;overflow:hidden;padding:56px 24px 90px;}
 .hero-nuevo-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;z-index:0;}
 .hero-nuevo-overlay{position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.9) 32%, rgba(255,255,255,0.35) 58%, rgba(255,255,255,0.05) 78%);z-index:1;}
@@ -326,9 +327,7 @@ a{text-decoration:none;}
 </header>
 
 <!-- HERO -->
-<section class="hero-nuevo">
-  <div class="hero-nuevo-bg" style="background-image:url('https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg')"></div>
-  <div class="hero-nuevo-overlay"></div>
+<div class="hero-wrapper">
   <div class="widgets-strip" id="widgets-strip">
     <div class="widget-item" id="widget-clima" onclick="avanzarClimaManual()" style="cursor:pointer;" title="Toca para ver el clima de otro cantón">🌡️ <span>Cargando clima...</span></div>
     <div class="widget-item" id="widget-ballenas">🐋 <span>—</span></div>
@@ -336,13 +335,17 @@ a{text-decoration:none;}
     <div class="widget-item" id="widget-eventos">📅 <span>—</span></div>
     <div class="widget-item widget-sugerencia">💡 <span>Mayo–Septiembre: mejor época para visitar</span></div>
   </div>
-  <div class="hero-nuevo-grid">
-    <div class="hero-nuevo-texto">
-      <h1>Descubre el Norte de Manabí<span class="verde">Como nunca antes.</span></h1>
-      <p>Playas, naturaleza, gastronomía, cultura y eventos. Pregunta a Mana y encuentra el plan perfecto para hoy.</p>
+  <section class="hero-nuevo">
+    <div class="hero-nuevo-bg" style="background-image:url('https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg')"></div>
+    <div class="hero-nuevo-overlay"></div>
+    <div class="hero-nuevo-grid">
+      <div class="hero-nuevo-texto">
+        <h1>Descubre el Norte de Manabí<span class="verde">Como nunca antes.</span></h1>
+        <p>Playas, naturaleza, gastronomía, cultura y eventos. Pregunta a Mana y encuentra el plan perfecto para hoy.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
 <div class="hero-search-wrap">
   <div class="hero-search-card">
