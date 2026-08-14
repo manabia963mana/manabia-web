@@ -75,7 +75,7 @@ a{text-decoration:none;}
 .detalle-btn-web{background:var(--gris-claro);color:var(--navy);}
 
 /* WIDGETS */
-.widgets-strip{position:absolute;top:52px;left:0;right:0;z-index:2;display:flex;gap:10px;overflow-x:auto;padding:0 24px;background:transparent;scrollbar-width:none;-ms-overflow-style:none;}
+.widgets-strip{position:absolute;top:52px;left:0;right:0;z-index:2;display:flex;justify-content:center;gap:10px;overflow-x:auto;padding:0 24px;background:transparent;scrollbar-width:none;-ms-overflow-style:none;}
 .widgets-strip::-webkit-scrollbar{display:none;}
 .widget-item{flex-shrink:0;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--borde);border-radius:20px;padding:7px 14px;font-size:12.5px;color:var(--navy);font-weight:600;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.12);}
 .widget-sugerencia{background:var(--verde-claro);border-color:transparent;color:var(--verde-osc);}
@@ -976,18 +976,25 @@ function cambiarIdiomaChat(){
   }
 }
 // Cantones y sus variantes — nunca se deben traducir (ej. "Bahía" -> "Bay", "Canoa" -> "Canoe")
+// Ordenados del más largo al más corto para que "Bahía de Caráquez" se proteja
+// completo antes que "Bahía" sola, y "Manabía" antes que "Manabí".
 const NOMBRES_CANTONES_PROTEGIDOS = [
   "Pedernales", "Jama", "San Vicente", "Canoa", "Sucre",
   "Bahía de Caráquez", "Bahía", "Chone", "Manabí", "Manabía", "Mana",
-];
+].sort((a, b) => b.length - a.length);
 
 function protegerNombresPropios(texto){
   const mapa = [];
   let protegido = texto;
 
-  // 1. Cantones y nombres fijos conocidos
+  // 1. Cantones y nombres fijos conocidos. Se usa un límite manual de "letra
+  // acentuada o no" en vez de \b, porque \b de JavaScript NO reconoce letras con
+  // tilde (á, í, etc.) como parte de una palabra, lo que rompía nombres como
+  // "Manabía" a la mitad.
+  const LETRA = 'a-zA-ZÀ-ÿ';
   NOMBRES_CANTONES_PROTEGIDOS.forEach(nombre=>{
-    const regex = new RegExp(`\\b${nombre.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`, 'gi');
+    const escapado = nombre.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const regex = new RegExp(`(?<![${LETRA}])${escapado}(?![${LETRA}])`, 'gi');
     protegido = protegido.replace(regex, (match)=>{
       const token = `XPROTEGIDO${mapa.length}X`;
       mapa.push(match);
@@ -1051,25 +1058,33 @@ function recolectarNodosDeTexto(){
   return nodos;
 }
 
-async function traducirLote(textos, de, a){
-  // El endpoint gratuito acepta varios "q=" en una sola petición — se agrupa en
-  // lotes para no mandar una petición por cada palabra de la página.
-  const resultado = new Array(textos.length).fill(null);
-  const TAMANO_LOTE = 40;
-  for(let i=0; i<textos.length; i+=TAMANO_LOTE){
-    const lote = textos.slice(i, i+TAMANO_LOTE);
-    const params = lote.map(t=>`q=${encodeURIComponent(t)}`).join('&');
-    try{
-      const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${de}&tl=${a}&dt=t&${params}`, { signal: AbortSignal.timeout(10000) });
-      const data = await res.json();
-      // Con múltiples 'q', Google devuelve un arreglo con un bloque por cada texto
-      data[0].forEach((seg, idx)=>{ if(resultado[i+idx]===null) resultado[i+idx]=''; resultado[i+idx]+=seg[0]; });
-    }catch(e){
-      // Si falla el lote, se deja el texto original en ese tramo
-      for(let j=i;j<Math.min(i+TAMANO_LOTE,textos.length);j++) resultado[j]=textos[j];
-    }
+async function traducirUno(texto, de, a){
+  if(!texto || !texto.trim()) return texto;
+  try{
+    const { protegido, mapa } = protegerNombresPropios(texto);
+    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${de}&tl=${a}&dt=t&q=${encodeURIComponent(protegido)}`, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    const traducido = data[0].map(seg => seg[0]).join('');
+    return restaurarNombresPropios(traducido, mapa);
+  }catch(e){
+    return texto;
   }
-  return resultado.map((t,i)=> t===null ? textos[i] : t);
+}
+
+async function traducirLote(textos, de, a){
+  // Se traduce cada texto de forma individual (la forma confiable y verificada
+  // del endpoint gratuito), pero deduplicando textos repetidos (ej. "Cómo llegar"
+  // aparece muchas veces) para no pedir dos veces lo mismo, y con concurrencia
+  // limitada para no saturar el servicio ni ser demasiado lento.
+  const unicos = [...new Set(textos)];
+  const cache = {};
+  const CONCURRENCIA = 6;
+  for(let i=0; i<unicos.length; i+=CONCURRENCIA){
+    const grupo = unicos.slice(i, i+CONCURRENCIA);
+    const traducidos = await Promise.all(grupo.map(t=>traducirUno(t, de, a)));
+    grupo.forEach((t,idx)=>{ cache[t] = traducidos[idx]; });
+  }
+  return textos.map(t => cache[t] !== undefined ? cache[t] : t);
 }
 
 let traduciendoPagina = false;
