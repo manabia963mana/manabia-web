@@ -75,7 +75,8 @@ a{text-decoration:none;}
 .detalle-btn-web{background:var(--gris-claro);color:var(--navy);}
 
 /* WIDGETS */
-.widgets-strip{position:absolute;top:52px;left:0;right:0;z-index:2;display:flex;gap:10px;overflow-x:auto;padding:0 24px;background:transparent;}
+.widgets-strip{position:absolute;top:52px;left:0;right:0;z-index:2;display:flex;gap:10px;overflow-x:auto;padding:0 24px;background:transparent;scrollbar-width:none;-ms-overflow-style:none;}
+.widgets-strip::-webkit-scrollbar{display:none;}
 .widget-item{flex-shrink:0;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--borde);border-radius:20px;padding:7px 14px;font-size:12.5px;color:var(--navy);font-weight:600;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.12);}
 .widget-sugerencia{background:var(--verde-claro);border-color:transparent;color:var(--verde-osc);}
 .wa-placeholder{margin-left:auto;font-size:16px;opacity:.55;cursor:default;}
@@ -99,7 +100,7 @@ a{text-decoration:none;}
 .lang-sel{font-size:13px;color:#374151;font-weight:500;display:flex;align-items:center;gap:3px;cursor:pointer;}
 
 /* HERO */
-.hero-nuevo{position:relative;min-height:480px;display:flex;align-items:center;overflow:hidden;padding:56px 24px 0;}
+.hero-nuevo{position:relative;min-height:480px;display:flex;align-items:center;overflow:hidden;padding:56px 24px 90px;}
 .hero-nuevo-bg{position:absolute;inset:0;background-size:cover;background-position:center 40%;z-index:0;}
 .hero-nuevo-overlay{position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.9) 32%, rgba(255,255,255,0.35) 58%, rgba(255,255,255,0.05) 78%);z-index:1;}
 .hero-nuevo-grid{position:relative;z-index:2;max-width:1180px;margin:0 auto;width:100%;}
@@ -196,11 +197,11 @@ a{text-decoration:none;}
 .logo-footer-row{max-width:280px;}
 .footer-tagline{font-size:12.5px;color:var(--gris);line-height:1.6;margin-top:4px;}
 .footer-social-nueva{display:flex;gap:10px;}
-.footer-social-nueva a{width:32px;height:32px;border-radius:50%;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:var(--navy);transition:all .2s;text-decoration:none;}
-.footer-social-nueva a.ico-instagram:hover{background:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7);color:#fff;}
-.footer-social-nueva a.ico-facebook:hover{background:#1877F2;color:#fff;}
-.footer-social-nueva a.ico-tiktok:hover{background:#000;color:#fff;}
-.footer-social-nueva a.ico-youtube:hover{background:#FF0000;color:#fff;}
+.footer-col-nuevo .footer-social-nueva a{width:32px;height:32px;border-radius:50%;background:var(--gris-claro);display:flex;align-items:center;justify-content:center;color:var(--navy);transition:all .2s;text-decoration:none;margin-bottom:0;}
+.footer-col-nuevo .footer-social-nueva a.ico-instagram:hover{background:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7);color:#fff;}
+.footer-col-nuevo .footer-social-nueva a.ico-facebook:hover{background:#1877F2;color:#fff;}
+.footer-col-nuevo .footer-social-nueva a.ico-tiktok:hover{background:#000;color:#fff;}
+.footer-col-nuevo .footer-social-nueva a.ico-youtube:hover{background:#FF0000;color:#fff;}
 .footer-col-nuevo h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;}
 .footer-col-nuevo a{display:block;color:var(--gris);font-size:13px;margin-bottom:10px;transition:color .2s;text-decoration:none;}
 .footer-col-nuevo a:hover{color:var(--verde-osc);}
@@ -284,7 +285,7 @@ a{text-decoration:none;}
       <a href="#" onclick="event.preventDefault(); abrirModalSobreManabi();">Sobre Manabí</a>
     </nav>
     <div class="header-right">
-      <button class="btn-idioma" id="btn-idioma" onclick="cambiarIdiomaChat()" title="Chatea con Mana en inglés">🌐 EN</button>
+      <button class="btn-idioma" id="btn-idioma" onclick="cambiarIdiomaChat()" title="Chat with Mana in English">🌐 ES</button>
       <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
     </div>
   </div>
@@ -334,17 +335,17 @@ a{text-decoration:none;}
 <section class="seccion-cat-fotos" id="categorias">
   <div class="container">
     <div class="cat-foto-grid">
-      <div class="cat-foto-item" onclick="filtrarCategoria('playa')">
+      <div class="cat-foto-item" onclick="irACategoria('playa')">
         <div class="cat-foto-img"><img src="https://i.ibb.co/wtYPsPZ/ryan-loughlin-HXqp-Jn-Ly-Hzg-unsplash.jpg" alt="Playas" onerror="this.parentElement.style.background='#2E86FF';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#2E86FF">🏄</span>
         <div class="cat-foto-label">Playas</div>
         <div class="cat-foto-sub">Sol, mar y arena</div>
       </div>
-      <div class="cat-foto-item" onclick="filtrarCategoria('naturaleza')">
+      <div class="cat-foto-item" onclick="irACategoria('naturaleza')">
         <div class="cat-foto-img"><img src="https://i.ibb.co/qLz9XsNH/andres-medina-Bn9-Hsqg-Hcow-unsplash.jpg" alt="Naturaleza" onerror="this.parentElement.style.background='#1CAE79';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#1CAE79">🌿</span>
         <div class="cat-foto-label">Naturaleza</div>
         <div class="cat-foto-sub">Cascadas, ríos y más</div>
       </div>
-      <div class="cat-foto-item" onclick="filtrarCategoria('cultura')">
+      <div class="cat-foto-item" onclick="irACategoria('cultura')">
         <div class="cat-foto-img"><img src="https://i.ibb.co/GQ3PJTxz/dezalb-market-776944.jpg" alt="Cultura" onerror="this.parentElement.style.background='#E8792E';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#E8792E">🏺</span>
         <div class="cat-foto-label">Cultura</div>
         <div class="cat-foto-sub">Jama-Coaque, Historia viva</div>
@@ -359,7 +360,7 @@ a{text-decoration:none;}
         <div class="cat-foto-label">Eventos</div>
         <div class="cat-foto-sub">Lo que está pasando</div>
       </div>
-      <div class="cat-foto-item" onclick="filtrarCategoria('surf')">
+      <div class="cat-foto-item" onclick="irACategoria('deporte')">
         <div class="cat-foto-img"><img src="https://i.ibb.co/Rkx66vdD/gilberto-olimpio-n-Vx-W3-Sula-FM-unsplash.jpg" alt="Aventuras" onerror="this.parentElement.style.background='#0D9488';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#0D9488">🪂</span>
         <div class="cat-foto-label">Aventuras</div>
         <div class="cat-foto-sub">Adrenalina y diversión</div>
@@ -963,13 +964,15 @@ function cambiarIdiomaChat(){
   idiomaChat = idiomaChat === 'es' ? 'en' : 'es';
   const btn = document.getElementById('btn-idioma');
   if(idiomaChat === 'en'){
-    btn.textContent = '🌐 ES';
+    btn.textContent = '🌐 EN';
     btn.classList.add('activo');
     btn.title = 'Switch back to Spanish';
+    traducirPagina(true);
   }else{
-    btn.textContent = '🌐 EN';
+    btn.textContent = '🌐 ES';
     btn.classList.remove('activo');
-    btn.title = 'Chatea con Mana en inglés';
+    btn.title = 'Chat with Mana in English';
+    traducirPagina(false);
   }
 }
 // Cantones y sus variantes — nunca se deben traducir (ej. "Bahía" -> "Bay", "Canoa" -> "Canoe")
@@ -1011,6 +1014,81 @@ function restaurarNombresPropios(texto, mapa){
     restaurado = restaurado.replace(regex, original);
   });
   return restaurado;
+}
+
+// ── TRADUCCIÓN DE TODA LA PÁGINA ESTÁTICA ──
+// Contenedores de contenido dinámico que NO se tocan aquí — ese contenido ya se
+// traduce por su cuenta cuando se genera (respuestas de Mana, resultados de
+// búsqueda al momento de pedirse, etc.), para no duplicar traducciones ni romper
+// los onclick con índices que usan esas tarjetas.
+const CONTENEDORES_EXCLUIDOS_TRADUCCION = [
+  'chat-mensajes','resultados-grid','eventos-grid','agenda-grid',
+  'comunidad-lista','detalle-contenido','modal-footer-contenido','widgets-strip'
+];
+
+function nodoEnContenedorExcluido(nodo){
+  let el = nodo.parentElement;
+  while(el){
+    if(el.id && CONTENEDORES_EXCLUIDOS_TRADUCCION.includes(el.id)) return true;
+    el = el.parentElement;
+  }
+  return false;
+}
+
+function recolectarNodosDeTexto(){
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(nodo){
+      if(!nodo.textContent.trim()) return NodeFilter.FILTER_REJECT;
+      const tagPadre = nodo.parentElement ? nodo.parentElement.tagName : '';
+      if(tagPadre === 'SCRIPT' || tagPadre === 'STYLE') return NodeFilter.FILTER_REJECT;
+      if(nodoEnContenedorExcluido(nodo)) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodos = [];
+  let n;
+  while(n = walker.nextNode()) nodos.push(n);
+  return nodos;
+}
+
+async function traducirLote(textos, de, a){
+  // El endpoint gratuito acepta varios "q=" en una sola petición — se agrupa en
+  // lotes para no mandar una petición por cada palabra de la página.
+  const resultado = new Array(textos.length).fill(null);
+  const TAMANO_LOTE = 40;
+  for(let i=0; i<textos.length; i+=TAMANO_LOTE){
+    const lote = textos.slice(i, i+TAMANO_LOTE);
+    const params = lote.map(t=>`q=${encodeURIComponent(t)}`).join('&');
+    try{
+      const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${de}&tl=${a}&dt=t&${params}`, { signal: AbortSignal.timeout(10000) });
+      const data = await res.json();
+      // Con múltiples 'q', Google devuelve un arreglo con un bloque por cada texto
+      data[0].forEach((seg, idx)=>{ if(resultado[i+idx]===null) resultado[i+idx]=''; resultado[i+idx]+=seg[0]; });
+    }catch(e){
+      // Si falla el lote, se deja el texto original en ese tramo
+      for(let j=i;j<Math.min(i+TAMANO_LOTE,textos.length);j++) resultado[j]=textos[j];
+    }
+  }
+  return resultado.map((t,i)=> t===null ? textos[i] : t);
+}
+
+let traduciendoPagina = false;
+async function traducirPagina(activar){
+  if(traduciendoPagina) return;
+  traduciendoPagina = true;
+  const nodos = recolectarNodosDeTexto();
+  try{
+    if(activar){
+      nodos.forEach(nodo=>{ if(nodo._esOriginal===undefined) nodo._esOriginal = nodo.textContent; });
+      const textos = nodos.map(n=>n._esOriginal);
+      const traducidos = await traducirLote(textos, 'es', 'en');
+      nodos.forEach((nodo,i)=>{ nodo.textContent = traducidos[i]; });
+    }else{
+      nodos.forEach(nodo=>{ if(nodo._esOriginal!==undefined) nodo.textContent = nodo._esOriginal; });
+    }
+  }finally{
+    traduciendoPagina = false;
+  }
 }
 
 async function traducirTexto(texto, de, a){
