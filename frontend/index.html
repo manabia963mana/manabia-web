@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="color-scheme" content="light"/>
 <title>Manabía — Tu guía del Norte de Manabí</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -93,6 +94,14 @@ a{text-decoration:none;}
 .nav-links a{color:#374151;font-size:14.5px;font-weight:500;transition:color .2s;white-space:nowrap;}
 .nav-links a:hover{color:var(--verde);}
 .header-right{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.btn-hamburguesa{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;background:var(--gris-claro);border:none;border-radius:10px;cursor:pointer;padding:0;}
+.btn-hamburguesa span{display:block;width:18px;height:2px;background:var(--navy);margin:0 auto;border-radius:2px;transition:all .2s;}
+.btn-hamburguesa.abierto span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.btn-hamburguesa.abierto span:nth-child(2){opacity:0;}
+.btn-hamburguesa.abierto span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-links-movil{display:none;flex-direction:column;background:#fff;border-top:1px solid var(--borde);}
+.nav-links-movil.abierto{display:flex;}
+.nav-links-movil a{padding:16px 24px;color:var(--navy);font-weight:600;font-size:15px;border-bottom:1px solid var(--gris-claro);}
 .btn-idioma{background:var(--gris-claro);color:var(--navy);border:1.5px solid var(--borde);padding:9px 14px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .btn-idioma.activo{background:var(--navy2);color:#fff;border-color:var(--navy2);}
 .btn-hablar{background:var(--verde);color:#fff;border:none;padding:10px 20px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;}
@@ -241,6 +250,7 @@ a{text-decoration:none;}
 /* RESPONSIVE */
 @media(max-width:980px){
   .nav-links{display:none;}
+  .btn-hamburguesa{display:flex;}
   .hero-nuevo{min-height:420px;}
   .hero-nuevo-texto{max-width:100%;}
   .widgets-strip{top:44px;}
@@ -287,8 +297,18 @@ a{text-decoration:none;}
     <div class="header-right">
       <button class="btn-idioma" id="btn-idioma" onclick="cambiarIdiomaChat()" title="Chat with Mana in English">🌐 ES</button>
       <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
+      <button class="btn-hamburguesa" id="btn-hamburguesa" onclick="toggleMenuMovil()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
+  <nav class="nav-links-movil" id="nav-links-movil">
+    <a href="#explorar" onclick="toggleMenuMovil()">Descubre</a>
+    <a href="#eventos" onclick="toggleMenuMovil()">Eventos</a>
+    <a href="#" onclick="event.preventDefault(); toggleMenuMovil(); abrirRutas();">Rutas</a>
+    <a href="#" onclick="event.preventDefault(); toggleMenuMovil(); abrirModalComunidad();">Comunidad</a>
+    <a href="#" onclick="event.preventDefault(); toggleMenuMovil(); abrirModalSobreManabi();">Sobre Manabí</a>
+  </nav>
 </header>
 
 <!-- HERO -->
@@ -893,6 +913,10 @@ cargarWidgetBallenas();
 setInterval(()=>fetch(BACKEND+'/').catch(()=>{}), 14*60*1000);
 
 // ── CHAT (popup) ──
+function toggleMenuMovil(){
+  document.getElementById('nav-links-movil').classList.toggle('abierto');
+  document.getElementById('btn-hamburguesa').classList.toggle('abierto');
+}
 function abrirChat(){
   document.getElementById('chat-panel').classList.add('abierto');
   document.getElementById('chat-overlay').classList.add('abierto');
