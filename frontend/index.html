@@ -248,9 +248,15 @@ a{text-decoration:none;}
 #resultados-section{display:none;}
 
 /* RESPONSIVE */
-@media(max-width:980px){
+@media(max-width:979px){
   .nav-links{display:none;}
   .btn-hamburguesa{display:flex;}
+  .header-inner{gap:8px;padding:0 14px;}
+  .header-right{gap:8px;}
+  .btn-hablar-texto{display:none;}
+  .btn-hablar{padding:10px 12px;}
+  .btn-idioma{padding:9px 10px;font-size:12px;}
+  .logo-word{font-size:18px;}
   .hero-nuevo{min-height:420px;}
   .hero-nuevo-texto{max-width:100%;}
   .widgets-strip{top:44px;}
@@ -296,7 +302,7 @@ a{text-decoration:none;}
     </nav>
     <div class="header-right">
       <button class="btn-idioma" id="btn-idioma" onclick="cambiarIdiomaChat()" title="Chat with Mana in English">🌐 ES</button>
-      <button class="btn-hablar" onclick="abrirChat()">💬 Hablar con Mana</button>
+      <button class="btn-hablar" onclick="abrirChat()">💬 <span class="btn-hablar-texto">Hablar con Mana</span></button>
       <button class="btn-hamburguesa" id="btn-hamburguesa" onclick="toggleMenuMovil()" aria-label="Menú">
         <span></span><span></span><span></span>
       </button>
