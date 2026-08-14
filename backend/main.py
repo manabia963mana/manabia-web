@@ -65,6 +65,19 @@ def comunidad():
     return {"publicaciones": obtener_comunidad()}
 
 # ── RESPUESTAS FIJAS ──
+# Varias respuestas fijas terminan con una pregunta de seguimiento implícita.
+# Este mapa dice, para cada una, a qué categoría real de la base de datos apunta
+# esa pregunta (y opcionalmente un cantón sugerido), para poder resolverla de
+# verdad si el usuario confirma con un "sí" o similar.
+CATEGORIA_SEGUIMIENTO_POR_CLAVE = {
+    "como_llegar": {"categoria": "Movilidad Y Transporte", "canton": ""},
+    "ballenas": {"categoria": "Agenciamiento Turístico", "canton": "sucre"},
+    "rutas": {"categoria": "Alojamiento", "canton": ""},
+    "ruta_pareja": {"categoria": "Alojamiento", "canton": ""},
+    "ruta_familia": {"categoria": "Alojamiento", "canton": ""},
+    "ruta_un_dia": {"categoria": "Alojamiento", "canton": ""},
+}
+
 RESPUESTAS_FIJAS = {
     "saludo": {
         "respuesta": "¡Hola! Soy **Mana** 🌊, tu guía digital del Norte de Manabí.\n\nPuedo ayudarte a encontrar:\n📍 Lugares turísticos, playas y naturaleza\n🏨 Hospedaje en los cinco cantones\n🍽️ Restaurantes y gastronomía típica\n🏄 Actividades y deportes\n📅 Eventos y festivales\n💰 Cajeros, bancos y servicios\n\n¿Qué estás buscando hoy?"
@@ -112,9 +125,9 @@ def verificar_saludo(texto_norm: str):
     GRACIAS_PUROS = {"gracias", "grax", "thanks"}
 
     if len(palabras_texto) <= 3 and palabras_texto & SALUDOS_PUROS:
-        return RESPUESTAS_FIJAS["saludo"]["respuesta"]
+        return RESPUESTAS_FIJAS["saludo"]["respuesta"], "saludo"
     if len(palabras_texto) <= 4 and palabras_texto & GRACIAS_PUROS:
-        return RESPUESTAS_FIJAS["gracias"]["respuesta"]
+        return RESPUESTAS_FIJAS["gracias"]["respuesta"], "gracias"
 
     FRASES_EXACTAS = {
         "buenos dias": "saludo",
@@ -176,7 +189,7 @@ def verificar_saludo(texto_norm: str):
 
     for frase, clave in FRASES_EXACTAS.items():
         if frase in texto_limpio:
-            return RESPUESTAS_FIJAS[clave]["respuesta"]
+            return RESPUESTAS_FIJAS[clave]["respuesta"], clave
 
     PALABRAS_CORTAS = {
         "clima": "clima",
@@ -191,9 +204,9 @@ def verificar_saludo(texto_norm: str):
 
     for palabra, clave in PALABRAS_CORTAS.items():
         if palabra in palabras_texto:
-            return RESPUESTAS_FIJAS[clave]["respuesta"]
+            return RESPUESTAS_FIJAS[clave]["respuesta"], clave
 
-    return None
+    return None, None
 
 def escapar_markdown(texto: str) -> str:
     """Elimina todos los asteriscos del texto"""
@@ -243,9 +256,40 @@ def chat_mana(request: PreguntaRequest):
     # 1. Verificar respuestas fijas PRIMERO (saludo, ballenas, clima, rutas, etc.)
     #    Esto tiene prioridad sobre la memoria de continuación, para que una pregunta
     #    real como "quiero ver ballenas" nunca sea interceptada por error.
-    respuesta_fija = verificar_saludo(texto_norm)
+    respuesta_fija, clave_fija = verificar_saludo(texto_norm)
     if respuesta_fija:
-        return {"respuesta": respuesta_fija, "contexto": {}}
+        # Varias respuestas fijas terminan haciendo una pregunta de seguimiento
+        # ("¿Busco agencias de turismo en Bahía?", "¿Necesitas info de transporte?").
+        # Se guarda a qué categoría apunta esa pregunta, para que si el usuario
+        # responde "sí" (o nombra un cantón), Mana sepa qué buscar de verdad.
+        seguimiento = CATEGORIA_SEGUIMIENTO_POR_CLAVE.get(clave_fija)
+        contexto_salida = {
+            "categoria_seguimiento": seguimiento["categoria"],
+            "canton_mencionado": seguimiento["canton"],
+        } if seguimiento else {}
+        return {"respuesta": respuesta_fija, "contexto": contexto_salida}
+
+    # 1.5. El mensaje confirma la pregunta de seguimiento de una respuesta fija
+    # anterior (ej. dijo "sí" después de que Mana preguntó por agencias de turismo,
+    # o "sí, de Canoa" después de la pregunta sobre transporte) -> se busca
+    # directamente en la categoría implícita, en vez de perderse.
+    categoria_seguimiento_previa = contexto_previo.get("categoria_seguimiento", "")
+    if categoria_seguimiento_previa:
+        palabras_msg = set(texto_norm.split())
+        tiene_confirmacion = bool(palabras_msg & PALABRAS_CONTINUACION)
+        categoria_nueva, canton_nuevo = interpretar_consulta(texto)
+        if tiene_confirmacion and not categoria_nueva:
+            canton_final = canton_nuevo or contexto_previo.get("canton_mencionado", "")
+            resultados_seg = buscar_lugares(categoria=categoria_seguimiento_previa, canton=canton_final)
+            if resultados_seg:
+                respuesta_seg, nuevo_contexto_seg = armar_respuesta(resultados_seg, canton_final, categoria_seguimiento_previa, offset=0, consulta="")
+                return {"respuesta": respuesta_seg, "contexto": nuevo_contexto_seg}
+            else:
+                lugar_txt = f" en {canton_final.title()}" if canton_final else ""
+                return {
+                    "respuesta": f"No encontré opciones para eso{lugar_txt} por ahora. ¿Te ayudo con algo más? 🌊",
+                    "contexto": {}
+                }
 
     # 2. Memoria de 1 mensaje: el usuario responde algo corto tipo "sí" / "dale" / "más"
     if es_continuacion(texto_norm):
