@@ -338,25 +338,39 @@ MESES_ES = {
     "noviembre": 11, "diciembre": 12,
 }
 
-def construir_fecha_evento(fecha_raw, mes_raw):
-    """Muchas fiestas patronales anuales solo tienen el día en 'Fecha Inicio' (ej. 7)
-    y el mes en una columna aparte ('Agosto'), porque se repiten cada año. Sin esto,
-    el frontend intenta convertir el número suelto en fecha y da resultados absurdos.
-    Aquí se arma la fecha real de la próxima ocurrencia. Si ya viene una fecha completa
-    (o es texto como 'Variable'), se deja tal cual."""
+def construir_fecha_evento(fecha_raw, mes_raw="", frecuencia_raw=""):
+    """Maneja los 3 formatos de fecha que aparecen en la base:
+    1) Número de día suelto (ej. "7") + columna Mes -> se arma la fecha completa
+       de la próxima ocurrencia.
+    2) Fecha completa ya puesta (ej. "2026-10-19") -> si el evento es Anual (según
+       la columna Frecuencia) y esa fecha ya pasó este año, se avanza al año
+       siguiente manteniendo el mismo día y mes.
+    3) "Variable" (sin fecha exacta, ej. depende de feriados) -> se conserva el
+       texto "Variable" junto con el mes como referencia aproximada, en vez de
+       intentar convertirlo en una fecha real que no existe.
+    """
     import datetime as _dt
+    hoy = _dt.date.today()
+    es_anual = normalizar(limpiar(frecuencia_raw)) == "anual"
+    mes_limpio = limpiar(mes_raw)
+
     if isinstance(fecha_raw, (_dt.datetime, _dt.date)):
-        return fecha_raw.strftime("%Y-%m-%d")
+        fecha_parseada = fecha_raw.date() if isinstance(fecha_raw, _dt.datetime) else fecha_raw
+        return _avanzar_si_ya_paso(fecha_parseada, hoy, es_anual)
+
     fecha_str = limpiar(fecha_raw)
     if not fecha_str:
         return fecha_str
-    if "-" in fecha_str or "/" in fecha_str:
-        return fecha_str
-    if fecha_str.isdigit():
-        dia = int(fecha_str)
-        mes_num = MESES_ES.get(normalizar(limpiar(mes_raw)))
+
+    # Caso "Variable": no hay fecha exacta -> se deja claro junto con el mes aproximado
+    if normalizar(fecha_str) == "variable":
+        return f"Variable ({mes_limpio})" if mes_limpio else "Variable"
+
+    # Caso: número de día suelto + columna Mes -> reconstruir fecha completa
+    if fecha_str.replace(".0", "").isdigit():
+        dia = int(float(fecha_str))
+        mes_num = MESES_ES.get(normalizar(mes_limpio))
         if mes_num and 1 <= dia <= 31:
-            hoy = _dt.date.today()
             for anio in (hoy.year, hoy.year + 1):
                 try:
                     fecha_evento = _dt.date(anio, mes_num, dia)
@@ -365,10 +379,37 @@ def construir_fecha_evento(fecha_raw, mes_raw):
                 if fecha_evento >= hoy:
                     return fecha_evento.strftime("%Y-%m-%d")
             try:
-                return _dt.date(hoy.year, mes_num, dia).strftime("%Y-%m-%d")
+                return _dt.date(hoy.year + 1, mes_num, dia).strftime("%Y-%m-%d")
             except ValueError:
                 return fecha_str
-    return fecha_str
+        return fecha_str
+
+    # Caso: fecha completa ya puesta (ej. "2026-10-19 0:00:00" o "2026-10-19")
+    try:
+        fecha_parseada = pd.to_datetime(fecha_str).date()
+    except Exception:
+        return fecha_str  # no se pudo interpretar, se deja tal cual
+
+    return _avanzar_si_ya_paso(fecha_parseada, hoy, es_anual)
+
+
+def _avanzar_si_ya_paso(fecha_parseada, hoy, es_anual):
+    """Si el evento es Anual y su fecha ya pasó este año, avanza al año siguiente
+    manteniendo el mismo día y mes (para fiestas patronales, aniversarios, etc.)."""
+    import datetime as _dt
+    if es_anual and fecha_parseada < hoy:
+        for anio in (hoy.year, hoy.year + 1):
+            try:
+                candidato = _dt.date(anio, fecha_parseada.month, fecha_parseada.day)
+            except ValueError:
+                continue
+            if candidato >= hoy:
+                return candidato.strftime("%Y-%m-%d")
+        try:
+            return _dt.date(hoy.year + 1, fecha_parseada.month, fecha_parseada.day).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    return fecha_parseada.strftime("%Y-%m-%d")
 
 def buscar_eventos(canton: str = "", categoria: str = ""):
     df = cargar_hoja("eventos")
@@ -399,6 +440,19 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
     col_descuento = encontrar_columna(df, ["Descuento mayores y niños", "Descuento para mayores y niños"])
     col_pago = encontrar_columna(df, ["Métodos de pago", "Metodos de pago"])
     col_frecuencia = encontrar_columna(df, ["Frecuencia"])
+    col_subcategoria = encontrar_columna(df, ["Subcategoría", "Subcategoria"])
+    col_fecha_fin = encontrar_columna(df, ["Fecha Fin", "Fecha Finalización", "Fecha Finalizacion"])
+    col_desc_larga = encontrar_columna(df, ["Descripción larga", "Descripcion larga"])
+    col_idiomas = encontrar_columna(df, ["Idiomas"])
+    col_servicios = encontrar_columna(df, ["Servicios"])
+    col_tags = encontrar_columna(df, ["Tags", "Tags IA"])
+    col_pet = encontrar_columna(df, ["Pet Friendly"])
+    col_wifi = encontrar_columna(df, ["WiFi", "Wifi"])
+    col_parking = encontrar_columna(df, ["Parking"])
+    col_accesibilidad = encontrar_columna(df, ["Accesibilidad"])
+    col_palabras_clave = encontrar_columna(df, ["Palabras Clave"])
+    col_pub_priv = encontrar_columna(df, ["Público / Privado", "Publico / Privado"])
+    col_inpc = encontrar_columna(df, ["Calific. INPC", "Calificación INPC"])
 
     if canton and col_canton:
         df = df[df[col_canton].astype(str).apply(normalizar).str.contains(normalizar(canton), na=False)]
@@ -414,7 +468,7 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
             "Nombre": nombre,
             "Categoría": limpiar(row.get(col_categoria, "")) if col_categoria else "",
             "Cantón": limpiar(row.get(col_canton, "")) if col_canton else "",
-            "Fecha Inicio": construir_fecha_evento(row.get(col_fecha, ""), row.get(col_mes, "") if col_mes else "") if col_fecha else "",
+            "Fecha Inicio": construir_fecha_evento(row.get(col_fecha, ""), row.get(col_mes, "") if col_mes else "", row.get(col_frecuencia, "") if col_frecuencia else "") if col_fecha else "",
             "Descripción": limpiar(row.get(col_desc, "")) if col_desc else "",
             "Organizador": limpiar(row.get(col_org, "")) if col_org else "",
             "Horario": limpiar(row.get(col_horario, "")) if col_horario else "",
@@ -434,6 +488,23 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
             "Descuento mayores y niños": limpiar(row.get(col_descuento, "")) if col_descuento else "",
             "Métodos de pago": limpiar(row.get(col_pago, "")) if col_pago else "",
             "Frecuencia": limpiar(row.get(col_frecuencia, "")) if col_frecuencia else "",
+            "Subcategoría": limpiar(row.get(col_subcategoria, "")) if col_subcategoria else "",
+            "Fecha Fin": construir_fecha_evento(row.get(col_fecha_fin, ""), row.get(col_mes, "") if col_mes else "", row.get(col_frecuencia, "") if col_frecuencia else "") if col_fecha_fin else "",
+            "Descripción larga": limpiar(row.get(col_desc_larga, "")) if col_desc_larga else "",
+            "Idiomas": limpiar(row.get(col_idiomas, "")) if col_idiomas else "",
+            "Servicios": limpiar(row.get(col_servicios, "")) if col_servicios else "",
+            "Tags": limpiar(row.get(col_tags, "")) if col_tags else "",
+            "Pet Friendly": limpiar(row.get(col_pet, "")) if col_pet else "",
+            "WiFi": limpiar(row.get(col_wifi, "")) if col_wifi else "",
+            "Parking": limpiar(row.get(col_parking, "")) if col_parking else "",
+            "Accesibilidad": limpiar(row.get(col_accesibilidad, "")) if col_accesibilidad else "",
+            "Palabras Clave": limpiar(row.get(col_palabras_clave, "")) if col_palabras_clave else "",
+            "Público / Privado": limpiar(row.get(col_pub_priv, "")) if col_pub_priv else "",
+            "Calific. INPC": limpiar(row.get(col_inpc, "")) if col_inpc else "",
+            # NOTA: a propósito NO se exponen aquí columnas internas de gestión
+            # (ID, Zona, Año, Persona de contacto, Estado, Fecha actualización,
+            # Responsable datos, Fuente información, Slug, Embeddings_Status,
+            # Prioridad_IA, Relacionado_Con, Score_Calidad_Datos, Observaciones).
         }
         result.append(item)
     return result
