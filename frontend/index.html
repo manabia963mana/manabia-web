@@ -1288,6 +1288,69 @@ function abrirDetalleLugar(i){
   const l=ultimosResultadosLugares[i];
   abrirDetalleLugarObjeto(l);
 }
+function abrirDetalleEvento(ev){
+  if(!ev) return;
+  const linkWa=whatsappLink(ev.WhatsApp||ev.Teléfono);
+  const web=ev['Sitio web']?(ev['Sitio web'].startsWith('http')?ev['Sitio web']:'https://'+ev['Sitio web']):null;
+  const fb=ev.Facebook?(ev.Facebook.startsWith('http')?ev.Facebook:'https://'+ev.Facebook):null;
+  const ig=ev.Instagram?(ev.Instagram.startsWith('http')?ev.Instagram:'https://instagram.com/'+ev.Instagram.replace('@','')):null;
+
+  let fechaTexto = '';
+  const d = fechaLocal(ev['Fecha Inicio']);
+  if(d){
+    const hoy = new Date();
+    fechaTexto = d.toLocaleDateString('es', {day:'numeric', month:'long'}) + (d.getFullYear()!==hoy.getFullYear() ? `, ${d.getFullYear()}` : '');
+    if(ev['Fecha Fin']){
+      const dFin = fechaLocal(ev['Fecha Fin']);
+      if(dFin && dFin.getTime()!==d.getTime()) fechaTexto += ` — ${dFin.toLocaleDateString('es',{day:'numeric',month:'long'})}`;
+    }
+  }
+
+  const campos=[
+    ['Fecha', fechaTexto],
+    ['Ubicación', [ev.Dirección, ev.Parroquia, ev.Cantón].filter(Boolean).join(', ')],
+    ['Referencia', ev['Referencia de Dirección']],
+    ['Horario', ev.Horario],
+    ['Duración aproximada', ev['Duración aproximada']],
+    ['Frecuencia', ev.Frecuencia],
+    ['Precio', ev.Precios],
+    ['Descuento mayores y niños', ev['Descuento mayores y niños']],
+    ['Métodos de pago', ev['Métodos de pago']],
+    ['Organiza', ev.Organizador],
+    ['Público objetivo', ev['Público objetivo']],
+    ['Apto para niños', ev['Es para niños']],
+    ['Aforo aproximado', ev['Aforo aproximado']],
+    ['Idiomas', ev.Idiomas],
+    ['Servicios', ev.Servicios],
+    ['Pet Friendly', ev['Pet Friendly']],
+    ['WiFi', ev.WiFi],
+    ['Parking', ev.Parking],
+    ['Accesibilidad', ev.Accesibilidad],
+    ['Reconocimiento INPC', ev['Calific. INPC']],
+    ['Acceso', ev['Público / Privado']],
+    ['Email', ev.Email],
+    ['Teléfono', ev.Teléfono],
+  ].filter(([_,v])=>v);
+
+  const descripcion = ev['Descripción larga'] || ev.Descripción || '';
+
+  const html=`
+    <span class="detalle-tag">${ev.Categoría||ev.Subcategoría||'Evento'}</span>
+    <div class="detalle-nombre">${ev.Nombre||''}</div>
+    ${descripcion?`<div class="detalle-desc">${descripcion}</div>`:''}
+    <div class="detalle-grid">
+      ${campos.map(([label,valor])=>`<div class="detalle-campo"><strong>${label}</strong><span>${valor}</span></div>`).join('')}
+    </div>
+    <div class="detalle-acciones">
+      ${linkWa?`<a class="detalle-btn-wa" href="${linkWa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
+      ${web?`<a class="detalle-btn-web" href="${web}" target="_blank" rel="noopener">🔗 Sitio web</a>`:''}
+      ${fb?`<a class="detalle-btn-web" href="${fb}" target="_blank" rel="noopener" style="background:#1877F2;">📘 Facebook</a>`:''}
+      ${ig?`<a class="detalle-btn-web" href="${ig}" target="_blank" rel="noopener" style="background:#E1306C;">📷 Instagram</a>`:''}
+    </div>`;
+  document.getElementById('detalle-contenido').innerHTML=html;
+  document.getElementById('detalle-overlay').classList.add('abierto');
+  document.getElementById('detalle-panel').classList.add('abierto');
+}
 function abrirDetalleLugarObjeto(l){
   if(!l) return;
   const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
@@ -1424,13 +1487,24 @@ function fechaLocal(fechaStr){
   const d = new Date(anio, mes - 1, dia);
   return isNaN(d) ? null : d;
 }
+function esFechaVariable(fechaStr){
+  return typeof fechaStr === 'string' && fechaStr.trim().toLowerCase().startsWith('variable');
+}
 function eventosVigentes(){
   const hoy=new Date(); hoy.setHours(0,0,0,0);
-  return eventosCache.filter(ev=>{
-    const f=ev['Fecha Inicio']||''; if(!f)return false;
-    const d=fechaLocal(f); if(!d)return false;
-    return (d-hoy)/(1000*60*60*24) >= 0;
-  }).sort((a,b)=> fechaLocal(a['Fecha Inicio']) - fechaLocal(b['Fecha Inicio']));
+  const conFecha = [], sinFechaExacta = [];
+  eventosCache.forEach(ev=>{
+    const f=ev['Fecha Inicio']||'';
+    if(!f) return;
+    if(esFechaVariable(f)){ sinFechaExacta.push(ev); return; }
+    const d=fechaLocal(f); if(!d) return;
+    if((d-hoy)/(1000*60*60*24) >= 0) conFecha.push(ev);
+  });
+  conFecha.sort((a,b)=> fechaLocal(a['Fecha Inicio']) - fechaLocal(b['Fecha Inicio']));
+  // Los eventos "Variable" (sin día exacto, ej. depende de feriados) se muestran
+  // igual, pero al final — no sabemos con certeza cuándo caen, así que no se
+  // pueden ordenar de forma confiable junto a los que sí tienen fecha fija.
+  return conFecha.concat(sinFechaExacta);
 }
 function renderAgenda(){
   renderEventos(eventosVigentes(), null, 'agenda-grid');
@@ -1468,44 +1542,33 @@ function renderEventos(eventos, rango, gridId){
   const colores=['#C2662D','#E8792E','#2E86FF','#8B5CF6','#1CAE79'];
   grid.innerHTML='';
   const listaAmostrar = (gridId==='agenda-grid') ? eventos.slice(0,4) : eventos;
+  window._eventosRenderizados = window._eventosRenderizados || {};
   listaAmostrar.forEach((ev,i)=>{
     const fecha=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
-    let dia='',mes='';
-    if(fecha){ const d=fechaLocal(fecha); if(d){ dia=d.getDate(); mes=d.toLocaleString('es',{month:'short'}).toUpperCase(); } }
+    let dia='',mes='',anio='';
+    const hoyAnio = new Date().getFullYear();
+    if(esFechaVariable(fecha)){
+      dia = '📅';
+      mes = 'VARIABLE';
+    } else if(fecha){
+      const d=fechaLocal(fecha);
+      if(d){ dia=d.getDate(); mes=d.toLocaleString('es',{month:'short'}).toUpperCase(); if(d.getFullYear()!==hoyAnio) anio=d.getFullYear(); }
+    }
     const color=colores[i%colores.length];
     const c=document.createElement('div');
     c.className='evento-card-nuevo';
     const descCorta=(ev.Descripción||'').substring(0,80)+((ev.Descripción||'').length>80?'...':'');
-    const linkWa=whatsappLink(ev.WhatsApp||ev.Teléfono);
-    const detalleId='evdet-'+Math.random().toString(36).slice(2,9);
+    const claveEvento = 'ev-'+gridId+'-'+i;
+    window._eventosRenderizados[claveEvento] = ev;
     c.innerHTML=`<div class="evento-fecha-nuevo" style="background:${color};">
-        <div><div class="num">${dia||'—'}</div><div class="mes">${mes}</div></div>
+        <div><div class="num">${dia||'—'}</div><div class="mes">${mes}${anio?' \''+String(anio).slice(2):''}</div></div>
         <span class="tag-evento">${ev.Categoría||'Evento'}</span>
       </div>
       <div class="evento-body-nuevo">
         <div class="evento-nombre-nuevo">${ev.Nombre||''}</div>
         <div class="evento-lugar-nuevo">📍 ${ev.Cantón||''}</div>
         <div class="evento-desc-nuevo">${descCorta}</div>
-        <div id="${detalleId}" style="display:none;font-size:12px;color:var(--gris);line-height:1.7;margin-top:8px;border-top:1px solid var(--borde);padding-top:8px;">
-          ${ev.Descripción?`<div>${ev.Descripción}</div>`:''}
-          ${ev.Horario?`<div>🕐 ${ev.Horario}</div>`:''}
-          ${ev['Duración aproximada']?`<div>⏱️ Duración: ${ev['Duración aproximada']}</div>`:''}
-          ${ev.Dirección?`<div>📍 ${ev.Dirección}</div>`:''}
-          ${ev.Organizador?`<div>👤 Organiza: ${ev.Organizador}</div>`:''}
-          ${ev.Precios?`<div>💰 ${ev.Precios}</div>`:''}
-          ${ev['Descuento mayores y niños']?`<div>🏷️ ${ev['Descuento mayores y niños']}</div>`:''}
-          ${ev['Métodos de pago']?`<div>💳 ${ev['Métodos de pago']}</div>`:''}
-          ${ev['Público objetivo']?`<div>👥 ${ev['Público objetivo']}</div>`:''}
-          ${ev['Es para niños']?`<div>🧒 Apto para niños: ${ev['Es para niños']}</div>`:''}
-          ${ev['Aforo aproximado']?`<div>🎟️ Aforo: ${ev['Aforo aproximado']}</div>`:''}
-          ${ev.Frecuencia?`<div>🔁 ${ev.Frecuencia}</div>`:''}
-          ${ev.Teléfono?`<div>📞 ${ev.Teléfono}</div>`:''}
-          ${linkWa?`<div><a href="${linkWa}" target="_blank" rel="noopener" style="color:#25D366;font-weight:600;">💬 Escribir por WhatsApp</a></div>`:''}
-          ${ev['Sitio web']?`<div><a href="${ev['Sitio web'].startsWith('http')?ev['Sitio web']:'https://'+ev['Sitio web']}" target="_blank" rel="noopener" style="color:var(--navy2);font-weight:600;">🔗 Sitio web</a></div>`:''}
-          ${ev.Facebook?`<div><a href="${ev.Facebook.startsWith('http')?ev.Facebook:'https://'+ev.Facebook}" target="_blank" rel="noopener" style="color:#1877F2;font-weight:600;">📘 Facebook</a></div>`:''}
-          ${ev.Instagram?`<div><a href="${ev.Instagram.startsWith('http')?ev.Instagram:'https://instagram.com/'+ev.Instagram.replace('@','')}" target="_blank" rel="noopener" style="color:#E1306C;font-weight:600;">📷 Instagram</a></div>`:''}
-        </div>
-        <div class="evento-cta" style="cursor:pointer;" onclick="const d=document.getElementById('${detalleId}'); const abierto=d.style.display!=='none'; d.style.display=abierto?'none':'block'; this.textContent=abierto?'Más información →':'Ocultar ▲';">Más información →</div>
+        <div class="evento-cta" style="cursor:pointer;" onclick="abrirDetalleEvento(window._eventosRenderizados['${claveEvento}'])">Más información →</div>
       </div>`;
     grid.appendChild(c);
   });
