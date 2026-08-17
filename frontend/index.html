@@ -59,7 +59,8 @@ a{text-decoration:none;}
 /* MODAL DETALLE DE LUGAR */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,25,40,0.55);z-index:1000;}
 .modal-overlay.abierto{display:block;}
-.modal-detalle{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,92vw);max-height:86vh;overflow-y:auto;background:#fff;border-radius:20px;z-index:1001;padding:32px;box-shadow:0 30px 80px rgba(0,0,0,0.35);}
+.modal-detalle{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,92vw);max-height:86vh;overflow-y:auto;background:#fff;border-radius:20px;z-index:1050;padding:32px;box-shadow:0 30px 80px rgba(0,0,0,0.35);}
+#detalle-overlay{z-index:1040;}
 .modal-detalle.abierto{display:block;}
 .modal-cerrar{position:sticky;top:0;float:right;background:var(--gris-claro);border:none;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--navy);}
 .detalle-tag{display:inline-block;background:var(--verde-claro);color:var(--verde-osc);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:10px;}
