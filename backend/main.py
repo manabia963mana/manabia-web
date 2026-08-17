@@ -282,8 +282,8 @@ def chat_mana(request: PreguntaRequest):
             canton_final = canton_nuevo or contexto_previo.get("canton_mencionado", "")
             resultados_seg = buscar_lugares(categoria=categoria_seguimiento_previa, canton=canton_final)
             if resultados_seg:
-                respuesta_seg, nuevo_contexto_seg = armar_respuesta(resultados_seg, canton_final, categoria_seguimiento_previa, offset=0, consulta="")
-                return {"respuesta": respuesta_seg, "contexto": nuevo_contexto_seg}
+                respuesta_seg, nuevo_contexto_seg, lugares_seg = armar_respuesta(resultados_seg, canton_final, categoria_seguimiento_previa, offset=0, consulta="")
+                return {"respuesta": respuesta_seg, "contexto": nuevo_contexto_seg, "lugares": lugares_seg}
             else:
                 lugar_txt = f" en {canton_final.title()}" if canton_final else ""
                 return {
@@ -302,8 +302,8 @@ def chat_mana(request: PreguntaRequest):
             categoria = contexto_previo.get("categoria", "")
             consulta = contexto_previo.get("consulta", "")
             resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria)
-            respuesta, nuevo_contexto = armar_respuesta(resultados, canton, categoria, offset=mostrados_previo, consulta=consulta)
-            return {"respuesta": respuesta, "contexto": nuevo_contexto}
+            respuesta, nuevo_contexto, lugares_mostrados = armar_respuesta(resultados, canton, categoria, offset=mostrados_previo, consulta=consulta)
+            return {"respuesta": respuesta, "contexto": nuevo_contexto, "lugares": lugares_mostrados}
         else:
             # No hay contexto pendiente claro -> pedir que aclare, en vez de perderse
             return {
@@ -320,11 +320,16 @@ def chat_mana(request: PreguntaRequest):
     # exacta en vez de combinar cantón+categoría+texto a la fuerza.
     canton_usado, categoria_usado, consulta_usada = "", "", ""
 
-    # 3. Búsqueda por nombre específico — limpia palabras vacías
+    # 3. Búsqueda por nombre específico — limpia palabras vacías.
+    # SIEMPRE se intenta primero, aunque se haya detectado una categoría o cantón,
+    # porque una palabra como "iglesia" puede ser tanto el nombre de un lugar
+    # específico como una palabra clave de categoría — y el nombre específico
+    # es más útil si existe. Solo si esta búsqueda no encuentra nada se cae a
+    # la categoría/cantón completos.
     palabras_busqueda = [p for p in texto.split() if normalizar(p) not in PALABRAS_IGNORAR]
     texto_limpio_busqueda = " ".join(palabras_busqueda)
 
-    if len(palabras_busqueda) >= 1 and not canton and not categoria:
+    if len(palabras_busqueda) >= 1:
         resultados = buscar_lugares(consulta=texto_limpio_busqueda)
         if resultados:
             consulta_usada = texto_limpio_busqueda
@@ -374,8 +379,8 @@ def chat_mana(request: PreguntaRequest):
             "contexto": {}
         }
 
-    respuesta, nuevo_contexto = armar_respuesta(resultados, canton_usado, categoria_usado, offset=0, consulta=consulta_usada)
-    return {"respuesta": respuesta, "contexto": nuevo_contexto}
+    respuesta, nuevo_contexto, lugares_mostrados = armar_respuesta(resultados, canton_usado, categoria_usado, offset=0, consulta=consulta_usada)
+    return {"respuesta": respuesta, "contexto": nuevo_contexto, "lugares": lugares_mostrados}
 
 
 def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int = 0, consulta: str = "") -> tuple:
@@ -417,7 +422,8 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         intro = "Aquí tienes más opciones:\n\n"
 
     items = []
-    for lugar in tramo:
+    lugares_mostrados = []
+    for indice, lugar in enumerate(tramo):
         nombre = escapar_markdown(lugar.get("Nombre", ""))
         if not nombre:
             continue
@@ -430,7 +436,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         horario = escapar_markdown(lugar.get("Horario", ""))
         precio = escapar_markdown(lugar.get("Precio", ""))
 
-        linea = f"📍 {nombre}"
+        linea = f"<span class='chat-lugar-link' data-idx='{indice}' style='cursor:pointer;text-decoration:underline;text-decoration-style:dotted;'>📍 {nombre}</span>"
         ubicacion = ", ".join(filter(None, [parroquia, canton_lugar]))
         if ubicacion:
             linea += f" — {ubicacion}"
@@ -451,6 +457,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         if maps_link:
             linea += f"\n   <a href='{maps_link}' target='_blank' rel='noopener' style='color:#1E3A6E;font-weight:600;text-decoration:none;'>📍 Cómo llegar</a>"
         items.append(linea)
+        lugares_mostrados.append(lugar)
 
     cuerpo = "\n\n".join(items)
     mostrados = offset + len(tramo)
@@ -468,4 +475,4 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         "total": total,
     }
 
-    return intro + cuerpo + pie, nuevo_contexto
+    return intro + cuerpo + pie, nuevo_contexto, lugares_mostrados
