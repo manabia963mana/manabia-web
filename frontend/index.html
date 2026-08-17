@@ -1513,18 +1513,25 @@ function filtrarEventosTab(rango, btn){
   document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
   btn.classList.add('activo');
   const hoy=new Date(); hoy.setHours(0,0,0,0);
-  const filtrados=eventosCache.filter(ev=>{
+  const conFecha=[], variables=[];
+  eventosCache.forEach(ev=>{
     const f=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
-    if(!f)return rango==='proximos';
-    const d=fechaLocal(f); if(!d)return rango==='proximos';
+    if(!f){ if(rango==='proximos') variables.push(ev); return; }
+    if(esFechaVariable(f)){ if(rango==='proximos') variables.push(ev); return; }
+    const d=fechaLocal(f); if(!d){ if(rango==='proximos') variables.push(ev); return; }
     const diffDias=(d-hoy)/(1000*60*60*24);
-    if(rango==='hoy') return diffDias>=0 && diffDias<1;
-    if(rango==='semana') return diffDias>=0 && diffDias<7;
-    if(rango==='mes') return diffDias>=0 && diffDias<31;
-    if(rango==='proximos') return diffDias>=31 || isNaN(diffDias);
-    return true;
+    let entra=false;
+    if(rango==='hoy') entra = diffDias>=0 && diffDias<1;
+    else if(rango==='semana') entra = diffDias>=0 && diffDias<7;
+    else if(rango==='mes') entra = diffDias>=0 && diffDias<31;
+    else if(rango==='proximos') entra = diffDias>=31;
+    else entra = true;
+    if(entra) conFecha.push(ev);
   });
-  renderEventos(filtrados, rango, 'eventos-grid');
+  // Los que sí tienen fecha se ordenan cronológicamente; los "Variable" (sin fecha
+  // exacta) van al final tal cual aparecen — no hay forma confiable de ordenarlos.
+  conFecha.sort((a,b)=> fechaLocal(a['Fecha Inicio']) - fechaLocal(b['Fecha Inicio']));
+  renderEventos(conFecha.concat(variables), rango, 'eventos-grid');
 }
 const MENSAJE_VACIO_RANGO={
   hoy:'No hay eventos programados para hoy. Prueba con otra pestaña.',
@@ -1549,7 +1556,7 @@ function renderEventos(eventos, rango, gridId){
     const hoyAnio = new Date().getFullYear();
     if(esFechaVariable(fecha)){
       dia = '📅';
-      mes = 'VARIABLE';
+      mes = '';
     } else if(fecha){
       const d=fechaLocal(fecha);
       if(d){ dia=d.getDate(); mes=d.toLocaleString('es',{month:'short'}).toUpperCase(); if(d.getFullYear()!==hoyAnio) anio=d.getFullYear(); }
