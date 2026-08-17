@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from data import buscar_lugares, buscar_eventos, obtener_cantones, obtener_comunidad, interpretar_consulta, normalizar, corregir_typos, construir_whatsapp_link, construir_maps_link
+from data import buscar_lugares, buscar_eventos, obtener_cantones, obtener_comunidad, interpretar_consulta, normalizar, corregir_typos, construir_whatsapp_link, construir_maps_link, MESES_ES
 
 app = FastAPI(title="Mana API", description="Backend del portal turistico Manabia")
 
@@ -214,6 +214,85 @@ def escapar_markdown(texto: str) -> str:
         return texto
     return str(texto).replace('*', '')
 
+PALABRAS_EVENTO = {"evento", "eventos", "festival", "festivales", "feria", "ferias", "actividad", "actividades", "agenda", "fiesta", "fiestas"}
+
+def detectar_consulta_evento(texto_norm: str):
+    """Detecta si la pregunta es sobre eventos, y si menciona un mes específico
+    (ej. 'eventos en septiembre'). Devuelve (es_sobre_eventos, mes_numero_o_None)."""
+    palabras = set(texto_norm.split())
+    es_evento = bool(palabras & PALABRAS_EVENTO)
+    mes_detectado = None
+    for nombre_mes, numero in MESES_ES.items():
+        if nombre_mes in texto_norm:
+            mes_detectado = numero
+            break
+    return es_evento, mes_detectado
+
+def armar_respuesta_eventos(eventos: list, mes: int = None) -> tuple:
+    """Arma la respuesta de eventos ordenada cronológicamente, con enlaces
+    clicables (mismo patrón que armar_respuesta usa para lugares)."""
+    import datetime as _dt
+    hoy = _dt.date.today()
+
+    def fecha_ordenable(ev):
+        f = ev.get("Fecha Inicio", "")
+        try:
+            return _dt.datetime.strptime(f[:10], "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return _dt.date.max  # los "Variable" quedan al final
+
+    vigentes = []
+    for ev in eventos:
+        f = ev.get("Fecha Inicio", "")
+        if not f:
+            continue
+        if f.strip().lower().startswith("variable"):
+            if mes is None:  # solo se muestran eventos "Variable" si no se pidió un mes específico
+                vigentes.append(ev)
+            continue
+        try:
+            fecha_ev = _dt.datetime.strptime(f[:10], "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            continue
+        if fecha_ev < hoy:
+            continue
+        if mes is not None and fecha_ev.month != mes:
+            continue
+        vigentes.append(ev)
+
+    vigentes.sort(key=fecha_ordenable)
+
+    if not vigentes:
+        mes_txt = f" en {[k for k,v in MESES_ES.items() if v==mes][0]}" if mes else ""
+        return f"No encontré eventos próximos{mes_txt}. ¿Te ayudo con algo más? 🌊", []
+
+    items = []
+    for i, ev in enumerate(vigentes[:6]):
+        nombre = escapar_markdown(ev.get("Nombre", ""))
+        canton = escapar_markdown(ev.get("Cantón", ""))
+        fecha_txt = ev.get("Fecha Inicio", "")
+        if fecha_txt and not fecha_txt.lower().startswith("variable"):
+            try:
+                d = _dt.datetime.strptime(fecha_txt[:10], "%Y-%m-%d").date()
+                fecha_txt = d.strftime("%d de %B").replace(
+                    "January","enero").replace("February","febrero").replace("March","marzo"
+                ).replace("April","abril").replace("May","mayo").replace("June","junio"
+                ).replace("July","julio").replace("August","agosto").replace("September","septiembre"
+                ).replace("October","octubre").replace("November","noviembre").replace("December","diciembre")
+            except (ValueError, TypeError):
+                pass
+        linea = f"<span class='chat-evento-link' data-idx='{i}' style='cursor:pointer;text-decoration:underline;text-decoration-style:dotted;'>📅 {nombre}</span>"
+        detalles = " — ".join(filter(None, [canton, fecha_txt]))
+        if detalles:
+            linea += f" ({detalles})"
+        if ev.get("Descripción"):
+            linea += f"\n   {ev['Descripción'][:100]}"
+        items.append(linea)
+
+    cuerpo = "\n\n".join(items)
+    pie = "\n\n¿Quieres más información sobre alguno?" if len(vigentes) <= 6 else f"\n\n_...y {len(vigentes)-6} más._"
+    return f"Encontré estos eventos:\n\n{cuerpo}{pie}", vigentes[:6]
+
 # Palabras que se ignoran al buscar por nombre específico
 PALABRAS_IGNORAR = {
     "dame", "dime", "busca", "buscar", "informacion", "informacion",
@@ -311,6 +390,16 @@ def chat_mana(request: PreguntaRequest):
                 "contexto": {}
             }
 
+    # 2.5. Consulta sobre eventos (con o sin mes específico) — se resuelve aparte,
+    # con prioridad sobre la búsqueda de negocios, porque "eventos en septiembre"
+    # no es una búsqueda de un lugar.
+    es_evento, mes_detectado = detectar_consulta_evento(texto_norm)
+    if es_evento:
+        _, canton_evento = interpretar_consulta(texto)
+        eventos_encontrados = buscar_eventos(canton=canton_evento)
+        respuesta_ev, lista_eventos = armar_respuesta_eventos(eventos_encontrados, mes_detectado)
+        return {"respuesta": respuesta_ev, "contexto": {}, "eventos": lista_eventos}
+
     # 3. Interpretar categoría y cantón
     categoria, canton = interpretar_consulta(texto)
 
@@ -366,14 +455,13 @@ def chat_mana(request: PreguntaRequest):
     if not resultados:
         resultados_eventos = buscar_eventos(canton=canton)
         if resultados_eventos:
-            eventos_texto = "\n".join([
-                f"• {escapar_markdown(e.get('Nombre', ''))} — {e.get('Canton', e.get('Cantón', ''))} ({e.get('Fecha Inicio', '')})"
-                for e in resultados_eventos[:3]
-            ])
-            return {
-                "respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{eventos_texto}\n\n¿Quieres más información sobre alguno?",
-                "contexto": {}
-            }
+            respuesta_ev, lista_eventos = armar_respuesta_eventos(resultados_eventos)
+            if lista_eventos:
+                return {
+                    "respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{respuesta_ev.split(':',1)[1].strip()}",
+                    "contexto": {},
+                    "eventos": lista_eventos
+                }
         return {
             "respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza y más del Norte de Manabí. ¿Qué necesitas?",
             "contexto": {}
