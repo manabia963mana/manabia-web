@@ -390,6 +390,15 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
     col_direccion = encontrar_columna(df, ["Dirección", "Direccion"])
     col_parroquia = encontrar_columna(df, ["Parroquia"])
     col_tiktok = encontrar_columna(df, ["TikTok", "Tiktok"])
+    col_fb = encontrar_columna(df, ["Facebook"])
+    col_ig = encontrar_columna(df, ["Instagram"])
+    col_duracion = encontrar_columna(df, ["Duración aproximada", "Duracion aproximada"])
+    col_publico = encontrar_columna(df, ["Público objetivo", "Publico objetivo", "Público Objetivo"])
+    col_ninos = encontrar_columna(df, ["Es para niños", "Es para ninos"])
+    col_aforo = encontrar_columna(df, ["Aforo aproximado"])
+    col_descuento = encontrar_columna(df, ["Descuento mayores y niños", "Descuento para mayores y niños"])
+    col_pago = encontrar_columna(df, ["Métodos de pago", "Metodos de pago"])
+    col_frecuencia = encontrar_columna(df, ["Frecuencia"])
 
     if canton and col_canton:
         df = df[df[col_canton].astype(str).apply(normalizar).str.contains(normalizar(canton), na=False)]
@@ -397,7 +406,7 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
         df = df[df[col_categoria].astype(str).apply(normalizar).str.contains(normalizar(categoria), na=False)]
 
     result = []
-    for _, row in df.head(10).iterrows():
+    for _, row in df.iterrows():
         nombre = limpiar(row.get(col_nombre, "")) if col_nombre else ""
         if not nombre:
             continue
@@ -416,6 +425,15 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
             "Parroquia": limpiar(row.get(col_parroquia, "")) if col_parroquia else "",
             "TikTok": limpiar(row.get(col_tiktok, "")) if col_tiktok else "",
+            "Facebook": limpiar(row.get(col_fb, "")) if col_fb else "",
+            "Instagram": limpiar(row.get(col_ig, "")) if col_ig else "",
+            "Duración aproximada": limpiar(row.get(col_duracion, "")) if col_duracion else "",
+            "Público objetivo": limpiar(row.get(col_publico, "")) if col_publico else "",
+            "Es para niños": limpiar(row.get(col_ninos, "")) if col_ninos else "",
+            "Aforo aproximado": limpiar(row.get(col_aforo, "")) if col_aforo else "",
+            "Descuento mayores y niños": limpiar(row.get(col_descuento, "")) if col_descuento else "",
+            "Métodos de pago": limpiar(row.get(col_pago, "")) if col_pago else "",
+            "Frecuencia": limpiar(row.get(col_frecuencia, "")) if col_frecuencia else "",
         }
         result.append(item)
     return result
