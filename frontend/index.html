@@ -330,10 +330,7 @@ a{text-decoration:none;}
 <div class="hero-wrapper">
   <div class="widgets-strip" id="widgets-strip">
     <div class="widget-item" id="widget-clima" onclick="avanzarClimaManual()" style="cursor:pointer;" title="Toca para ver el clima de otro cantón">🌡️ <span>Cargando clima...</span></div>
-    <div class="widget-item" id="widget-ballenas">🐋 <span>—</span></div>
-    <div class="widget-item" id="widget-oleaje">🌊 <span>Cargando mar...</span></div>
     <div class="widget-item" id="widget-eventos">📅 <span>—</span></div>
-    <div class="widget-item widget-sugerencia">💡 <span>Mayo–Septiembre: mejor época para visitar</span></div>
   </div>
   <section class="hero-nuevo">
     <div class="hero-nuevo-bg" style="background-image:url('https://i.ibb.co/YTjP5MLj/Whats-App-Image-2026-07-17-at-19-31-53.jpg')"></div>
@@ -925,8 +922,7 @@ function actualizarWidgetEventos(){
 }
 
 cargarWidgetClima();
-cargarWidgetOleaje();
-cargarWidgetBallenas();
+
 setInterval(()=>fetch(BACKEND+'/').catch(()=>{}), 14*60*1000);
 
 // ── CHAT (popup) ──
@@ -1195,7 +1191,7 @@ async function enviarMensaje(){
     if(idiomaChat === 'en'){
       respuesta = await traducirTexto(respuesta, 'es', 'en');
     }
-    agregarMsg(respuesta,'mana');
+    agregarMsg(respuesta,'mana',data.lugares);
   }catch(e){
     clearTimeout(avisoTimeout);
     const aviso=document.getElementById('aviso-carga'); if(aviso)aviso.remove();
@@ -1204,10 +1200,11 @@ async function enviarMensaje(){
     agregarMsg(idiomaChat==='en' ? 'Mana took too long to respond. Please wait a moment and try again. 🌊' : 'Mana tardó en responder. Espera un momento y vuelve a intentar. 🌊','mana');
   }
 }
-function agregarMsg(txt,tipo){
+function agregarMsg(txt,tipo,lugares){
   const div=document.createElement('div');
   div.className=tipo==='mana'?'msg-mana':'msg-usuario';
   div.innerHTML=txt.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  if(tipo==='mana' && lugares && lugares.length) div._lugaresChat=lugares;
   document.getElementById('chat-mensajes').appendChild(div);
   scrollChat();
 }
@@ -1220,6 +1217,14 @@ function agregarTyping(){
   return div;
 }
 function scrollChat(){ const m=document.getElementById('chat-mensajes'); m.scrollTop=m.scrollHeight; }
+document.getElementById('chat-mensajes').addEventListener('click', (e)=>{
+  const link = e.target.closest('.chat-lugar-link');
+  if(!link) return;
+  const burbuja = link.closest('.msg-mana');
+  if(!burbuja || !burbuja._lugaresChat) return;
+  const idx = parseInt(link.dataset.idx, 10);
+  abrirDetalleLugarObjeto(burbuja._lugaresChat[idx]);
+});
 
 // ── VOZ (reutilizable para cualquier input) ──
 let rec=null, escuchando=false, inputVozActivo=null;
@@ -1286,6 +1291,9 @@ async function buscar(){
 }
 function abrirDetalleLugar(i){
   const l=ultimosResultadosLugares[i];
+  abrirDetalleLugarObjeto(l);
+}
+function abrirDetalleLugarObjeto(l){
   if(!l) return;
   const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
   const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón);
@@ -1293,9 +1301,15 @@ function abrirDetalleLugar(i){
 
   const campos=[
     ['Ubicación', [l.Dirección, l.Parroquia, l.Cantón].filter(Boolean).join(', ')],
+    ['Referencia', l['Referencia de Dirección']],
     ['Horario', l.Horario],
     ['Precio', l.Precio],
     ['Email', l.Email],
+    ['Actividad', l['Actividad/Modalidad']],
+    ['Clasificación', l['Clasificación']],
+    ['Apto para niños', l['Es para niños']],
+    ['Aforo aproximado', l['Aforo aproximado']],
+    ['Requiere inscripción previa', l['Requiere inscripción previa']],
     ['Métodos de pago', l['Métodos de pago']],
     ['Idiomas', l.Idiomas],
     ['Servicios', l.Servicios],
@@ -1307,6 +1321,7 @@ function abrirDetalleLugar(i){
     ['Público objetivo', l['Público objetivo']],
     ['Instagram', l.Instagram],
     ['Facebook', l.Facebook],
+    ['TikTok', l.TikTok],
   ].filter(([_,v])=>v);
 
   const descripcion = l['Descripción larga'] || l.Descripción || '';
@@ -1396,20 +1411,22 @@ async function cargarEventos(){
     const data=await res.json();
     eventosCache=data.eventos||[];
     actualizarWidgetEventos();
-    renderEventos(eventosCache, null, 'eventos-grid');
+    renderEventos(eventosVigentes(), null, 'eventos-grid');
     renderAgenda();
   }catch(e){
     document.getElementById('agenda-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No se pudieron cargar los eventos.</p>';
   }
 }
-function renderAgenda(){
+function eventosVigentes(){
   const hoy=new Date(); hoy.setHours(0,0,0,0);
-  const cercanos=eventosCache.filter(ev=>{
+  return eventosCache.filter(ev=>{
     const f=ev['Fecha Inicio']||''; if(!f)return false;
     const d=new Date(f); if(isNaN(d))return false;
     return (d-hoy)/(1000*60*60*24) >= 0;
   }).sort((a,b)=> new Date(a['Fecha Inicio']) - new Date(b['Fecha Inicio']));
-  renderEventos(cercanos.length?cercanos:eventosCache, null, 'agenda-grid');
+}
+function renderAgenda(){
+  renderEventos(eventosVigentes(), null, 'agenda-grid');
 }
 function filtrarEventosTab(rango, btn){
   document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
@@ -1716,7 +1733,7 @@ function abrirModalCalendario(){
   document.getElementById('modal-calendario-overlay').classList.add('abierto');
   document.getElementById('modal-calendario-panel').classList.add('abierto');
   document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
-  renderEventos(eventosCache, null, 'eventos-grid');
+  renderEventos(eventosVigentes(), null, 'eventos-grid');
 }
 function cerrarModalCalendario(){
   document.getElementById('modal-calendario-overlay').classList.remove('abierto');
