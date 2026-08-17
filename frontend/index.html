@@ -903,22 +903,17 @@ function cargarWidgetBallenas(){
 
 function actualizarWidgetEventos(){
   const el = document.querySelector('#widget-eventos span');
-  if(!eventosCache || !eventosCache.length){ el.textContent = 'Sin eventos próximos'; return; }
+  const vigentes = eventosVigentes();
+  if(!vigentes.length){ el.textContent = 'Sin eventos próximos'; return; }
   const hoy = new Date(); hoy.setHours(0,0,0,0);
-  const hoyMismo = eventosCache.filter(ev=>{
-    const f = ev['Fecha Inicio']||''; if(!f) return false;
-    const d = new Date(f); if(isNaN(d)) return false;
-    const diff = (d-hoy)/(1000*60*60*24);
-    return diff>=0 && diff<1;
-  }).length;
-  if(hoyMismo>0){ el.textContent = `${hoyMismo} evento${hoyMismo>1?'s':''} hoy`; return; }
-  const proximos = eventosCache.filter(ev=>{
-    const f = ev['Fecha Inicio']||''; if(!f) return false;
-    const d = new Date(f); if(isNaN(d)) return false;
-    const diff = (d-hoy)/(1000*60*60*24);
-    return diff>=0 && diff<30;
-  }).length;
-  el.textContent = proximos>0 ? `${proximos} evento${proximos>1?'s':''} próximamente` : 'Sin eventos próximos';
+  const proximo = vigentes[0];
+  const d = fechaLocal(proximo['Fecha Inicio']);
+  const diff = Math.round((d-hoy)/(1000*60*60*24));
+  let cuando;
+  if(diff===0) cuando = 'hoy';
+  else if(diff===1) cuando = 'mañana';
+  else cuando = `en ${diff} días`;
+  el.textContent = `${proximo.Nombre} — ${cuando}`;
 }
 
 cargarWidgetClima();
@@ -1417,13 +1412,25 @@ async function cargarEventos(){
     document.getElementById('agenda-grid').innerHTML='<p style="color:#888;font-size:14px;grid-column:1/-1">No se pudieron cargar los eventos.</p>';
   }
 }
+// Parsea "YYYY-MM-DD" como fecha LOCAL (no UTC), evitando el bug clásico de JS
+// donde new Date("2026-08-07") se interpreta como medianoche UTC y en Ecuador
+// (UTC-5) termina mostrando un día antes.
+function fechaLocal(fechaStr){
+  if(!fechaStr) return null;
+  const partes = String(fechaStr).trim().split(/[-T ]/);
+  if(partes.length < 3) { const d = new Date(fechaStr); return isNaN(d) ? null : d; }
+  const [anio, mes, dia] = partes.map(Number);
+  if(!anio || !mes || !dia) return null;
+  const d = new Date(anio, mes - 1, dia);
+  return isNaN(d) ? null : d;
+}
 function eventosVigentes(){
   const hoy=new Date(); hoy.setHours(0,0,0,0);
   return eventosCache.filter(ev=>{
     const f=ev['Fecha Inicio']||''; if(!f)return false;
-    const d=new Date(f); if(isNaN(d))return false;
+    const d=fechaLocal(f); if(!d)return false;
     return (d-hoy)/(1000*60*60*24) >= 0;
-  }).sort((a,b)=> new Date(a['Fecha Inicio']) - new Date(b['Fecha Inicio']));
+  }).sort((a,b)=> fechaLocal(a['Fecha Inicio']) - fechaLocal(b['Fecha Inicio']));
 }
 function renderAgenda(){
   renderEventos(eventosVigentes(), null, 'agenda-grid');
@@ -1435,7 +1442,7 @@ function filtrarEventosTab(rango, btn){
   const filtrados=eventosCache.filter(ev=>{
     const f=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
     if(!f)return rango==='proximos';
-    const d=new Date(f); if(isNaN(d))return rango==='proximos';
+    const d=fechaLocal(f); if(!d)return rango==='proximos';
     const diffDias=(d-hoy)/(1000*60*60*24);
     if(rango==='hoy') return diffDias>=0 && diffDias<1;
     if(rango==='semana') return diffDias>=0 && diffDias<7;
@@ -1460,10 +1467,11 @@ function renderEventos(eventos, rango, gridId){
   }
   const colores=['#C2662D','#E8792E','#2E86FF','#8B5CF6','#1CAE79'];
   grid.innerHTML='';
-  eventos.slice(0,4).forEach((ev,i)=>{
+  const listaAmostrar = (gridId==='agenda-grid') ? eventos.slice(0,4) : eventos;
+  listaAmostrar.forEach((ev,i)=>{
     const fecha=ev['Fecha Inicio']||ev.Fecha_Inicio||'';
     let dia='',mes='';
-    if(fecha){ const d=new Date(fecha); if(!isNaN(d)){ dia=d.getDate(); mes=d.toLocaleString('es',{month:'short'}).toUpperCase(); } }
+    if(fecha){ const d=fechaLocal(fecha); if(d){ dia=d.getDate(); mes=d.toLocaleString('es',{month:'short'}).toUpperCase(); } }
     const color=colores[i%colores.length];
     const c=document.createElement('div');
     c.className='evento-card-nuevo';
@@ -1481,10 +1489,21 @@ function renderEventos(eventos, rango, gridId){
         <div id="${detalleId}" style="display:none;font-size:12px;color:var(--gris);line-height:1.7;margin-top:8px;border-top:1px solid var(--borde);padding-top:8px;">
           ${ev.Descripción?`<div>${ev.Descripción}</div>`:''}
           ${ev.Horario?`<div>🕐 ${ev.Horario}</div>`:''}
+          ${ev['Duración aproximada']?`<div>⏱️ Duración: ${ev['Duración aproximada']}</div>`:''}
+          ${ev.Dirección?`<div>📍 ${ev.Dirección}</div>`:''}
           ${ev.Organizador?`<div>👤 Organiza: ${ev.Organizador}</div>`:''}
           ${ev.Precios?`<div>💰 ${ev.Precios}</div>`:''}
+          ${ev['Descuento mayores y niños']?`<div>🏷️ ${ev['Descuento mayores y niños']}</div>`:''}
+          ${ev['Métodos de pago']?`<div>💳 ${ev['Métodos de pago']}</div>`:''}
+          ${ev['Público objetivo']?`<div>👥 ${ev['Público objetivo']}</div>`:''}
+          ${ev['Es para niños']?`<div>🧒 Apto para niños: ${ev['Es para niños']}</div>`:''}
+          ${ev['Aforo aproximado']?`<div>🎟️ Aforo: ${ev['Aforo aproximado']}</div>`:''}
+          ${ev.Frecuencia?`<div>🔁 ${ev.Frecuencia}</div>`:''}
+          ${ev.Teléfono?`<div>📞 ${ev.Teléfono}</div>`:''}
           ${linkWa?`<div><a href="${linkWa}" target="_blank" rel="noopener" style="color:#25D366;font-weight:600;">💬 Escribir por WhatsApp</a></div>`:''}
           ${ev['Sitio web']?`<div><a href="${ev['Sitio web'].startsWith('http')?ev['Sitio web']:'https://'+ev['Sitio web']}" target="_blank" rel="noopener" style="color:var(--navy2);font-weight:600;">🔗 Sitio web</a></div>`:''}
+          ${ev.Facebook?`<div><a href="${ev.Facebook.startsWith('http')?ev.Facebook:'https://'+ev.Facebook}" target="_blank" rel="noopener" style="color:#1877F2;font-weight:600;">📘 Facebook</a></div>`:''}
+          ${ev.Instagram?`<div><a href="${ev.Instagram.startsWith('http')?ev.Instagram:'https://instagram.com/'+ev.Instagram.replace('@','')}" target="_blank" rel="noopener" style="color:#E1306C;font-weight:600;">📷 Instagram</a></div>`:''}
         </div>
         <div class="evento-cta" style="cursor:pointer;" onclick="const d=document.getElementById('${detalleId}'); const abierto=d.style.display!=='none'; d.style.display=abierto?'none':'block'; this.textContent=abierto?'Más información →':'Ocultar ▲';">Más información →</div>
       </div>`;
