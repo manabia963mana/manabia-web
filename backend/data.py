@@ -209,11 +209,13 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     col_lat = encontrar_columna(df, ["Latitud", "Lat"])
     col_lng = encontrar_columna(df, ["Longitud", "Lng", "Long"])
     col_direccion = encontrar_columna(df, ["Dirección", "Direccion"])
+    col_ref_direccion = encontrar_columna(df, ["Referencia de Dirección", "Referencia de Direccion"])
     col_desc_larga = encontrar_columna(df, ["Descripción larga", "Descripcion larga"])
-    col_email = encontrar_columna(df, ["Email", "Correo"])
-    col_web = encontrar_columna(df, ["Sitio web", "Sitio Web"])
+    col_email = encontrar_columna(df, ["Email", "Correo", "Correo Electrónico"])
+    col_web = encontrar_columna(df, ["Sitio web", "Sitio Web", "Dirección Web", "Direccion Web"])
     col_fb = encontrar_columna(df, ["Facebook"])
     col_ig = encontrar_columna(df, ["Instagram"])
+    col_tiktok = encontrar_columna(df, ["TikTok", "Tiktok"])
     col_pago = encontrar_columna(df, ["Métodos de pago", "Metodos de pago"])
     col_idiomas = encontrar_columna(df, ["Idiomas"])
     col_servicios = encontrar_columna(df, ["Servicios"])
@@ -223,6 +225,11 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
     col_accesibilidad = encontrar_columna(df, ["Accesibilidad"])
     col_nivel = encontrar_columna(df, ["Nivel turístico", "Nivel turistico"])
     col_publico = encontrar_columna(df, ["Público objetivo", "Publico objetivo"])
+    col_actividad = encontrar_columna(df, ["Actividad/Modalidad", "Actividad / Modalidad"])
+    col_clasificacion = encontrar_columna(df, ["Clasificación", "Clasificacion"])
+    col_ninos = encontrar_columna(df, ["Es para niños", "Es para ninos"])
+    col_aforo = encontrar_columna(df, ["Aforo aproximado"])
+    col_inscripcion = encontrar_columna(df, ["Requiere inscripción previa", "Requiere inscripcion previa"])
 
     print(f"Columnas detectadas -> canton:{col_canton}, categoria:{col_categoria}, nombre:{col_nombre}, parroquia:{col_parroquia}, lat:{col_lat}, lng:{col_lng}")
 
@@ -294,11 +301,13 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
             "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
+            "Referencia de Dirección": limpiar(row.get(col_ref_direccion, "")) if col_ref_direccion else "",
             "Descripción larga": limpiar(row.get(col_desc_larga, "")) if col_desc_larga else "",
             "Email": limpiar(row.get(col_email, "")) if col_email else "",
             "Sitio web": limpiar(row.get(col_web, "")) if col_web else "",
             "Facebook": limpiar(row.get(col_fb, "")) if col_fb else "",
             "Instagram": limpiar(row.get(col_ig, "")) if col_ig else "",
+            "TikTok": limpiar(row.get(col_tiktok, "")) if col_tiktok else "",
             "Métodos de pago": limpiar(row.get(col_pago, "")) if col_pago else "",
             "Idiomas": limpiar(row.get(col_idiomas, "")) if col_idiomas else "",
             "Servicios": limpiar(row.get(col_servicios, "")) if col_servicios else "",
@@ -308,6 +317,15 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Accesibilidad": limpiar(row.get(col_accesibilidad, "")) if col_accesibilidad else "",
             "Nivel turístico": limpiar(row.get(col_nivel, "")) if col_nivel else "",
             "Público objetivo": limpiar(row.get(col_publico, "")) if col_publico else "",
+            "Actividad/Modalidad": limpiar(row.get(col_actividad, "")) if col_actividad else "",
+            "Clasificación": limpiar(row.get(col_clasificacion, "")) if col_clasificacion else "",
+            "Es para niños": limpiar(row.get(col_ninos, "")) if col_ninos else "",
+            "Aforo aproximado": limpiar(row.get(col_aforo, "")) if col_aforo else "",
+            "Requiere inscripción previa": limpiar(row.get(col_inscripcion, "")) if col_inscripcion else "",
+            # NOTA: a propósito NO se exponen aquí columnas de uso interno de la base
+            # (Fecha actualización, Responsable datos, Fuente información, Slug,
+            # Embeddings_Status, Prioridad_IA, Relacionado_Con, Score_Calidad_Datos,
+            # Persona de contacto) — son metadata de gestión, no información para el público.
         }
         result.append(item)
 
@@ -367,10 +385,11 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
     col_horario = encontrar_columna(df, ["Horario"])
     col_tel = encontrar_columna(df, ["Teléfono", "Telefono"])
     col_wa = encontrar_columna(df, ["WhatsApp"])
-    col_web = encontrar_columna(df, ["Sitio web", "Sitio Web"])
+    col_web = encontrar_columna(df, ["Sitio web", "Sitio Web", "Dirección Web", "Direccion Web"])
     col_precios = encontrar_columna(df, ["Precios", "Precio"])
     col_direccion = encontrar_columna(df, ["Dirección", "Direccion"])
     col_parroquia = encontrar_columna(df, ["Parroquia"])
+    col_tiktok = encontrar_columna(df, ["TikTok", "Tiktok"])
 
     if canton and col_canton:
         df = df[df[col_canton].astype(str).apply(normalizar).str.contains(normalizar(canton), na=False)]
@@ -396,6 +415,7 @@ def buscar_eventos(canton: str = "", categoria: str = ""):
             "Precios": limpiar(row.get(col_precios, "")) if col_precios else "",
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
             "Parroquia": limpiar(row.get(col_parroquia, "")) if col_parroquia else "",
+            "TikTok": limpiar(row.get(col_tiktok, "")) if col_tiktok else "",
         }
         result.append(item)
     return result
