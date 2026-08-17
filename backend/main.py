@@ -447,7 +447,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         if horario:
             linea += f"\n   🕐 {horario}"
         if precio:
-            linea += f"\n   💰 {precio}"
+            linea += f"\n    {precio}"
         if telefono:
             linea += f"\n   📞 {telefono}"
         wa_link = construir_whatsapp_link(whatsapp)
