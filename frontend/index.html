@@ -1312,6 +1312,7 @@ function abrirDetalleEvento(ev){
   const web=ev['Sitio web']?(ev['Sitio web'].startsWith('http')?ev['Sitio web']:'https://'+ev['Sitio web']):null;
   const fb=ev.Facebook?(ev.Facebook.startsWith('http')?ev.Facebook:'https://'+ev.Facebook):null;
   const ig=ev.Instagram?(ev.Instagram.startsWith('http')?ev.Instagram:'https://instagram.com/'+ev.Instagram.replace('@','')):null;
+  const tiktok=ev.TikTok?(ev.TikTok.startsWith('http')?ev.TikTok:'https://tiktok.com/@'+ev.TikTok.replace('@','')):null;
 
   let fechaTexto = '';
   const d = fechaLocal(ev['Fecha Inicio']);
@@ -1362,8 +1363,9 @@ function abrirDetalleEvento(ev){
     <div class="detalle-acciones">
       ${linkWa?`<a class="detalle-btn-wa" href="${linkWa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
       ${web?`<a class="detalle-btn-web" href="${web}" target="_blank" rel="noopener">🔗 Sitio web</a>`:''}
-      ${fb?`<a class="detalle-btn-web" href="${fb}" target="_blank" rel="noopener" style="background:#1877F2;">📘 Facebook</a>`:''}
-      ${ig?`<a class="detalle-btn-web" href="${ig}" target="_blank" rel="noopener" style="background:#E1306C;">📷 Instagram</a>`:''}
+      ${fb?`<a class="detalle-btn-web" href="${fb}" target="_blank" rel="noopener" style="background:#1877F2;color:#fff;">📘 Facebook</a>`:''}
+      ${ig?`<a class="detalle-btn-web" href="${ig}" target="_blank" rel="noopener" style="background:#E1306C;color:#fff;">📷 Instagram</a>`:''}
+      ${tiktok?`<a class="detalle-btn-web" href="${tiktok}" target="_blank" rel="noopener" style="background:#000;color:#fff;">🎵 TikTok</a>`:''}
     </div>`;
   document.getElementById('detalle-contenido').innerHTML=html;
   document.getElementById('detalle-overlay').classList.add('abierto');
@@ -1374,6 +1376,9 @@ function abrirDetalleLugarObjeto(l){
   const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
   const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón);
   const web=l['Sitio web']?(l['Sitio web'].startsWith('http')?l['Sitio web']:'https://'+l['Sitio web']):null;
+  const fb=l.Facebook?(l.Facebook.startsWith('http')?l.Facebook:'https://'+l.Facebook):null;
+  const ig=l.Instagram?(l.Instagram.startsWith('http')?l.Instagram:'https://instagram.com/'+l.Instagram.replace('@','')):null;
+  const tiktok=l.TikTok?(l.TikTok.startsWith('http')?l.TikTok:'https://tiktok.com/@'+l.TikTok.replace('@','')):null;
 
   const campos=[
     ['Ubicación', [l.Dirección, l.Parroquia, l.Cantón].filter(Boolean).join(', ')],
@@ -1395,9 +1400,6 @@ function abrirDetalleLugarObjeto(l){
     ['Accesibilidad', l.Accesibilidad],
     ['Nivel turístico', l['Nivel turístico']],
     ['Público objetivo', l['Público objetivo']],
-    ['Instagram', l.Instagram],
-    ['Facebook', l.Facebook],
-    ['TikTok', l.TikTok],
   ].filter(([_,v])=>v);
 
   const descripcion = l['Descripción larga'] || l.Descripción || '';
@@ -1413,6 +1415,9 @@ function abrirDetalleLugarObjeto(l){
       ${linkWa?`<a class="detalle-btn-wa" href="${linkWa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
       ${linkMaps?`<a class="detalle-btn-maps" href="${linkMaps}" target="_blank" rel="noopener">📍 Cómo llegar</a>`:''}
       ${web?`<a class="detalle-btn-web" href="${web}" target="_blank" rel="noopener">🔗 Sitio web</a>`:''}
+      ${fb?`<a class="detalle-btn-web" href="${fb}" target="_blank" rel="noopener" style="background:#1877F2;color:#fff;">📘 Facebook</a>`:''}
+      ${ig?`<a class="detalle-btn-web" href="${ig}" target="_blank" rel="noopener" style="background:#E1306C;color:#fff;">📷 Instagram</a>`:''}
+      ${tiktok?`<a class="detalle-btn-web" href="${tiktok}" target="_blank" rel="noopener" style="background:#000;color:#fff;">🎵 TikTok</a>`:''}
     </div>`;
   document.getElementById('detalle-contenido').innerHTML=html;
   document.getElementById('detalle-overlay').classList.add('abierto');
