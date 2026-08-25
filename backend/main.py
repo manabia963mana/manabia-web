@@ -448,7 +448,8 @@ PALABRAS_IGNORAR = {
     "tener", "necesito", "necesitas", "busco", "encontrar", "encuentrame",
     "mostrar", "muestrame", "muestra", "cuentame", "dime", "por", "favor",
     "porfavor", "porfa", "para", "puedes", "podrias", "ayuda", "ayudame",
-    "algo", "algun", "alguna", "en", "y", "a"
+    "algo", "algun", "alguna", "en", "y", "a",
+    "manabi", "manabia", "ecuador", "norte", "hacer", "hago", "haciendo",
 }
 
 # ── MEMORIA DE 1 MENSAJE ──
@@ -554,6 +555,20 @@ def chat_mana(request: PreguntaRequest):
     # tal cual se usaron, para que "sí"/"más" reproduzca la MISMA búsqueda
     # exacta en vez de combinar cantón+categoría+texto a la fuerza.
     canton_usado, categoria_usado, consulta_usada = "", "", ""
+
+    # 2.7. Caso especial: "surf". Casi no hay lugares etiquetados con la
+    # subcategoría "Surf" en la base (2 nada más), así que preguntar por surf
+    # se combina con las playas reales (que sí están bien pobladas) para dar
+    # una respuesta útil en vez de casi vacía.
+    if "surf" in texto_norm:
+        resultados_surf = buscar_lugares(consulta="surf")
+        resultados_playas = buscar_lugares(consulta="playas")
+        vistos = {r["Nombre"] for r in resultados_surf}
+        resultados = resultados_surf + [r for r in resultados_playas if r["Nombre"] not in vistos]
+        if resultados:
+            consulta_usada = "surf"
+            respuesta, nuevo_contexto, lugares_mostrados = armar_respuesta(resultados, "", "", offset=0, consulta=consulta_usada)
+            return {"respuesta": respuesta, "contexto": nuevo_contexto, "lugares": lugares_mostrados}
 
     # 3. Búsqueda por nombre específico — limpia palabras vacías.
     # SIEMPRE se intenta primero, aunque se haya detectado una categoría o cantón,
@@ -681,7 +696,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         if horario:
             linea += f"\n   🕐 {horario}"
         if precio:
-            linea += f"\n   $ {precio}"
+            linea += f"\n   💰 {precio}"
         if telefono:
             linea += f"\n   📞 {telefono}"
         wa_link = construir_whatsapp_link(whatsapp)
