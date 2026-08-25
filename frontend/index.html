@@ -1695,7 +1695,7 @@ const MODALES_FOOTER={
         <div class="faq-respuesta" id="faqr${i}" style="display:none;">${r}</div>
       </div>`).join('')}
     </div>
-    <p style="margin-top:24px;font-size:13.5px;color:var(--gris);">¿No encontraste tu respuesta? <a href="#" onclick="event.preventDefault(); cerrarModalFooter(); preguntar('Tengo una pregunta');" style="color:var(--verde-osc);font-weight:700;">Pregúntale directamente a Mana →</a></p>` },
+    <p style="margin-top:24px;font-size:13.5px;color:var(--gris);">¿No encontraste tu respuesta? <a href="#" onclick="event.preventDefault(); cerrarModalFooter(); abrirChat();" style="color:var(--verde-osc);font-weight:700;">Pregúntale directamente a Mana →</a></p>` },
   'contacto': { titulo:'Contáctanos', html:`
     <p style="font-size:14.5px;color:var(--gris);line-height:1.8;margin-bottom:20px;">¿Tienes preguntas, sugerencias o quieres reportar información desactualizada? Escríbenos a <strong>manabia963@gmail.com</strong> o por WhatsApp.</p>
     ${GOOGLE_FORM_CONTACTO_URL ? `
