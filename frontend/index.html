@@ -910,7 +910,7 @@ function toggleMenuMovil(){
   document.getElementById('nav-links-movil').classList.toggle('abierto');
   document.getElementById('btn-hamburguesa').classList.toggle('abierto');
 }
-let mensajeBienvenidaChat = null; // se captura una sola vez, la primera vez que se carga la página
+let mensajeBienvenidaChat = document.getElementById('chat-mensajes').innerHTML; // capturado apenas carga la página, antes de cualquier conversación
 function abrirChat(){
   document.getElementById('chat-panel').classList.add('abierto');
   document.getElementById('chat-overlay').classList.add('abierto');
@@ -925,9 +925,7 @@ function cerrarChatYLimpiar(){
   // memoria de contexto, para que la próxima vez que se abra el chat empiece
   // desde cero. Cerrar tocando afuera del chat (cerrarChat) NO borra nada.
   cerrarChat();
-  const cont = document.getElementById('chat-mensajes');
-  if(mensajeBienvenidaChat === null) mensajeBienvenidaChat = cont.innerHTML;
-  cont.innerHTML = mensajeBienvenidaChat;
+  document.getElementById('chat-mensajes').innerHTML = mensajeBienvenidaChat;
   ultimoContexto = {};
 }
 function preguntar(txt){
