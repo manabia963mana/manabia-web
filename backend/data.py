@@ -128,14 +128,50 @@ def limpiar(valor):
         s = s[:-2]
     return s
 
+def _limpiar_referencia(valor):
+    """Descarta valores basura de captura (una sola letra o número suelto, ej.
+    'a' o '0') que no aportan ninguna referencia real para llegar al lugar."""
+    v = limpiar(valor)
+    if len(v.strip()) <= 2:
+        return ""
+    return v
+
 def limpiar_coordenada(valor, tipo="lat"):
-    """Convierte una coordenada a float. Corrige automáticamente el error de captura
-    más común en el Sheet: coordenadas guardadas sin separador decimal
-    (ej. '-804239' en vez de '-80.4239'). Rango esperado para Norte de Manabí:
-    latitud entre -2 y 2, longitud entre -82 y -75."""
+    """Convierte una coordenada a float. Maneja 2 problemas reales de captura:
+    1) Coordenadas guardadas sin separador decimal (ej. '-804239' en vez de '-80.4239').
+    2) Coordenadas en formato grados/minutos/segundos (ej. 80°03'26" o 80º29´19´´),
+       que sin esto el sistema nunca podía convertir y se perdían en silencio.
+    Rango esperado para Norte de Manabí: latitud entre -2 y 2, longitud entre -82 y -75."""
+    import re as _re
     s = limpiar(valor)
     if not s:
         return None
+    if s.strip() in ("S/D", "-", "Presencial", "Mixta"):
+        return None
+
+    # Formato DMS: grados (° o º) + minutos (' o ´) + segundos opcionales (" o ´´)
+    dms = _re.match(
+        r"^(-?\d+)\s*[°º]\s*(\d+)?\s*['´]?\s*(\d+(?:\.\d+)?)?\s*[\"´]{0,2}\s*$",
+        s.strip()
+    )
+    if dms and ("°" in s or "º" in s):
+        grados = float(dms.group(1))
+        minutos = float(dms.group(2)) if dms.group(2) else 0.0
+        segundos = float(dms.group(3)) if dms.group(3) else 0.0
+        signo = -1 if grados < 0 or s.strip().startswith("-") else 1
+        val = abs(grados) + minutos / 60 + segundos / 3600
+        val *= signo
+        # Norte de Manabí está al oeste (longitud negativa) y muy cerca del ecuador
+        # (latitud casi 0) — los grados de longitud casi siempre vienen en positivo
+        # en este formato aunque representen "oeste", así que se fuerza el signo.
+        if tipo == "lng" and val > 0:
+            val = -val
+        if tipo == "lng" and -82 <= val <= -75:
+            return val
+        if tipo == "lat" and -3 <= val <= 3:
+            return val
+        return None
+
     try:
         val = float(str(s).replace(",", "."))
     except (ValueError, TypeError):
@@ -282,7 +318,7 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
         print(f"Después de búsqueda libre '{consulta}': {len(df)} filas")
 
     result = []
-    for _, row in df.head(20).iterrows():
+    for _, row in df.iterrows():
         nombre = limpiar(row.get(col_nombre, "")) if col_nombre else ""
         if not nombre or nombre.lower() == 'nan':
             continue
@@ -301,7 +337,7 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
             "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
-            "Referencia de Dirección": limpiar(row.get(col_ref_direccion, "")) if col_ref_direccion else "",
+            "Referencia de Dirección": _limpiar_referencia(row.get(col_ref_direccion, "")) if col_ref_direccion else "",
             "Descripción larga": limpiar(row.get(col_desc_larga, "")) if col_desc_larga else "",
             "Email": limpiar(row.get(col_email, "")) if col_email else "",
             "Sitio web": limpiar(row.get(col_web, "")) if col_web else "",
@@ -560,11 +596,13 @@ PALABRAS_CLAVE = {
                     "dispensario", "dentista", "emergencia", "doctor", "enfermo"],
     "Movilidad Y Transporte": ["taxi", "mototaxi", "movilizarme",
                     "interprovincial", "terminal", "movilidad", "como llegar"],
-    "Ecología Y Naturaleza": ["reserva", "ecologico", "cascada", "senderismo", "bosque",
-                    "manglar", "naturaleza", "ecoturismo", "playa", "humedal",
-                    "isla", "mirador", "rio", "area natural"],
     "Cultura y Patrimonio": ["museo", "patrimonio", "artesania", "arte", "cultura",
                     "iglesia", "arqueologico", "historia", "teatro", "biblioteca"],
+    # Categorías con palabras clave específicas van ANTES de "Ecología Y Naturaleza" a
+    # propósito: esa categoría incluye palabras genéricas como "playa" o "rio" que
+    # aparecen junto a intenciones más precisas (ej. "playa para hacer surf" debe
+    # detectar Deportes, no Naturaleza, porque "surf" es la palabra que de verdad
+    # importa ahí). El orden del diccionario decide cuál gana cuando hay empate.
     "Instalaciones Deportivas": ["surf", "deporte", "cancha", "estadio", "gimnasio",
                     "piscina", "tenis", "voley", "patinaje", "yoga", "fitness"],
     "Agenciamiento Turístico": ["agencia", "tour", "operadora", "viajes", "paquete", "excursion"],
@@ -574,6 +612,9 @@ PALABRAS_CLAVE = {
     "Guianza Turística": ["guia turistico", "guia turistica", "guianza", "tour guiado", "acompañante turistico"],
     "Organizadores De Eventos, Congresos Y Convenciones": ["organizador de eventos", "planificador de bodas", "organizacion de congresos", "convenciones", "organizador de bodas"],
     "Parques Temáticos Y Atracciones Estables": ["parque tematico", "parque de diversiones", "juegos mecanicos", "atracciones"],
+    "Ecología Y Naturaleza": ["reserva", "ecologico", "cascada", "senderismo", "bosque",
+                    "manglar", "naturaleza", "ecoturismo", "playa", "humedal",
+                    "isla", "mirador", "rio", "area natural"],
 }
 
 def interpretar_consulta(texto: str):
