@@ -115,6 +115,148 @@ RESPUESTAS_FIJAS = {
     "seguridad": {
         "respuesta": "🔒 **Seguridad en el Norte de Manabí:**\n\nEn general es una zona turística tranquila.\n\n✅ Bahía, Canoa y Pedernales son seguros para visitantes\n✅ Mantén tus pertenencias cerca en mercados\n✅ Viaja durante el día entre cantones\n\n📞 **Emergencias:**\n- Policía: 101\n- Bomberos: 102\n- ECU911: 911\n\n¿Necesitas info sobre hospitales o policía en algún cantón?"
     },
+    "que_es_manabia": {
+        "respuesta": "Manabía es la plataforma inteligente del Norte de Manabí. Reúne en un solo lugar información sobre playas, naturaleza, gastronomía, cultura, eventos, rutas y experiencias para ayudarte a descubrir la región de forma sencilla y personalizada. 🌊"
+    },
+    "es_gratis": {
+        "respuesta": "Sí, es completamente gratuito. El acceso a la plataforma y todas las consultas conmigo son gratis, y no necesitas registrarte para usar la mayor parte del sitio. 🌊"
+    },
+    "registrar_negocio": {
+        "respuesta": "¡Con gusto! Puedes solicitar la incorporación de tu negocio (hotel, restaurante, cafetería, operador turístico, artesanía, museo, etc.) escribiendo a **manabia963@gmail.com** o a través del formulario de Contáctanos en el sitio."
+    },
+    "publicar_evento": {
+        "respuesta": "Sí, instituciones públicas, organizaciones, empresas y gestores culturales pueden solicitar la publicación de un evento en el calendario oficial. Escríbenos a **manabia963@gmail.com** con los detalles."
+    },
+    "reportar_error": {
+        "respuesta": "Gracias por avisar — usa el formulario de Contáctanos (elige 'Reportar información incorrecta') o escríbenos directo a **manabia963@gmail.com** contándonos qué dato está mal, y lo corregimos lo antes posible."
+    },
+    "privacidad_datos": {
+        "respuesta": "Respetamos tu privacidad. Tus datos personales se usan únicamente para mejorar tu experiencia y se manejan según nuestra Política de Privacidad, que puedes revisar en el footer del sitio."
+    },
+    "contactar_equipo": {
+        "respuesta": "Puedes contactarnos por el formulario de Contáctanos en el sitio, o directo a **manabia963@gmail.com**. ¡Con gusto te ayudamos!"
+    },
+    "cantones_cubiertos": {
+        "respuesta": "Actualmente cubrimos los cinco cantones del Norte de Manabí: **Pedernales, Jama, San Vicente, Sucre (Bahía de Caráquez) y Chone**. 🌊"
+    },
+    "como_usar_sitio": {
+        "respuesta": "Puedes encontrar lugares de tres maneras: conversando conmigo (como ahora), explorando el mapa interactivo, o navegando por categorías como playas, gastronomía, naturaleza, cultura y eventos."
+    },
+    "que_info_hay": {
+        "respuesta": "Tenemos información sobre playas, restaurantes, hoteles, cafeterías, museos, iglesias, miradores, senderos, reservas naturales, deportes, eventos, ferias y fiestas tradicionales del Norte de Manabí."
+    },
+    "que_es_mapa": {
+        "respuesta": "El Mapa Interactivo te permite localizar fácilmente playas, restaurantes, hoteles, atractivos turísticos, eventos y otros lugares de interés — lo encuentras en el botón de mapa dentro del sitio."
+    },
+    "que_es_calendario": {
+        "respuesta": "El Calendario de Eventos es la agenda actualizada del Norte de Manabí — ahí encuentras festivales, actividades culturales, eventos deportivos, ferias gastronómicas y celebraciones."
+    },
+    "recomendaciones_personalizadas": {
+        "respuesta": "Sí, adapto mis sugerencias según lo que me cuentes: viajes en pareja, familias, aventura, naturaleza, gastronomía, presupuesto o el tiempo que tengas disponible. Cuéntame más y te ayudo. 🌊"
+    },
+    "perfiles_destacados": {
+        "respuesta": "Sí, Manabía cuenta con perfiles Premium para negocios que quieran mejorar su presencia, mostrar más fotos, incluir promociones y acceder a herramientas adicionales. Escribe a **manabia963@gmail.com** para más info."
+    },
+    "financiamiento": {
+        "respuesta": "Manabía se sostiene mediante servicios Premium para empresas, campañas promocionales y alianzas institucionales, siempre manteniendo una experiencia clara y transparente para quien la usa."
+    },
+    "contenido_patrocinado": {
+        "respuesta": "Sí, cuando un contenido sea patrocinado va a aparecer claramente identificado. Siempre priorizo lo que de verdad te sirve, no lo que paguen más."
+    },
+    "fuente_informacion": {
+        "respuesta": "Trabajamos con fuentes oficiales, instituciones locales, organizaciones, empresas y colaboradores del territorio. Toda la información se revisa y actualiza periódicamente."
+    },
+    "frecuencia_actualizacion": {
+        "respuesta": "La plataforma está en actualización permanente — eventos, horarios y servicios se revisan continuamente para que la información sea lo más precisa posible."
+    },
+    "funciona_movil": {
+        "respuesta": "Sí, Manabía funciona en computadoras, tabletas y celulares sin necesidad de descargar nada — simplemente entra desde el navegador de tu teléfono. 📱"
+    },
+}
+
+# Preguntas frecuentes que Mana puede responder directamente (además de todo lo
+# de arriba). El texto completo de estas y otras preguntas también está
+# disponible para el usuario en la sección "Preguntas frecuentes" del sitio.
+FRASES_FAQ = {
+    "que es manabia": "que_es_manabia",
+    "que es esta pagina": "que_es_manabia",
+    "que es este sitio": "que_es_manabia",
+    "manabia es gratis": "es_gratis",
+    "app es gratis": "es_gratis",
+    "sitio es gratis": "es_gratis",
+    "pagina es gratis": "es_gratis",
+    "tiene costo usar": "es_gratis",
+    "cuesta usar manabia": "es_gratis",
+    "cuesta usar la app": "es_gratis",
+    "necesito registrarme": "es_gratis",
+    "necesito crear cuenta": "es_gratis",
+    "necesito una cuenta": "es_gratis",
+    "aparecer mi negocio": "registrar_negocio",
+    "registrar mi negocio": "registrar_negocio",
+    "registro mi negocio": "registrar_negocio",
+    "como registro": "registrar_negocio",
+    "publicar mi negocio": "registrar_negocio",
+    "incluir mi negocio": "registrar_negocio",
+    "agregar mi negocio": "registrar_negocio",
+    "sumar mi negocio": "registrar_negocio",
+    "tengo un negocio": "registrar_negocio",
+    "tengo un hotel": "registrar_negocio",
+    "tengo un restaurante": "registrar_negocio",
+    "publicar un evento": "publicar_evento",
+    "publicar mi evento": "publicar_evento",
+    "agregar un evento": "publicar_evento",
+    "dato incorrecto": "reportar_error",
+    "informacion incorrecta": "reportar_error",
+    "informacion esta mal": "reportar_error",
+    "reportar un error": "reportar_error",
+    "reportar informacion": "reportar_error",
+    "protegen mi informacion": "privacidad_datos",
+    "politica de privacidad": "privacidad_datos",
+    "que hacen con mis datos": "privacidad_datos",
+    "contactar al equipo": "contactar_equipo",
+    "hablar con el equipo": "contactar_equipo",
+    "contactar manabia": "contactar_equipo",
+    "hablar con una persona": "contactar_equipo",
+    "que cantones cubre": "cantones_cubiertos",
+    "que cantones tiene manabia": "cantones_cubiertos",
+    "cuantos cantones": "cantones_cubiertos",
+    "que cantones abarca": "cantones_cubiertos",
+    "como funciona el sitio": "como_usar_sitio",
+    "como funciona la pagina": "como_usar_sitio",
+    "como funciona esta pagina": "como_usar_sitio",
+    "como uso esta pagina": "como_usar_sitio",
+    "como uso este sitio": "como_usar_sitio",
+    "como uso manabia": "como_usar_sitio",
+    "que informacion tiene manabia": "que_info_hay",
+    "que puedo encontrar en manabia": "que_info_hay",
+    "que hay en esta pagina": "que_info_hay",
+    "que hay en este sitio": "que_info_hay",
+    "que es el mapa interactivo": "que_es_mapa",
+    "para que sirve el mapa": "que_es_mapa",
+    "que es el calendario de eventos": "que_es_calendario",
+    "para que sirve el calendario": "que_es_calendario",
+    "recomendaciones son personalizadas": "recomendaciones_personalizadas",
+    "recomendaciones de mana son personalizadas": "recomendaciones_personalizadas",
+    "perfiles destacados": "perfiles_destacados",
+    "perfil premium": "perfiles_destacados",
+    "cuenta premium": "perfiles_destacados",
+    "planes premium": "perfiles_destacados",
+    "como se financia manabia": "financiamiento",
+    "de que vive manabia": "financiamiento",
+    "como ganan dinero": "financiamiento",
+    "recomendaciones patrocinadas": "contenido_patrocinado",
+    "contenido patrocinado": "contenido_patrocinado",
+    "de donde sacan la informacion": "fuente_informacion",
+    "de donde viene la informacion de manabia": "fuente_informacion",
+    "fuentes de informacion de manabia": "fuente_informacion",
+    "con que frecuencia se actualiza": "frecuencia_actualizacion",
+    "cada cuanto actualizan": "frecuencia_actualizacion",
+    "que tan actualizada esta la informacion": "frecuencia_actualizacion",
+    "funciona en el celular": "funciona_movil",
+    "funciona en el telefono": "funciona_movil",
+    "hay app movil": "funciona_movil",
+    "tienen aplicacion movil": "funciona_movil",
+    "puedo usar manabia desde el celular": "funciona_movil",
 }
 
 def verificar_saludo(texto_norm: str):
@@ -128,6 +270,10 @@ def verificar_saludo(texto_norm: str):
         return RESPUESTAS_FIJAS["saludo"]["respuesta"], "saludo"
     if len(palabras_texto) <= 4 and palabras_texto & GRACIAS_PUROS:
         return RESPUESTAS_FIJAS["gracias"]["respuesta"], "gracias"
+
+    for frase, clave in FRASES_FAQ.items():
+        if frase in texto_limpio:
+            return RESPUESTAS_FIJAS[clave]["respuesta"], clave
 
     FRASES_EXACTAS = {
         "buenos dias": "saludo",
