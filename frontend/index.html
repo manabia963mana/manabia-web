@@ -529,7 +529,7 @@ a{text-decoration:none;}
       <button data-rango="semana" onclick="filtrarEventosTab('semana', this)">Esta semana</button>
       <button data-rango="mes" onclick="filtrarEventosTab('mes', this)">Este mes</button>
       <button data-rango="proximos" onclick="filtrarEventosTab('proximos', this)">Próximamente</button>
-      <select id="eventos-filtro-categoria" onchange="filtrarEventosTab(document.querySelector('.eventos-tabs button.activo').dataset.rango, document.querySelector('.eventos-tabs button.activo'))" style="margin-left:auto;padding:9px 14px;border-radius:20px;border:1.5px solid var(--borde);font-size:13.5px;font-weight:600;color:var(--navy);background:#fff;">
+      <select id="eventos-filtro-categoria" onchange="const btnAct=document.querySelector('.eventos-tabs button.activo')||document.querySelector('.eventos-tabs button[data-rango=\'hoy\']'); filtrarEventosTab(btnAct.dataset.rango, btnAct);" style="margin-left:auto;padding:9px 14px;border-radius:20px;border:1.5px solid var(--borde);font-size:13.5px;font-weight:600;color:var(--navy);background:#fff;">
         <option value="">Todas las categorías</option>
         <option value="cultura">Cultura y Patrimonio</option>
         <option value="deporte">Deporte</option>
@@ -782,7 +782,7 @@ a{text-decoration:none;}
       </div>
       <div><strong>Mana</strong><small>Tu guía del Norte de Manabí · 24/7</small></div>
     </div>
-    <button class="chat-cerrar" onclick="cerrarChat()">✕</button>
+    <button class="chat-cerrar" onclick="cerrarChatYLimpiar()">✕</button>
   </div>
   <div class="chat-mensajes" id="chat-mensajes">
     <div class="msg-mana">
@@ -910,6 +910,7 @@ function toggleMenuMovil(){
   document.getElementById('nav-links-movil').classList.toggle('abierto');
   document.getElementById('btn-hamburguesa').classList.toggle('abierto');
 }
+let mensajeBienvenidaChat = null; // se captura una sola vez, la primera vez que se carga la página
 function abrirChat(){
   document.getElementById('chat-panel').classList.add('abierto');
   document.getElementById('chat-overlay').classList.add('abierto');
@@ -918,6 +919,16 @@ function abrirChat(){
 function cerrarChat(){
   document.getElementById('chat-panel').classList.remove('abierto');
   document.getElementById('chat-overlay').classList.remove('abierto');
+}
+function cerrarChatYLimpiar(){
+  // Solo se llama desde el botón "✕" — cierra Y borra la conversación y la
+  // memoria de contexto, para que la próxima vez que se abra el chat empiece
+  // desde cero. Cerrar tocando afuera del chat (cerrarChat) NO borra nada.
+  cerrarChat();
+  const cont = document.getElementById('chat-mensajes');
+  if(mensajeBienvenidaChat === null) mensajeBienvenidaChat = cont.innerHTML;
+  cont.innerHTML = mensajeBienvenidaChat;
+  ultimoContexto = {};
 }
 function preguntar(txt){
   if(!txt||!txt.trim())return;
@@ -1864,8 +1875,8 @@ function cerrarModalMapa(){
 function abrirModalCalendario(){
   document.getElementById('modal-calendario-overlay').classList.add('abierto');
   document.getElementById('modal-calendario-panel').classList.add('abierto');
-  document.querySelectorAll('.eventos-tabs button').forEach(b=>b.classList.remove('activo'));
-  renderEventos(eventosVigentes(), null, 'eventos-grid');
+  const btnHoy = document.querySelector('.eventos-tabs button[data-rango="hoy"]');
+  filtrarEventosTab('hoy', btnHoy);
 }
 function cerrarModalCalendario(){
   document.getElementById('modal-calendario-overlay').classList.remove('abierto');
