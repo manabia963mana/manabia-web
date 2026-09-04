@@ -302,7 +302,7 @@ a{text-decoration:none;}
 <header class="header">
   <div class="header-inner">
     <a class="logo" href="#">
-      <svg class="logo-mark" width="44" height="22" viewBox="0 0 44 22" fill="none"><path d="M0 12 Q6 6 12 12 Q18 18 24 12 Q30 6 36 12" stroke="#1CAE79" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="40" cy="12" r="2.2" fill="#1CAE79"/></svg>
+      <svg class="logo-mark" width="44" height="24" viewBox="0 0 44 24" fill="none"><path d="M2 13 Q10 4 18 13 Q26 22 34 13" stroke="#1CAE79" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="38" cy="13" r="2.2" fill="#1CAE79"/></svg>
       <span class="logo-word"><span class="logo-mana">Mana</span><span class="logo-bia">bía</span></span>
     </a>
     <nav class="nav-links">
@@ -387,7 +387,7 @@ a{text-decoration:none;}
         <div class="cat-foto-sub">Sabores manabitas</div>
       </div>
       <div class="cat-foto-item" onclick="document.getElementById('eventos').scrollIntoView({behavior:'smooth'})">
-        <div class="cat-foto-img"><img src="https://i.ibb.co/3m7hBckt/andres-medina-erv9g1-TKYIw-unsplash.jpg" alt="Eventos" onerror="this.parentElement.style.background='#8B5CF6';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#8B5CF6">🎉</span>
+        <div class="cat-foto-img"><img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500&q=80" alt="Eventos" onerror="this.parentElement.style.background='#8B5CF6';this.style.display='none';"></div><span class="cat-foto-badge" style="background:#8B5CF6">🎉</span>
         <div class="cat-foto-label">Eventos</div>
         <div class="cat-foto-sub">Lo que está pasando</div>
       </div>
@@ -440,6 +440,7 @@ a{text-decoration:none;}
           <option value="Parques Temáticos Y Atracciones Estables">Parques y atracciones</option>
           <option value="Guianza Turística">Guías turísticos</option>
         </select>
+        <button type="button" onclick="reiniciarBuscador()" title="Limpiar búsqueda y filtros" style="background:var(--gris-claro);border:1.5px solid var(--borde);color:var(--navy);border-radius:12px;padding:0 14px;font-size:13.5px;font-weight:600;cursor:pointer;">↺ Limpiar</button>
       </div>
     </div>
     <div id="resultados-eventos-section" style="display:none;margin-bottom:32px;">
@@ -458,7 +459,6 @@ a{text-decoration:none;}
   <div class="container">
     <div class="seccion-gen-header">
       <div class="seccion-gen-titulo">Los cinco <span>cantones</span></div>
-      <a href="#mapa" class="seccion-gen-link">Ver mapa interactivo →</a>
     </div>
     <div class="cantones-grid-nuevo">
       <div class="canton-card-nuevo" onclick="filtrarCanton('pedernales')">
@@ -478,7 +478,7 @@ a{text-decoration:none;}
       </div>
       <div class="canton-card-nuevo" onclick="filtrarCanton('sucre')">
         <div class="canton-icono" style="color:#16305A;">⛵</div>
-        <div class="canton-nombre-nuevo">Sucre — Bahía</div>
+        <div class="canton-nombre-nuevo">Sucre</div>
         <div class="canton-sub-nuevo">Ciudad Eco · Puerto · Cultura</div>
       </div>
       <div class="canton-card-nuevo" onclick="filtrarCanton('chone')">
@@ -625,9 +625,7 @@ a{text-decoration:none;}
   </div>
   <div class="modal-fullscreen-body">
   <div class="container" style="max-width:820px;padding:0;">
-    <p style="font-size:15px;color:var(--gris);line-height:1.8;margin-bottom:20px;">El Norte de Manabí posee uno de los territorios con mayor riqueza natural, cultural y gastronómica del Ecuador. Sin embargo, esa riqueza continúa fragmentada, poco visible y escasamente articulada. La información se encuentra dispersa entre instituciones, municipios, empresas, organizaciones y ciudadanos, dificultando que visitantes, inversionistas y los propios habitantes descubran todo su potencial.</p>
-    <p style="font-size:15px;color:var(--navy);line-height:1.8;margin-bottom:20px;font-weight:600;">Manabía nace para resolver ese problema. No como una guía turística tradicional, sino como la Plataforma Inteligente para el Desarrollo Territorial del Norte de Manabí, basada en Inteligencia Artificial, Datos Abiertos y conocimiento local.</p>
-    <p style="font-size:15px;color:var(--gris);line-height:1.8;margin-bottom:32px;">Uno de sus servicios es Mana, un asistente conversacional capaz de ayudar a planificar viajes, descubrir experiencias y responder preguntas en lenguaje natural. Pero su visión va mucho más allá del turismo: convertirse en la infraestructura digital que conecte personas, instituciones, empresas y conocimiento para impulsar el desarrollo regional.</p>
+    <p style="font-size:15px;color:var(--gris);line-height:1.8;margin-bottom:32px;">El Norte de Manabí posee uno de los territorios con mayor riqueza natural, cultural y gastronómica del Ecuador. Sin embargo, esa riqueza continúa fragmentada, poco visible y escasamente articulada. La información se encuentra dispersa entre instituciones, municipios, empresas, organizaciones y ciudadanos, dificultando que visitantes, inversionistas y los propios habitantes descubran todo su potencial.</p>
 
     <div class="seccion-gen-header" style="margin-top:48px;">
       <div class="seccion-gen-titulo" style="font-size:24px;">Historia y <span>Cultura</span></div>
@@ -698,7 +696,7 @@ a{text-decoration:none;}
     <div class="footer-brand-nuevo">
       <div class="logo-footer-row">
         <div class="logo">
-          <svg class="logo-mark" width="44" height="22" viewBox="0 0 44 22" fill="none"><path d="M0 12 Q6 6 12 12 Q18 18 24 12 Q30 6 36 12" stroke="#1CAE79" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="40" cy="12" r="2.2" fill="#1CAE79"/></svg>
+          <svg class="logo-mark" width="44" height="24" viewBox="0 0 44 24" fill="none"><path d="M2 13 Q10 4 18 13 Q26 22 34 13" stroke="#1CAE79" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="38" cy="13" r="2.2" fill="#1CAE79"/></svg>
           <span class="logo-word"><span class="logo-mana">Mana</span><span class="logo-bia">bía</span></span>
         </div>
         <p class="footer-tagline">Mana está aprendiendo cada día para ayudarte a descubrir lo mejor del Norte de Manabí</p>
@@ -773,7 +771,7 @@ a{text-decoration:none;}
 <div class="chat-fab-flotante" onclick="abrirChat()" title="Hablar con Mana">
   <svg width="26" height="20" viewBox="0 0 26 20" fill="none"><path d="M2 10 Q7 3 12 10 Q17 17 22 10" stroke="#1CAE79" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="23" cy="9" r="2.2" fill="#1CAE79"/></svg>
 </div>
-<div class="chat-overlay" id="chat-overlay" onclick="cerrarChat()"></div>
+<div class="chat-overlay" id="chat-overlay" onclick="cerrarChatYLimpiar()"></div>
 <div class="chat-panel" id="chat-panel">
   <div class="chat-header">
     <div class="chat-header-info">
@@ -911,7 +909,17 @@ function toggleMenuMovil(){
   document.getElementById('btn-hamburguesa').classList.toggle('abierto');
 }
 let mensajeBienvenidaChat = document.getElementById('chat-mensajes').innerHTML; // capturado apenas carga la página, antes de cualquier conversación
+function reiniciarBuscador(){
+  document.getElementById('buscador').value = '';
+  document.getElementById('filtro-canton').value = '';
+  document.getElementById('filtro-categoria').value = '';
+  document.getElementById('resultados-section').style.display = 'none';
+  document.getElementById('resultados-grid').innerHTML = '';
+  const secEventos = document.getElementById('resultados-eventos-section');
+  if(secEventos) secEventos.style.display = 'none';
+}
 function abrirChat(){
+  reiniciarBuscador();
   document.getElementById('chat-panel').classList.add('abierto');
   document.getElementById('chat-overlay').classList.add('abierto');
   setTimeout(()=>document.getElementById('chat-input').focus(),200);
@@ -1056,7 +1064,7 @@ function restaurarNombresPropios(texto, mapa){
 // los onclick con índices que usan esas tarjetas.
 const CONTENEDORES_EXCLUIDOS_TRADUCCION = [
   'chat-mensajes','resultados-grid','eventos-grid','agenda-grid',
-  'comunidad-lista','detalle-contenido','modal-footer-contenido','widgets-strip'
+  'comunidad-lista','detalle-contenido','widgets-strip'
 ];
 
 function nodoEnContenedorExcluido(nodo){
@@ -1097,28 +1105,32 @@ async function traducirUno(texto, de, a){
   }
 }
 
+const CACHE_TRADUCCION_GLOBAL = {}; // persiste entre llamadas, evita retraducir el mismo texto una y otra vez
 async function traducirLote(textos, de, a){
   // Se traduce cada texto de forma individual (la forma confiable y verificada
-  // del endpoint gratuito), pero deduplicando textos repetidos (ej. "Cómo llegar"
-  // aparece muchas veces) para no pedir dos veces lo mismo, y con concurrencia
-  // limitada para no saturar el servicio ni ser demasiado lento.
-  const unicos = [...new Set(textos)];
-  const cache = {};
+  // del endpoint gratuito), deduplicando y usando la caché global para no pedir
+  // dos veces lo mismo (ej. al abrir varios modales), con concurrencia limitada
+  // para no saturar el servicio ni ser demasiado lento.
+  const clave = t => `${de}>${a}:${t}`;
+  const faltantes = [...new Set(textos)].filter(t => CACHE_TRADUCCION_GLOBAL[clave(t)] === undefined);
   const CONCURRENCIA = 6;
-  for(let i=0; i<unicos.length; i+=CONCURRENCIA){
-    const grupo = unicos.slice(i, i+CONCURRENCIA);
+  for(let i=0; i<faltantes.length; i+=CONCURRENCIA){
+    const grupo = faltantes.slice(i, i+CONCURRENCIA);
     const traducidos = await Promise.all(grupo.map(t=>traducirUno(t, de, a)));
-    grupo.forEach((t,idx)=>{ cache[t] = traducidos[idx]; });
+    grupo.forEach((t,idx)=>{ CACHE_TRADUCCION_GLOBAL[clave(t)] = traducidos[idx]; });
   }
-  return textos.map(t => cache[t] !== undefined ? cache[t] : t);
+  return textos.map(t => CACHE_TRADUCCION_GLOBAL[clave(t)] !== undefined ? CACHE_TRADUCCION_GLOBAL[clave(t)] : t);
 }
 
-let traduciendoPagina = false;
+let promesaTraduccionEnCurso = null;
 async function traducirPagina(activar){
-  if(traduciendoPagina) return;
-  traduciendoPagina = true;
-  const nodos = recolectarNodosDeTexto();
-  try{
+  // Si ya hay una traducción corriendo (ej. la inicial de toda la página),
+  // se espera a que termine antes de lanzar otra, en vez de ignorarla en
+  // silencio — eso era exactamente lo que dejaba los modales sin traducir si
+  // se abrían justo mientras la traducción inicial todavía estaba en curso.
+  if(promesaTraduccionEnCurso){ await promesaTraduccionEnCurso; }
+  promesaTraduccionEnCurso = (async () => {
+    const nodos = recolectarNodosDeTexto();
     if(activar){
       nodos.forEach(nodo=>{ if(nodo._esOriginal===undefined) nodo._esOriginal = nodo.textContent; });
       const textos = nodos.map(n=>n._esOriginal);
@@ -1127,9 +1139,9 @@ async function traducirPagina(activar){
     }else{
       nodos.forEach(nodo=>{ if(nodo._esOriginal!==undefined) nodo.textContent = nodo._esOriginal; });
     }
-  }finally{
-    traduciendoPagina = false;
-  }
+  })();
+  await promesaTraduccionEnCurso;
+  promesaTraduccionEnCurso = null;
 }
 
 async function traducirTexto(texto, de, a){
@@ -1788,6 +1800,7 @@ const MODALES_FOOTER={
       <strong style="font-size:13px;opacity:.85;">350 a.C. — 1530 d.C.</strong>
       <div style="font-size:19px;font-weight:800;margin-top:4px;">El esplendor milenario de la cultura Jama-Coaque</div>
     </div>
+    <img src="https://i.ibb.co/sdmHdjrd/Cutura-Jama-Coaque.jpg" alt="Cultura Jama-Coaque" style="width:100%;border-radius:14px;margin-bottom:20px;display:block;" onerror="this.style.display='none';">
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Ubicada en una de las zonas geográficas más diversas y boscosas de la costa ecuatoriana, la cultura Jama-Coaque floreció entre los años 350 a.C. y 1530 d.C. Su territorio se extendió desde el cabo de San Francisco, en Esmeraldas, hasta Bahía de Caráquez, concentrándose en los valles de los ríos Jama y Coaque, y en los alrededores del sitio arqueológico de San Isidro.</p>
     <h4 style="font-size:14px;color:var(--navy);margin:18px 0 8px;">Una sociedad jerarquizada y unida al cosmos</h4>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Esta civilización se caracterizó por una compleja organización sociopolítica dominada por élites de carácter teocrático. Sus asentamientos funcionaban como pequeños centros urbanos con divisiones para funciones ceremoniales, administrativas y habitacionales. Su economía combinaba agricultura de valle con recolección de recursos marinos, fluviales y del bosque tropical.</p>
@@ -1797,7 +1810,7 @@ const MODALES_FOOTER={
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;"><strong>Orfebrería:</strong> técnicas de martillado y repujado en láminas de oro y platino para joyería ceremonial.</p>
     <h4 style="font-size:14px;color:var(--navy);margin:18px 0 8px;">Por qué esto importa hoy</h4>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;">Para el Norte de Manabí, esto no es solo un capítulo de museo. Es identidad, es relato y es un atractivo cultural que puede sumarse a la playa, la gastronomía y el paisaje como razón para visitarnos. Conocer la cultura Jama-Coaque es, en el fondo, conocernos un poco más a nosotros mismos.</p>
-    <p style="margin-top:20px;font-size:12px;color:#999;line-height:1.8;">Fuentes: Museo Casa del Alabado (educa.alabado.org) · Arqueología Ecuatoriana, Club JRD · ICOM / Banco Central del Ecuador · Imagen: Dr. Alexey Yakovlev, CC BY-SA 2.0, Wikimedia Commons.</p>` },
+    <p style="margin-top:20px;font-size:12px;color:#999;line-height:1.8;">Fuentes: Museo Casa del Alabado (educa.alabado.org) · Arqueología Ecuatoriana, Club JRD · ICOM / Banco Central del Ecuador.</p>` },
   'museo-jama': { titulo:'Museo Arqueológico de Jama', html:`
     <p style="font-size:13px;color:var(--verde-osc);font-weight:700;margin-bottom:6px;">Guardián de la memoria Jama-Coaque</p>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En las calles Bernardo Espinar y Leandro Medina, en el cantón Jama, se levanta un espacio pequeño en tamaño pero enorme en significado: el Museo Arqueológico de Jama. Su colección actual —296 piezas cuidadosamente restauradas— narra más de dos mil años de historia de la cultura Jama-Coaque, que floreció entre el 355 a.C. y el 1532 d.C. en la cuenca del río Jama, además de vestigios más antiguos de las culturas Valdivia y Chorrera.</p>
@@ -1807,6 +1820,7 @@ const MODALES_FOOTER={
     <p style="margin-top:20px;font-size:12px;color:#999;line-height:1.8;">Fuentes: Diario Digital Manabí Noticias · Diario La Hora · ILAM (ilamdir.org) · iwanatrip.com · Prefectura de Manabí.</p>` },
   'museo-montubio': { titulo:'Museo de la Cultura Montubia', html:`
     <p style="font-size:13px;color:var(--verde-osc);font-weight:700;margin-bottom:6px;">La casa que guarda el alma montubia de San Isidro</p>
+    <img src="https://i.ibb.co/kYPws4f/Museo-Montubia.png" alt="Museo de la Cultura Montubia" style="width:100%;border-radius:14px;margin-bottom:16px;display:block;" onerror="this.style.display='none';">
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En San Isidro, parroquia rural del cantón Sucre asentada junto al río Cangrejo, se encuentra el primer museo dedicado a la cultura montubia en todo Ecuador. El proyecto nació del trabajo del misionero vasco Juan Ramón Etxebarria, quien desde los años noventa acompaña a las comunidades de San Isidro a través de la Fundación Raíces y Sueños.</p>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Con el apoyo técnico del Instituto Nacional de Patrimonio Cultural desde enero de 2020, y de instituciones como el Parlamento Andino, la Casa de la Cultura de Manabí y universidades locales, el proyecto "La Casa Montubia" se construyó sobre un terreno de 12 hectáreas con materiales propios de la zona —caña guadua, bambú y madera— hasta abrir sus puertas en marzo de 2024.</p>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Su importancia va más allá de lo local: la cultura montubia, nacida del mestizaje entre pueblos indígenas, españoles y africanos en torno a la economía cacaotera, representa a poco más del 10% de la población ecuatoriana y hasta ahora no contaba con un espacio propio que narrara su historia. El museo recoge amorfinos, chigualos, coplas, música tradicional y piezas arqueológicas de las culturas Valdivia, Machalilla, Chorrera, Manteña, Bahía y Jama-Coaque que se asentaron en San Isidro mucho antes que el pueblo montubio.</p>
@@ -1814,6 +1828,7 @@ const MODALES_FOOTER={
     <p style="margin-top:20px;font-size:12px;color:#999;line-height:1.8;">Fuentes: Instituto Nacional de Patrimonio Cultural · museodelaculturamontubia.com · Diócesis de Vitoria-Gasteiz · Revista Mundo Diners · Raíces Operadora de Turismo.</p>` },
   'amorfino': { titulo:'El amorfino', html:`
     <p style="font-size:13px;color:var(--verde-osc);font-weight:700;margin-bottom:6px;">La voz poética del Norte de Manabí</p>
+    <img src="https://i.ibb.co/KxDs8SJv/Amorfino.jpg" alt="El amorfino" style="width:100%;border-radius:14px;margin-bottom:16px;display:block;" onerror="this.style.display='none';">
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">El <strong>amorfino</strong> es una de las expresiones más auténticas de la tradición oral montuvia de la costa ecuatoriana y ocupa un lugar especial en Manabí. Su origen combina la herencia de las coplas españolas con el ingenio popular del campesino manabita, dando lugar a versos breves, generalmente improvisados, llenos de humor, picardía, sabiduría y romanticismo.</p>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">Los amorfinos hablan del amor, la naturaleza, la vida cotidiana, el trabajo en el campo, la familia y las costumbres montuvias. Tradicionalmente son interpretados por hombres y mujeres, quienes se responden en un animado contrapunto, demostrando creatividad y agilidad verbal.</p>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En el norte de Manabí es frecuente escucharlos durante rodeos montuvios, fiestas patronales, festivales culturales, ferias y celebraciones comunitarias, donde forman parte de la música, la danza y la identidad local. Más que un espectáculo, el amorfino transmite conocimientos, fortalece la memoria colectiva y mantiene viva una tradición.</p>
@@ -1821,11 +1836,19 @@ const MODALES_FOOTER={
     <p style="margin-top:20px;font-size:12px;color:#999;line-height:1.8;">Fuentes: Prefectura de Manabí, Escuela de Amorfino y Tradición Oral · Universidad Laica Eloy Alfaro de Manabí (ULEAM) · eldiario.ec.</p>` },
   'mision-geodesica': { titulo:'La Misión Geodésica Francesa', html:`
     <p style="font-size:13px;color:var(--verde-osc);font-weight:700;margin-bottom:6px;">1736 — Cuando el mundo vino a medir la Tierra aquí</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <img src="https://i.ibb.co/k6JqgX17/Mision-Geodesica1.jpg" alt="Misión Geodésica Francesa" style="width:100%;border-radius:14px;display:block;" onerror="this.style.display='none';">
+      <img src="https://i.ibb.co/wNkRf8BQ/Mision-Geodesica2.jpg" alt="Misión Geodésica Francesa" style="width:100%;border-radius:14px;display:block;" onerror="this.style.display='none';">
+    </div>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En 1736, la costa de Manabí recibió a la Misión Geodésica Francesa, liderada por <strong>Charles Marie de La Condamine</strong>, que llegó a Manta en busca de una respuesta científica: la verdadera forma de la Tierra. Lo que muchos no saben es que el norte de la provincia —hoy Pedernales, Jama, San Vicente, Sucre y Chone— formaba parte de la Gobernación de Esmeraldas, conducida por el sabio riobambeño <strong>Pedro Vicente Maldonado</strong>, quien se convirtió en pieza clave de la expedición.</p>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;">Su alianza con los científicos franceses no fue solo un episodio logístico: fue un diálogo entre el saber local y la mirada científica europea, que dio origen al primer mapa detallado de esta región. Ese encuentro —entre el conocimiento del territorio y la curiosidad del mundo— sigue siendo parte de la identidad del norte de Manabí: una tierra abierta, hospitalaria y con una historia que trasciende sus playas.</p>
     <p style="margin-top:20px;font-size:12px;color:#999;line-height:1.8;">Fuentes: El Telégrafo, "La primera Misión Geodésica Francesa" · Gobernación de Manabí, "Reseña Histórica" · Wikipedia, "Provincia de Manabí".</p>` },
   'iche': { titulo:'Proyecto Iche — Fundación Fuegos', html:`
     <p style="font-size:13px;color:var(--verde-osc);font-weight:700;margin-bottom:6px;">Sabores de Manabí: tradición e innovación social</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <img src="https://i.ibb.co/zHrgWmLG/Iche1.jpg" alt="Proyecto Iche" style="width:100%;border-radius:14px;display:block;" onerror="this.style.display='none';">
+      <img src="https://i.ibb.co/MyvrvcTL/Iche2.jpg" alt="Proyecto Iche" style="width:100%;border-radius:14px;display:block;" onerror="this.style.display='none';">
+    </div>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">En el cantón San Vicente, a pocos minutos de Bahía de Caráquez, se levanta <strong>Iche</strong>, un ecosistema gastronómico único impulsado por la Fundación Fuegos. Surgido tras el terremoto de 2016 como una iniciativa de resiliencia y desarrollo local, este proyecto rescata el patrimonio culinario manabita para convertirlo en un motor de transformación social e innovación sustentable.</p>
     <h4 style="font-size:14px;color:var(--navy);margin:18px 0 8px;">Una escuela, un laboratorio y una experiencia</h4>
     <p style="font-size:14px;color:var(--gris);line-height:1.8;margin-bottom:16px;">El corazón de Iche integra cinco ejes: una escuela de cocina, un restaurante laboratorio, un incubador de emprendimientos, un espacio de investigación de insumos locales y, muy pronto, un instituto de formación de tercer nivel. Su propuesta académica forma a jóvenes y emprendedores en técnicas culinarias contemporáneas, sin perder el vínculo con los ingredientes ancestrales de la región: el maní, el plátano, la salprieta y los frutos del mar.</p>
@@ -1839,6 +1862,7 @@ function abrirModalFooter(key){
   document.getElementById('modal-footer-contenido').innerHTML=datos.html;
   document.getElementById('modal-footer-overlay').classList.add('abierto');
   document.getElementById('modal-footer-panel').classList.add('abierto');
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function cerrarModalFooter(){
   document.getElementById('modal-footer-overlay').classList.remove('abierto');
@@ -1848,6 +1872,7 @@ function cerrarModalFooter(){
 function abrirModalSobreManabi(){
   document.getElementById('modal-sobre-overlay').classList.add('abierto');
   document.getElementById('modal-sobre-panel').classList.add('abierto');
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function cerrarModalSobreManabi(){
   document.getElementById('modal-sobre-overlay').classList.remove('abierto');
@@ -1856,6 +1881,7 @@ function cerrarModalSobreManabi(){
 function abrirModalComunidad(){
   document.getElementById('modal-comunidad-overlay').classList.add('abierto');
   document.getElementById('modal-comunidad-panel').classList.add('abierto');
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function cerrarModalComunidad(){
   document.getElementById('modal-comunidad-overlay').classList.remove('abierto');
@@ -1865,6 +1891,7 @@ function abrirModalMapa(){
   document.getElementById('modal-mapa-overlay').classList.add('abierto');
   document.getElementById('modal-mapa-panel').classList.add('abierto');
   cargarScriptGoogleMaps();
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function cerrarModalMapa(){
   document.getElementById('modal-mapa-overlay').classList.remove('abierto');
@@ -1875,6 +1902,7 @@ function abrirModalCalendario(){
   document.getElementById('modal-calendario-panel').classList.add('abierto');
   const btnHoy = document.querySelector('.eventos-tabs button[data-rango="hoy"]');
   filtrarEventosTab('hoy', btnHoy);
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function cerrarModalCalendario(){
   document.getElementById('modal-calendario-overlay').classList.remove('abierto');
