@@ -47,7 +47,32 @@ def health():
 
 @app.get("/lugares")
 def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
-    resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=resolver_categoria(categoria))
+    consulta = corregir_typos(consulta) if consulta else consulta
+    categoria_resuelta = resolver_categoria(categoria) if categoria else ""
+
+    # 1. Búsqueda libre tal cual la escribió la persona (más específica primero)
+    resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria_resuelta) if (consulta or canton or categoria_resuelta) else []
+
+    # 2. Si no encontró nada y NO se eligió una categoría manual en el dropdown,
+    # se intenta detectar la categoría real a partir de lo que escribió (igual
+    # que hace Mana en el chat) — ej. "hotel" -> Alojamiento, "surf" -> combinar
+    # playas + surf, etc. Esto evita que el buscador de la página quede "más
+    # tonto" que el chat para el mismo tipo de búsqueda.
+    if not resultados and consulta and not categoria:
+        texto_norm = normalizar(consulta)
+        if "surf" in texto_norm:
+            resultados_surf = buscar_lugares(consulta="surf", canton=canton)
+            resultados_playas = buscar_lugares(consulta="playas", canton=canton)
+            vistos = {r["Nombre"] for r in resultados_surf}
+            resultados = resultados_surf + [r for r in resultados_playas if r["Nombre"] not in vistos]
+        else:
+            categoria_detectada, canton_detectado = interpretar_consulta(consulta)
+            canton_final = canton or canton_detectado
+            if categoria_detectada and categoria_detectada != "GENERAL":
+                resultados = buscar_lugares(categoria=categoria_detectada, canton=canton_final)
+            elif canton_final:
+                resultados = buscar_lugares(canton=canton_final)
+
     return {"total": len(resultados), "lugares": resultados}
 
 @app.get("/eventos")
@@ -172,7 +197,24 @@ RESPUESTAS_FIJAS = {
     "funciona_movil": {
         "respuesta": "Sí, Manabía funciona en computadoras, tabletas y celulares sin necesidad de descargar nada — simplemente entra desde el navegador de tu teléfono. 📱"
     },
+    "los_5_cantones": {
+        "respuesta": "El Norte de Manabí está formado por **5 cantones**:\n\n📍 **Pedernales** — cabecera cantonal, con Cojimíes (puerto pesquero) y 10 de Agosto\n📍 **Jama** — su única parroquia formal es Jama; incluye comunas como El Matal, Tabuga y Don Juan\n📍 **San Vicente** — el cantón más joven de Manabí (1999), incluye Canoa, famosa por sus playas de surf\n📍 **Sucre** — cabecera en Bahía de Caráquez, con Leónidas Plaza, Charapotó y San Isidro\n📍 **Chone** — el cantón más extenso de Manabí, con 7 parroquias rurales\n\n¿Quieres que te cuente las parroquias de alguno en particular?"
+    },
 }
+
+# Parroquias reales por cantón (de la hoja Cantones), para responder preguntas
+# como "parroquias de Chone" con datos exactos en vez de perderse.
+PARROQUIAS_POR_CANTON = {
+    "pedernales": "Pedernales tiene 3 parroquias: **Pedernales** (cabecera cantonal), **Cojimíes** (puerto pesquero, con playa a 35 km al norte) y **10 de Agosto** (zona montañosa).",
+    "jama": "Jama tiene una sola parroquia formal, que es **Jama** (la cabecera cantonal). El resto del cantón se organiza en 42 comunas sin parroquias rurales formales, entre las que destacan La Cabuya, El Matal, Puerto Cabuyal, La Mocora, Venado, Colorado, Tabuga y Don Juan.",
+    "san vicente": "San Vicente tiene 2 parroquias: **San Vicente** (cabecera cantonal, el cantón más joven de Manabí, creado en 1999) y **Canoa** (su principal destino turístico, con ~40 km de playas para surf y deportes acuáticos).",
+    "sucre": "Sucre tiene 4 parroquias: **Bahía de Caráquez** (cabecera cantonal), **Leónidas Plaza** (parroquia urbana), **Charapotó** (una de las poblaciones más antiguas de Manabí, con las playas de San Jacinto y San Clemente) y **San Isidro** (separada geográficamente del resto del cantón, con el importante sitio arqueológico Jama Coaque).",
+    "chone": "Chone es el cantón más extenso de Manabí, con 9 parroquias: **Chone** y **Santa Rita** (urbanas), y **Canuto, Convento, Chibunga, San Antonio, Eloy Alfaro, Ricaurte y Boyacá** (rurales).",
+}
+# La gente suele decir "Bahía" en vez de "Sucre" (el nombre real del cantón) --
+# se apunta al mismo texto para que responda igual sin importar cuál use.
+PARROQUIAS_POR_CANTON["bahia de caraquez"] = PARROQUIAS_POR_CANTON["sucre"]
+PARROQUIAS_POR_CANTON["bahia"] = PARROQUIAS_POR_CANTON["sucre"]
 
 # Preguntas frecuentes que Mana puede responder directamente (además de todo lo
 # de arriba). El texto completo de estas y otras preguntas también está
@@ -257,6 +299,13 @@ FRASES_FAQ = {
     "hay app movil": "funciona_movil",
     "tienen aplicacion movil": "funciona_movil",
     "puedo usar manabia desde el celular": "funciona_movil",
+    "5 cantones": "los_5_cantones",
+    "cinco cantones": "los_5_cantones",
+    "cuantos cantones": "los_5_cantones",
+    "cuales son los cantones": "los_5_cantones",
+    "que cantones hay": "los_5_cantones",
+    "cantones de manabi": "los_5_cantones",
+    "cantones del norte de manabi": "los_5_cantones",
 }
 
 def verificar_saludo(texto_norm: str):
@@ -537,6 +586,14 @@ def chat_mana(request: PreguntaRequest):
                 "contexto": {}
             }
 
+    # 2.4. Consulta sobre parroquias de un cantón — se resuelve con datos reales
+    # de la hoja Cantones, en vez de caer en una búsqueda libre que no tiene
+    # sentido para este tipo de pregunta.
+    if "parroquia" in texto_norm or "parroquias" in texto_norm:
+        _, canton_parroquia = interpretar_consulta(texto)
+        if canton_parroquia and canton_parroquia in PARROQUIAS_POR_CANTON:
+            return {"respuesta": PARROQUIAS_POR_CANTON[canton_parroquia], "contexto": {}}
+
     # 2.5. Consulta sobre eventos (con o sin mes específico) — se resuelve aparte,
     # con prioridad sobre la búsqueda de negocios, porque "eventos en septiembre"
     # no es una búsqueda de un lugar.
@@ -696,7 +753,7 @@ def armar_respuesta(resultados: list, canton: str, categoria: str, offset: int =
         if horario:
             linea += f"\n   🕐 {horario}"
         if precio:
-            linea += f"\n   💰 {precio}"
+            linea += f"\n   $ {precio}"
         if telefono:
             linea += f"\n   📞 {telefono}"
         wa_link = construir_whatsapp_link(whatsapp)
