@@ -50,14 +50,34 @@ def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
     consulta = corregir_typos(consulta) if consulta else consulta
     categoria_resuelta = resolver_categoria(categoria) if categoria else ""
 
-    # 1. Búsqueda libre tal cual la escribió la persona (más específica primero)
-    resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria_resuelta) if (consulta or canton or categoria_resuelta) else []
+    # Si la persona escribió una sola palabra (sin elegir categoría manual en
+    # el dropdown) y esa palabra es justo la que activa una categoría (ej.
+    # "comida", "hotel"), se salta la búsqueda libre e se va directo a la
+    # categoría completa — igual que en el chat de Mana. Sin esto, una palabra
+    # genérica que por casualidad coincide con 1-2 nombres de negocios dejaba
+    # la respuesta corta en vez de mostrar todos los lugares de esa categoría.
+    categoria_detectada, canton_detectado = ("", "")
+    es_solo_palabra_de_categoria = False
+    if consulta and not categoria:
+        palabras = consulta.split()
+        if len(palabras) == 1:
+            categoria_detectada, canton_detectado = interpretar_consulta(consulta)
+            if categoria_detectada and categoria_detectada != "GENERAL":
+                es_solo_palabra_de_categoria = True
 
-    # 2. Si no encontró nada y NO se eligió una categoría manual en el dropdown,
-    # se intenta detectar la categoría real a partir de lo que escribió (igual
-    # que hace Mana en el chat) — ej. "hotel" -> Alojamiento, "surf" -> combinar
-    # playas + surf, etc. Esto evita que el buscador de la página quede "más
-    # tonto" que el chat para el mismo tipo de búsqueda.
+    # 1. Búsqueda libre tal cual la escribió la persona (más específica primero),
+    # salvo en el caso de "solo la palabra de categoría" de arriba.
+    if es_solo_palabra_de_categoria:
+        resultados = []
+    else:
+        resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria_resuelta) if (consulta or canton or categoria_resuelta) else []
+
+    # 2. Si no encontró nada (o se saltó a propósito) y NO se eligió una
+    # categoría manual en el dropdown, se intenta detectar la categoría real a
+    # partir de lo que escribió (igual que hace Mana en el chat) — ej. "hotel"
+    # -> Alojamiento, "surf" -> combinar playas + surf, etc. Esto evita que el
+    # buscador de la página quede "más tonto" que el chat para el mismo tipo
+    # de búsqueda.
     if not resultados and consulta and not categoria:
         texto_norm = normalizar(consulta)
         if "surf" in texto_norm:
@@ -66,7 +86,8 @@ def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
             vistos = {r["Nombre"] for r in resultados_surf}
             resultados = resultados_surf + [r for r in resultados_playas if r["Nombre"] not in vistos]
         else:
-            categoria_detectada, canton_detectado = interpretar_consulta(consulta)
+            if not es_solo_palabra_de_categoria:
+                categoria_detectada, canton_detectado = interpretar_consulta(consulta)
             canton_final = canton or canton_detectado
             if categoria_detectada and categoria_detectada != "GENERAL":
                 resultados = buscar_lugares(categoria=categoria_detectada, canton=canton_final)
