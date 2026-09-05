@@ -663,15 +663,28 @@ def chat_mana(request: PreguntaRequest):
             return {"respuesta": respuesta, "contexto": nuevo_contexto, "lugares": lugares_mostrados}
 
     # 3. Búsqueda por nombre específico — limpia palabras vacías.
-    # SIEMPRE se intenta primero, aunque se haya detectado una categoría o cantón,
-    # porque una palabra como "iglesia" puede ser tanto el nombre de un lugar
-    # específico como una palabra clave de categoría — y el nombre específico
-    # es más útil si existe. Solo si esta búsqueda no encuentra nada se cae a
-    # la categoría/cantón completos.
+    # Normalmente se intenta primero, aunque se haya detectado una categoría o
+    # cantón, porque una palabra como "iglesia" puede ser tanto el nombre de un
+    # lugar específico como una palabra clave de categoría.
+    #
+    # EXCEPCIÓN importante: si después de quitar palabras vacías queda una sola
+    # palabra Y esa palabra es justamente la que activó la categoría (ej.
+    # "comida", "hotel"), se salta la búsqueda de nombre específico e se va
+    # directo a la categoría completa. La razón: con una sola palabra genérica,
+    # la búsqueda de nombre libre a veces encuentra 1 o 2 coincidencias sueltas
+    # (lugares que por casualidad tienen esa palabra en su nombre), y eso hacía
+    # que la respuesta se quedara corta en vez de mostrar TODOS los lugares de
+    # esa categoría, que es lo que la persona realmente quería.
     palabras_busqueda = [p for p in texto.split() if normalizar(p) not in PALABRAS_IGNORAR]
     texto_limpio_busqueda = " ".join(palabras_busqueda)
 
-    if len(palabras_busqueda) >= 1:
+    es_solo_la_palabra_de_categoria = (
+        len(palabras_busqueda) == 1
+        and categoria
+        and categoria != "GENERAL"
+    )
+
+    if len(palabras_busqueda) >= 1 and not es_solo_la_palabra_de_categoria:
         resultados = buscar_lugares(consulta=texto_limpio_busqueda)
         if resultados:
             consulta_usada = texto_limpio_busqueda
