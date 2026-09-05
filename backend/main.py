@@ -216,6 +216,16 @@ PARROQUIAS_POR_CANTON = {
 PARROQUIAS_POR_CANTON["bahia de caraquez"] = PARROQUIAS_POR_CANTON["sucre"]
 PARROQUIAS_POR_CANTON["bahia"] = PARROQUIAS_POR_CANTON["sucre"]
 
+# Cultura e historia del Norte de Manabí — mismo contenido que ya usamos en la
+# sección "Historia y Cultura" del sitio, resumido para que Mana lo sepa
+# también en el chat. Se suman al mismo diccionario de respuestas fijas.
+RESPUESTAS_FIJAS["jama_coaque"] = {"respuesta": "La cultura Jama-Coaque floreció entre el 350 a.C. y 1530 d.C. en la costa norte de Manabí, desde el cabo de San Francisco hasta Bahía de Caráquez, en los valles de los ríos Jama y Coaque. Fue una sociedad jerarquizada de carácter teocrático, célebre por sus figurinas de arcilla con pastillaje (chamanes, guerreros, músicos) y su orfebrería en oro y platino. Puedes conocer más en el Museo Arqueológico de Jama o en la sección 'Sobre Manabí' del sitio. 🏺"}
+RESPUESTAS_FIJAS["amorfino"] = {"respuesta": "El amorfino es la voz poética tradicional del Norte de Manabí — versos breves, muchas veces improvisados, que combinan la herencia de las coplas españolas con el ingenio del campo manabita. Se cantan en contrapunto entre hombres y mujeres durante rodeos montuvios, fiestas patronales y ferias. En 2011 fue declarado Patrimonio Cultural Inmaterial del Ecuador. 🎶"}
+RESPUESTAS_FIJAS["mision_geodesica"] = {"respuesta": "En 1736 llegó a Manabí la Misión Geodésica Francesa, liderada por Charles Marie de La Condamine, para medir la verdadera forma de la Tierra. El norte de la provincia formaba parte de la Gobernación de Esmeraldas bajo el sabio riobambeño Pedro Vicente Maldonado, clave en la expedición y autor del primer mapa detallado de la región. 🗺️"}
+RESPUESTAS_FIJAS["iche_cultura"] = {"respuesta": "Iche es un ecosistema gastronómico en San Vicente, impulsado por la Fundación Fuegos tras el terremoto de 2016. Combina una escuela de cocina, un restaurante laboratorio y un incubador de emprendimientos, rescatando ingredientes ancestrales como el maní, el plátano y la salprieta. 🔥"}
+RESPUESTAS_FIJAS["museo_montubio"] = {"respuesta": "El Museo de la Cultura Montubia, en San Isidro (cantón Sucre), es el primero dedicado a la cultura montubia en todo Ecuador. Abierto desde marzo de 2024 por la Fundación Raíces y Sueños, reúne amorfinos, música tradicional y piezas arqueológicas de las culturas Valdivia, Manteña y Jama-Coaque que habitaron la zona antes que el pueblo montubio. 🌾"}
+RESPUESTAS_FIJAS["temporada_ballenas_info"] = {"respuesta": "La temporada de avistamiento de ballenas jorobadas en el Norte de Manabí va de **junio a septiembre**, con Bahía de Caráquez como principal punto de salida de los tours. 🐋"}
+
 # Preguntas frecuentes que Mana puede responder directamente (además de todo lo
 # de arriba). El texto completo de estas y otras preguntas también está
 # disponible para el usuario en la sección "Preguntas frecuentes" del sitio.
@@ -307,6 +317,22 @@ FRASES_FAQ = {
     "cantones de manabi": "los_5_cantones",
     "cantones del norte de manabi": "los_5_cantones",
 }
+FRASES_FAQ["que es la cultura jama coaque"] = "jama_coaque"
+FRASES_FAQ["que es la cultura jama-coaque"] = "jama_coaque"
+FRASES_FAQ["quienes fueron los jama coaque"] = "jama_coaque"
+FRASES_FAQ["quienes fueron los jama-coaque"] = "jama_coaque"
+FRASES_FAQ["que es jama coaque"] = "jama_coaque"
+FRASES_FAQ["que es jama-coaque"] = "jama_coaque"
+FRASES_FAQ["que es el amorfino"] = "amorfino"
+FRASES_FAQ["que es un amorfino"] = "amorfino"
+FRASES_FAQ["que es la mision geodesica"] = "mision_geodesica"
+FRASES_FAQ["que es la mision geodesica francesa"] = "mision_geodesica"
+FRASES_FAQ["quien fue pedro vicente maldonado"] = "mision_geodesica"
+FRASES_FAQ["que es el proyecto iche"] = "iche_cultura"
+FRASES_FAQ["que es el museo de la cultura montubia"] = "museo_montubio"
+FRASES_FAQ["que es la cultura montubia"] = "museo_montubio"
+FRASES_FAQ["cuando es la temporada de ballenas"] = "temporada_ballenas_info"
+FRASES_FAQ["cuando puedo ver ballenas"] = "temporada_ballenas_info"
 
 def verificar_saludo(texto_norm: str):
     texto_limpio = texto_norm.strip()
@@ -542,6 +568,8 @@ def chat_mana(request: PreguntaRequest):
             "categoria_seguimiento": seguimiento["categoria"],
             "canton_mencionado": seguimiento["canton"],
         } if seguimiento else {}
+        if clave_fija == "los_5_cantones":
+            contexto_salida["ultimo_canton_mencionado"] = "chone"  # el último de la lista
         return {"respuesta": respuesta_fija, "contexto": contexto_salida}
 
     # 1.5. El mensaje confirma la pregunta de seguimiento de una respuesta fija
@@ -588,11 +616,18 @@ def chat_mana(request: PreguntaRequest):
 
     # 2.4. Consulta sobre parroquias de un cantón — se resuelve con datos reales
     # de la hoja Cantones, en vez de caer en una búsqueda libre que no tiene
-    # sentido para este tipo de pregunta.
+    # sentido para este tipo de pregunta. Si el mensaje no nombra el cantón
+    # (ej. "y cuáles son SUS parroquias"), se usa el último cantón del que se
+    # habló, guardado en el contexto de la conversación.
     if "parroquia" in texto_norm or "parroquias" in texto_norm:
         _, canton_parroquia = interpretar_consulta(texto)
+        if not canton_parroquia:
+            canton_parroquia = contexto_previo.get("ultimo_canton_mencionado", "")
         if canton_parroquia and canton_parroquia in PARROQUIAS_POR_CANTON:
-            return {"respuesta": PARROQUIAS_POR_CANTON[canton_parroquia], "contexto": {}}
+            return {
+                "respuesta": PARROQUIAS_POR_CANTON[canton_parroquia],
+                "contexto": {"ultimo_canton_mencionado": canton_parroquia}
+            }
 
     # 2.5. Consulta sobre eventos (con o sin mes específico) — se resuelve aparte,
     # con prioridad sobre la búsqueda de negocios, porque "eventos en septiembre"
