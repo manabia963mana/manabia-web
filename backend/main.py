@@ -20,10 +20,50 @@ app.add_middleware(
 CATEGORIA_ALIAS = {
     "alojamiento": "Alojamiento",
     "restaurante": "Alimentos, Bebidas Y Entretenimiento",
-    "naturaleza": "Ecología Y Naturaleza",
-    "cultura": "Cultura y Patrimonio",
     "deporte": "Instalaciones Deportivas",
 }
+# Algunas categorías de la tarjeta del sitio en realidad están repartidas en
+# MÁS DE UNA Categoría real dentro de la base (encontrado al revisar la base
+# completa que nos compartieron) — se combinan para no perderse la mitad de
+# los lugares. Ej.: "Naturaleza" existe como "Sitios Naturales" (54 lugares) Y
+# como "Ecología y Naturaleza" (13 lugares) por separado.
+CATEGORIAS_COMBINADAS = {
+    "naturaleza": ["Sitios Naturales", "Ecología y Naturaleza"],
+    "cultura": ["Cultura y Patrimonio", "Manifestaciones culturales"],
+}
+
+def buscar_por_categoria_o_alias(valor: str, canton: str = ""):
+    """Punto único de búsqueda por categoría, usado tanto por el buscador de la
+    página como por el chat de Mana, para que ambos tengan siempre la misma
+    calidad de resultados. Resuelve alias cortos (ej. 'deporte') y también
+    categorías que en la base real están repartidas en más de un valor."""
+    valor_norm = normalizar(valor)
+    if valor_norm in CATEGORIAS_COMBINADAS:
+        return buscar_por_grupo_categorias(CATEGORIAS_COMBINADAS[valor_norm], canton)
+    categoria_resuelta = resolver_categoria(valor)
+    return buscar_lugares(categoria=categoria_resuelta, canton=canton)
+
+def buscar_por_grupo_categorias(lista_categorias: list, canton: str = ""):
+    """Busca en varias Categorías reales a la vez y combina sin duplicar,
+    conservando el orden en que aparece cada lugar por primera vez."""
+    vistos = set()
+    combinados = []
+    for cat_real in lista_categorias:
+        for lugar in buscar_lugares(categoria=cat_real, canton=canton):
+            if lugar["Nombre"] not in vistos:
+                vistos.add(lugar["Nombre"])
+                combinados.append(lugar)
+    return combinados
+
+def expandir_grupo_de_categoria(categoria_real: str) -> list:
+    """Si una categoría detectada automáticamente (ej. por palabra clave en el
+    chat) pertenece a uno de los grupos combinados, se expande a TODO el grupo
+    en vez de quedarse solo con la mitad de los lugares."""
+    cat_norm = normalizar(categoria_real)
+    for lista in CATEGORIAS_COMBINADAS.values():
+        if any(normalizar(c) == cat_norm for c in lista):
+            return lista
+    return [categoria_real]
 
 def resolver_categoria(categoria: str) -> str:
     return CATEGORIA_ALIAS.get(normalizar(categoria), categoria) if categoria else categoria
@@ -48,7 +88,6 @@ def health():
 @app.get("/lugares")
 def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
     consulta = corregir_typos(consulta) if consulta else consulta
-    categoria_resuelta = resolver_categoria(categoria) if categoria else ""
 
     # Si la persona escribió una sola palabra (sin elegir categoría manual en
     # el dropdown) y esa palabra es justo la que activa una categoría (ej.
@@ -65,12 +104,18 @@ def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
             if categoria_detectada and categoria_detectada != "GENERAL":
                 es_solo_palabra_de_categoria = True
 
-    # 1. Búsqueda libre tal cual la escribió la persona (más específica primero),
-    # salvo en el caso de "solo la palabra de categoría" de arriba.
-    if es_solo_palabra_de_categoria:
+    # 1. Si se eligió una categoría manual (tarjeta o dropdown), se resuelve con
+    # el sistema combinado (cubre categorías repartidas como Naturaleza/Cultura).
+    # Si no, búsqueda libre tal cual la escribió la persona.
+    if categoria:
+        resultados = buscar_por_categoria_o_alias(categoria, canton)
+        if consulta:
+            palabras_consulta = set(normalizar(consulta).split())
+            resultados = [r for r in resultados if palabras_consulta & set(normalizar(str(r.get("Nombre",""))+" "+str(r.get("Descripción",""))).split())]
+    elif es_solo_palabra_de_categoria:
         resultados = []
     else:
-        resultados = buscar_lugares(consulta=consulta, canton=canton, categoria=categoria_resuelta) if (consulta or canton or categoria_resuelta) else []
+        resultados = buscar_lugares(consulta=consulta, canton=canton) if (consulta or canton) else []
 
     # 2. Si no encontró nada (o se saltó a propósito) y NO se eligió una
     # categoría manual en el dropdown, se intenta detectar la categoría real a
@@ -90,7 +135,7 @@ def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
                 categoria_detectada, canton_detectado = interpretar_consulta(consulta)
             canton_final = canton or canton_detectado
             if categoria_detectada and categoria_detectada != "GENERAL":
-                resultados = buscar_lugares(categoria=categoria_detectada, canton=canton_final)
+                resultados = buscar_por_grupo_categorias(expandir_grupo_de_categoria(categoria_detectada), canton_final)
             elif canton_final:
                 resultados = buscar_lugares(canton=canton_final)
 
@@ -237,6 +282,32 @@ PARROQUIAS_POR_CANTON = {
 PARROQUIAS_POR_CANTON["bahia de caraquez"] = PARROQUIAS_POR_CANTON["sucre"]
 PARROQUIAS_POR_CANTON["bahia"] = PARROQUIAS_POR_CANTON["sucre"]
 
+# Búsqueda inversa: dado el nombre de una parroquia, a qué cantón pertenece.
+# Cubre las mismas variantes que ya reconoce interpretar_consulta (canoa,
+# charapoto, cojimies, etc.) para responder preguntas del tipo "¿de qué
+# cantón es Charapotó?" con el nombre real del cantón.
+PARROQUIA_A_CANTON = {
+    "cojimies": "Pedernales",
+    "canoa": "San Vicente",
+    "charapoto": "Sucre",
+    "san isidro": "Sucre",
+    "leonidas": "Sucre",
+    "bahia de caraquez": "Sucre",
+    "bahia": "Sucre",
+    "santa rita": "Chone",
+    "canuto": "Chone",
+    "el matal": "Jama",
+    "don juan": "Jama",
+    "tabuga": "Jama",
+    "cabo pasado": "Jama",
+    "briceno": "San Vicente",
+    "san jacinto": "Sucre",
+    "san clemente": "Sucre",
+    "chirije": "Sucre",
+    "la cabuya": "Pedernales",
+    "atahualpa": "Pedernales",
+}
+
 # Cultura e historia del Norte de Manabí — mismo contenido que ya usamos en la
 # sección "Historia y Cultura" del sitio, resumido para que Mana lo sepa
 # también en el chat. Se suman al mismo diccionario de respuestas fijas.
@@ -246,6 +317,10 @@ RESPUESTAS_FIJAS["mision_geodesica"] = {"respuesta": "En 1736 llegó a Manabí l
 RESPUESTAS_FIJAS["iche_cultura"] = {"respuesta": "Iche es un ecosistema gastronómico en San Vicente, impulsado por la Fundación Fuegos tras el terremoto de 2016. Combina una escuela de cocina, un restaurante laboratorio y un incubador de emprendimientos, rescatando ingredientes ancestrales como el maní, el plátano y la salprieta. 🔥"}
 RESPUESTAS_FIJAS["museo_montubio"] = {"respuesta": "El Museo de la Cultura Montubia, en San Isidro (cantón Sucre), es el primero dedicado a la cultura montubia en todo Ecuador. Abierto desde marzo de 2024 por la Fundación Raíces y Sueños, reúne amorfinos, música tradicional y piezas arqueológicas de las culturas Valdivia, Manteña y Jama-Coaque que habitaron la zona antes que el pueblo montubio. 🌾"}
 RESPUESTAS_FIJAS["temporada_ballenas_info"] = {"respuesta": "La temporada de avistamiento de ballenas jorobadas en el Norte de Manabí va de **junio a septiembre**, con Bahía de Caráquez como principal punto de salida de los tours. 🐋"}
+RESPUESTAS_FIJAS["moneda"] = {"respuesta": "En Ecuador (y por lo tanto en todo Manabí) se usa el **dólar estadounidense (USD)** como moneda oficial desde el año 2000. 💵"}
+RESPUESTAS_FIJAS["clima_manabi"] = {"respuesta": "El Norte de Manabí tiene clima tropical de costa, con dos temporadas marcadas: la **época seca** (junio a noviembre, ideal para playa, con cielos más despejados) y la **época lluviosa** (diciembre a mayo, más calor y aguaceros ocasionales, pero también el mar más cálido). 🌤️"}
+RESPUESTAS_FIJAS["como_llegar_general"] = {"respuesta": "Puedes llegar en bus interprovincial desde Quito o Guayaquil (varias cooperativas como Reina del Camino o COACTUR tienen rutas directas a Pedernales, Chone, Bahía de Caráquez y San Vicente), o en carro/taxi por la Ruta del Spondylus si vienes desde Esmeraldas o Manta. El aeropuerto más cercano con vuelos comerciales es el de Manta. ¿A qué cantón quieres llegar? Te ayudo a ubicar la cooperativa de transporte más cercana."}
+RESPUESTAS_FIJAS["idioma"] = {"respuesta": "El idioma que se habla en todo el Norte de Manabí es el **español**. Algunos hoteles y operadores turísticos también atienden en inglés. 🗣️"}
 
 # Preguntas frecuentes que Mana puede responder directamente (además de todo lo
 # de arriba). El texto completo de estas y otras preguntas también está
@@ -354,6 +429,18 @@ FRASES_FAQ["que es el museo de la cultura montubia"] = "museo_montubio"
 FRASES_FAQ["que es la cultura montubia"] = "museo_montubio"
 FRASES_FAQ["cuando es la temporada de ballenas"] = "temporada_ballenas_info"
 FRASES_FAQ["cuando puedo ver ballenas"] = "temporada_ballenas_info"
+FRASES_FAQ["que moneda se usa"] = "moneda"
+FRASES_FAQ["que moneda usan"] = "moneda"
+FRASES_FAQ["con que moneda se paga"] = "moneda"
+FRASES_FAQ["como es el clima"] = "clima_manabi"
+FRASES_FAQ["que clima hace"] = "clima_manabi"
+FRASES_FAQ["cual es la mejor epoca para viajar"] = "clima_manabi"
+FRASES_FAQ["cuando es mejor viajar"] = "clima_manabi"
+FRASES_FAQ["como llego a manabi"] = "como_llegar_general"
+FRASES_FAQ["como llego al norte de manabi"] = "como_llegar_general"
+FRASES_FAQ["como puedo llegar"] = "como_llegar_general"
+FRASES_FAQ["que idioma se habla"] = "idioma"
+FRASES_FAQ["que idioma hablan"] = "idioma"
 
 def verificar_saludo(texto_norm: str):
     texto_limpio = texto_norm.strip()
@@ -604,7 +691,7 @@ def chat_mana(request: PreguntaRequest):
         categoria_nueva, canton_nuevo = interpretar_consulta(texto)
         if tiene_confirmacion and not categoria_nueva:
             canton_final = canton_nuevo or contexto_previo.get("canton_mencionado", "")
-            resultados_seg = buscar_lugares(categoria=categoria_seguimiento_previa, canton=canton_final)
+            resultados_seg = buscar_por_grupo_categorias(expandir_grupo_de_categoria(categoria_seguimiento_previa), canton_final)
             if resultados_seg:
                 respuesta_seg, nuevo_contexto_seg, lugares_seg = armar_respuesta(resultados_seg, canton_final, categoria_seguimiento_previa, offset=0, consulta="")
                 return {"respuesta": respuesta_seg, "contexto": nuevo_contexto_seg, "lugares": lugares_seg}
@@ -633,6 +720,19 @@ def chat_mana(request: PreguntaRequest):
             return {
                 "respuesta": "¡Cuéntame! ¿Qué necesitas: hospedaje, restaurantes, playas, eventos o algo más? 🌊",
                 "contexto": {}
+            }
+
+    # 2.35. Búsqueda inversa: "¿de qué cantón es Charapotó?" — se revisa antes
+    # de la pregunta de parroquias (que va en sentido contrario: cantón -> lista
+    # de parroquias), porque aquí es al revés: parroquia -> su cantón.
+    frases_pregunta_inversa = ["canton es", "canton pertenece", "que canton", "pertenece la parroquia", "pertenece al canton"]
+    if any(f in texto_norm for f in frases_pregunta_inversa):
+        _, valor_detectado = interpretar_consulta(texto)
+        if valor_detectado and valor_detectado in PARROQUIA_A_CANTON:
+            canton_real = PARROQUIA_A_CANTON[valor_detectado]
+            return {
+                "respuesta": f"{valor_detectado.title()} pertenece al cantón **{canton_real}**. 📍",
+                "contexto": {"ultimo_canton_mencionado": normalizar(canton_real)}
             }
 
     # 2.4. Consulta sobre parroquias de un cantón — se resuelve con datos reales
@@ -712,13 +812,13 @@ def chat_mana(request: PreguntaRequest):
 
     # 4. Si hay categoría Y cantón
     if not resultados and categoria and categoria != "GENERAL" and canton:
-        resultados = buscar_lugares(categoria=categoria, canton=canton)
+        resultados = buscar_por_grupo_categorias(expandir_grupo_de_categoria(categoria), canton)
         if resultados:
             categoria_usado, canton_usado = categoria, canton
 
     # 5. Si hay solo categoría
     if not resultados and categoria and categoria != "GENERAL" and not canton:
-        resultados = buscar_lugares(categoria=categoria)
+        resultados = buscar_por_grupo_categorias(expandir_grupo_de_categoria(categoria))
         if resultados:
             categoria_usado = categoria
 
