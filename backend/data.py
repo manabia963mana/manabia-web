@@ -69,6 +69,7 @@ PALABRAS_CONOCIDAS = {
     "eventos", "evento", "pedernales", "jama", "canoa", "sanvicente",
     "bahia", "sucre", "chone", "caraquez", "familia", "pareja", "semana",
     "dias", "dia", "gastronomia", "turismo", "guia", "mapa",
+    "canton", "cantones", "parroquia", "parroquias", "pertenece",
 }
 
 def corregir_typos(texto: str) -> str:
