@@ -441,6 +441,37 @@ FRASES_FAQ["como llego al norte de manabi"] = "como_llegar_general"
 FRASES_FAQ["como puedo llegar"] = "como_llegar_general"
 FRASES_FAQ["que idioma se habla"] = "idioma"
 FRASES_FAQ["que idioma hablan"] = "idioma"
+# Conectar frases exactas que la persona probó y no coincidían con nada
+FRASES_FAQ["como funciona manabia"] = "como_usar_sitio"
+FRASES_FAQ["de donde proviene la informacion"] = "fuente_informacion"
+FRASES_FAQ["lugares turisticos"] = "que_info_hay"
+FRASES_FAQ["que lugares turisticos hay"] = "que_info_hay"
+FRASES_FAQ["lugares turisticos del norte de manabi"] = "que_info_hay"
+
+# Preguntas nuevas, coloquiales, que alguien investigando la zona haría —
+# usando siempre datos ya verificados en el proyecto, nunca inventados.
+RESPUESTAS_FIJAS["gentilicio"] = {"respuesta": "A las personas de Manabí se les dice **manabitas**. 🌊"}
+FRASES_FAQ["como se le dice a la gente de manabi"] = "gentilicio"
+FRASES_FAQ["gentilicio de manabi"] = "gentilicio"
+FRASES_FAQ["como se les dice a los de manabi"] = "gentilicio"
+
+RESPUESTAS_FIJAS["dias_recomendados"] = {"respuesta": "Depende de tu ritmo, pero como referencia: con **3 a 4 días** puedes conocer lo esencial de 2 o 3 cantones (playa, algún sitio natural y gastronomía). Para recorrer los 5 cantones con calma, sin apuros, lo ideal es pensar en **una semana**. ¿Quieres que te arme una ruta según los días que tengas?"}
+FRASES_FAQ["cuantos dias necesito"] = "dias_recomendados"
+FRASES_FAQ["cuantos dias se necesitan"] = "dias_recomendados"
+FRASES_FAQ["cuantos dias recomiendas"] = "dias_recomendados"
+
+FRASES_FAQ["es seguro viajar a manabi"] = "seguridad"
+FRASES_FAQ["es seguro visitar manabi"] = "seguridad"
+FRASES_FAQ["que tan seguro es"] = "seguridad"
+
+RESPUESTAS_FIJAS["comida_tipica_que_probar"] = {"respuesta": "Algunos platos y bebidas típicas del Norte de Manabí que vale la pena probar: **ceviche** de la costa, **encocado de corvina**, **chame frito** (un pez de agua dulce típico de la zona), la **chicha de maíz** como bebida tradicional, y dulces como la **comida típica la Tonga**. Pregúntame por restaurantes específicos si quieres probar alguno de estos. 🍽️"}
+FRASES_FAQ["que comida tipica debo probar"] = "comida_tipica_que_probar"
+FRASES_FAQ["que es tipico comer"] = "comida_tipica_que_probar"
+FRASES_FAQ["que se come en manabi"] = "comida_tipica_que_probar"
+
+RESPUESTAS_FIJAS["ruta_spondylus"] = {"respuesta": "La **Ruta del Spondylus** es la carretera costera que conecta los balnearios y pueblos del litoral ecuatoriano, desde Esmeraldas hasta Guayas. El Norte de Manabí (Pedernales, Jama, San Vicente, Canoa, Bahía de Caráquez) forma parte de este corredor turístico costero. 🛣️"}
+FRASES_FAQ["que es la ruta del spondylus"] = "ruta_spondylus"
+FRASES_FAQ["que es la ruta spondylus"] = "ruta_spondylus"
 
 def verificar_saludo(texto_norm: str):
     texto_limpio = texto_norm.strip()
