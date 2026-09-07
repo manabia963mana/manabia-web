@@ -935,6 +935,7 @@ function cerrarChatYLimpiar(){
   cerrarChat();
   document.getElementById('chat-mensajes').innerHTML = mensajeBienvenidaChat;
   ultimoContexto = {};
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function preguntar(txt){
   if(!txt||!txt.trim())return;
@@ -1063,8 +1064,8 @@ function restaurarNombresPropios(texto, mapa){
 // búsqueda al momento de pedirse, etc.), para no duplicar traducciones ni romper
 // los onclick con índices que usan esas tarjetas.
 const CONTENEDORES_EXCLUIDOS_TRADUCCION = [
-  'chat-mensajes','resultados-grid','eventos-grid','agenda-grid',
-  'comunidad-lista','detalle-contenido','widgets-strip'
+  'resultados-grid','eventos-grid','agenda-grid',
+  'comunidad-lista','widgets-strip'
 ];
 
 function nodoEnContenedorExcluido(nodo){
@@ -1157,6 +1158,24 @@ async function traducirTexto(texto, de, a){
   }
 }
 
+async function traducirYDetectarIdioma(texto, aIdioma){
+  // Igual que traducirTexto, pero con sl=auto: además de traducir, devuelve
+  // en qué idioma detectó que estaba escrito el texto original (ej. 'en').
+  // Se usa para que Mana entienda un mensaje en inglés aunque el sitio entero
+  // siga en español, sin tocar nada más del sitio.
+  if(!texto || !texto.trim()) return { texto, idiomaDetectado: null };
+  try{
+    const { protegido, mapa } = protegerNombresPropios(texto);
+    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${aIdioma}&dt=t&q=${encodeURIComponent(protegido)}`, { signal: AbortSignal.timeout(6000) });
+    const data = await res.json();
+    const traducido = data[0].map(seg => seg[0]).join('');
+    const idiomaDetectado = data[2] || null; // ej. 'en', 'es'
+    return { texto: restaurarNombresPropios(traducido, mapa), idiomaDetectado };
+  }catch(e){
+    return { texto, idiomaDetectado: null };
+  }
+}
+
 async function enviarMensaje(){
   const input=document.getElementById('chat-input');
   let texto=input.value.trim();
@@ -1174,8 +1193,24 @@ async function enviarMensaje(){
   },5000);
 
   try{
-    // Si el chat está en inglés, se traduce la pregunta al español antes de mandarla
-    const textoParaBackend = idiomaChat === 'en' ? await traducirTexto(texto, 'en', 'es') : texto;
+    let textoParaBackend = texto;
+    let traducirRespuestaA = null; // si queda con valor, la respuesta de Mana se traduce a ese idioma antes de mostrarla
+
+    if(idiomaChat === 'en'){
+      // Sitio en inglés: se traduce la pregunta al español antes de mandarla (como ya funcionaba)
+      textoParaBackend = await traducirTexto(texto, 'en', 'es');
+      traducirRespuestaA = 'en';
+    } else {
+      // Sitio en español: igual se detecta si la persona escribió en otro idioma
+      // (ej. inglés) y, si es así, Mana entiende y responde en ese idioma —
+      // sin cambiar el idioma del resto del sitio.
+      const { texto: textoTraducido, idiomaDetectado } = await traducirYDetectarIdioma(texto, 'es');
+      if(idiomaDetectado && idiomaDetectado !== 'es'){
+        textoParaBackend = textoTraducido;
+        traducirRespuestaA = idiomaDetectado;
+      }
+    }
+
     const res=await fetch(BACKEND+'/mana/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1188,9 +1223,8 @@ async function enviarMensaje(){
     typing.remove();
     ultimoContexto = data.contexto || {};
     let respuesta = data.respuesta || 'No pude procesar eso, intenta de nuevo.';
-    // Y la respuesta de Mana (en español) se traduce de vuelta al inglés antes de mostrarla
-    if(idiomaChat === 'en'){
-      respuesta = await traducirTexto(respuesta, 'es', 'en');
+    if(traducirRespuestaA){
+      respuesta = await traducirTexto(respuesta, 'es', traducirRespuestaA);
     }
     agregarMsg(respuesta,'mana',data.lugares,data.eventos);
   }catch(e){
@@ -1209,6 +1243,7 @@ function agregarMsg(txt,tipo,lugares,eventos){
   if(tipo==='mana' && eventos && eventos.length) div._eventosChat=eventos;
   document.getElementById('chat-mensajes').appendChild(div);
   scrollChat();
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function agregarTyping(){
   const div=document.createElement('div');
@@ -1410,6 +1445,7 @@ function abrirDetalleEvento(ev){
   document.getElementById('detalle-contenido').innerHTML=html;
   document.getElementById('detalle-overlay').classList.add('abierto');
   document.getElementById('detalle-panel').classList.add('abierto');
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function abrirDetalleLugarObjeto(l){
   if(!l) return;
@@ -1462,6 +1498,7 @@ function abrirDetalleLugarObjeto(l){
   document.getElementById('detalle-contenido').innerHTML=html;
   document.getElementById('detalle-overlay').classList.add('abierto');
   document.getElementById('detalle-panel').classList.add('abierto');
+  if(idiomaChat==='en') traducirPagina(true);
 }
 function cerrarDetalleLugar(){
   document.getElementById('detalle-overlay').classList.remove('abierto');
