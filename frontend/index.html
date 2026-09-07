@@ -1204,10 +1204,18 @@ async function enviarMensaje(){
       // Sitio en español: igual se detecta si la persona escribió en otro idioma
       // (ej. inglés) y, si es así, Mana entiende y responde en ese idioma —
       // sin cambiar el idioma del resto del sitio.
-      const { texto: textoTraducido, idiomaDetectado } = await traducirYDetectarIdioma(texto, 'es');
-      if(idiomaDetectado && idiomaDetectado !== 'es'){
-        textoParaBackend = textoTraducido;
-        traducirRespuestaA = idiomaDetectado;
+      // Antes de gastar una llamada al traductor, un filtro rápido: si el
+      // mensaje ya tiene señales claras de español (tildes, ñ, o palabras muy
+      // comunes), ni se pregunta — se ahorra la llamada. Solo se consulta al
+      // traductor cuando el texto no muestra ninguna señal de español, que es
+      // cuando de verdad podría estar en otro idioma.
+      const pareceEspanol = /[áéíóúñ¿¡]/i.test(texto) || /\b(el|la|los|las|de|que|es|en|un|una|con|para|por|hola|donde|como|cuando|hay)\b/i.test(texto);
+      if(!pareceEspanol){
+        const { texto: textoTraducido, idiomaDetectado } = await traducirYDetectarIdioma(texto, 'es');
+        if(idiomaDetectado && idiomaDetectado !== 'es'){
+          textoParaBackend = textoTraducido;
+          traducirRespuestaA = idiomaDetectado;
+        }
       }
     }
 
