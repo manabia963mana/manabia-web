@@ -19,17 +19,17 @@ app.add_middleware(
 # "Instalaciones Deportivas"). Esta tabla traduce el filtro al nombre real antes de buscar.
 CATEGORIA_ALIAS = {
     "alojamiento": "Alojamiento",
-    "restaurante": "Alimentos, Bebidas Y Entretenimiento",
-    "deporte": "Instalaciones Deportivas",
+    "restaurante": "Alimentos y Bebidas",
+    "deporte": "Deportes",
 }
-# Algunas categorías de la tarjeta del sitio en realidad están repartidas en
-# MÁS DE UNA Categoría real dentro de la base (encontrado al revisar la base
-# completa que nos compartieron) — se combinan para no perderse la mitad de
-# los lugares. Ej.: "Naturaleza" existe como "Sitios Naturales" (54 lugares) Y
-# como "Ecología y Naturaleza" (13 lugares) por separado.
+# Algunas categorías de la tarjeta del sitio están repartidas en MÁS DE UNA
+# Categoría real (o su nombre cambió con la actualización de la base) — se
+# combinan para no perderse lugares. Se mantienen los nombres viejos junto a
+# los nuevos como respaldo, por si alguna hoja todavía no está migrada del
+# todo (buscar una categoría que no existe no hace daño, solo no aporta nada).
 CATEGORIAS_COMBINADAS = {
     "naturaleza": ["Sitios Naturales", "Ecología y Naturaleza"],
-    "cultura": ["Cultura y Patrimonio", "Manifestaciones culturales"],
+    "cultura": ["Manifestaciones culturales", "Cultura y Patrimonio"],
 }
 
 def buscar_por_categoria_o_alias(valor: str, canton: str = ""):
@@ -161,7 +161,7 @@ def comunidad():
 # esa pregunta (y opcionalmente un cantón sugerido), para poder resolverla de
 # verdad si el usuario confirma con un "sí" o similar.
 CATEGORIA_SEGUIMIENTO_POR_CLAVE = {
-    "como_llegar": {"categoria": "Movilidad Y Transporte", "canton": ""},
+    "como_llegar": {"categoria": "Transporte", "canton": ""},
     "ballenas": {"categoria": "Agenciamiento Turístico", "canton": "sucre"},
     "rutas": {"categoria": "Alojamiento", "canton": ""},
     "ruta_pareja": {"categoria": "Alojamiento", "canton": ""},
@@ -684,6 +684,34 @@ def es_continuacion(texto_norm: str) -> bool:
 
 @app.post("/mana/chat")
 def chat_mana(request: PreguntaRequest):
+    # Envolvente: maneja mensajes de "repíteme eso" / "no entendí" ANTES de
+    # tocar la lógica normal de búsqueda, y guarda cada respuesta que Mana da
+    # en el contexto (como "ultima_respuesta") para poder repetirla si lo piden.
+    texto_norm = normalizar(request.texto)
+    FRASES_REPETIR = [
+        "repite eso", "repiteme eso", "repite lo anterior", "puedes repetir",
+        "repite por favor", "no entendi", "no te entendi", "que dijiste",
+        "explica de nuevo", "explicame de nuevo", "explicamelo de nuevo",
+        "no entendi el mensaje", "puedes explicar de nuevo", "repite la respuesta",
+        "me lo repites", "me repites eso",
+    ]
+    if any(f in texto_norm for f in FRASES_REPETIR):
+        ultima = request.contexto.get("ultima_respuesta") if request.contexto else None
+        if ultima:
+            return {"respuesta": ultima, "contexto": request.contexto}
+        return {
+            "respuesta": "Todavía no hemos hablado de nada que pueda repetirte — ¿en qué te ayudo? 🌊",
+            "contexto": request.contexto or {}
+        }
+
+    resultado = _chat_mana_interno(request)
+    if resultado.get("respuesta"):
+        if resultado.get("contexto") is None:
+            resultado["contexto"] = {}
+        resultado["contexto"]["ultima_respuesta"] = resultado["respuesta"]
+    return resultado
+
+def _chat_mana_interno(request: PreguntaRequest):
     texto = request.texto.strip()
     contexto_previo = request.contexto or {}
 
@@ -881,7 +909,7 @@ def chat_mana(request: PreguntaRequest):
                     "eventos": lista_eventos
                 }
         return {
-            "respuesta": "Lo siento, no encontré información sobre eso en mi base de datos. Puedo ayudarte con hospedaje, restaurantes, cajeros, playas, naturaleza y más del Norte de Manabí. ¿Qué necesitas?",
+            "respuesta": "Perdón, no encuentro información al respecto. Lo que sé se basa únicamente en los 5 cantones del Norte de Manabí (Pedernales, Jama, San Vicente, Sucre y Chone) que están en la base de datos — puedes verla completa en el **Centro de Datos**, al final de la página. Sí puedo ayudarte con hospedaje, restaurantes, playas, naturaleza y más de esa zona, o recomendarte algún evento próximo. ¿Qué necesitas? 🌊",
             "contexto": {}
         }
 
