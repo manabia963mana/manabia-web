@@ -692,6 +692,7 @@ def chat_mana(request: PreguntaRequest):
         "repite eso", "repiteme eso", "repite lo anterior", "puedes repetir",
         "repite por favor", "que dijiste", "repite la respuesta",
         "me lo repites", "me repites eso", "como dijiste", "puedes repetirlo",
+        "repiteme", "repite", "repitelo", "repitemelo", "repetir",
     ]
     FRASES_EXPLICAR_MEJOR = [
         "no entendi", "no te entendi", "explica de nuevo", "explicame de nuevo",
