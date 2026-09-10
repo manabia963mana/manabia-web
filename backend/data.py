@@ -423,7 +423,7 @@ def construir_fecha_evento(fecha_raw, mes_raw="", frecuencia_raw=""):
 
     # Caso: fecha completa ya puesta (ej. "2026-10-19 0:00:00" o "2026-10-19")
     try:
-        fecha_parseada = pd.to_datetime(fecha_str).date()
+        fecha_parseada = pd.to_datetime(fecha_str, dayfirst=True).date()
     except Exception:
         return fecha_str  # no se pudo interpretar, se deja tal cual
 
