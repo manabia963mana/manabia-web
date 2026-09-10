@@ -906,19 +906,22 @@ def _chat_mana_interno(request: PreguntaRequest):
         if resultados:
             consulta_usada = texto_limpio_busqueda
 
-    # 8. Sin resultados → mostrar eventos
+    # 8. Sin resultados → siempre se explica el alcance de la información, y si
+    # hay eventos próximos se agregan como sugerencia dentro del mismo mensaje
+    # (antes eran 2 caminos separados que se excluían entre sí).
     if not resultados:
+        base = "Perdón, no encuentro información al respecto. Lo que sé se basa únicamente en los 5 cantones del Norte de Manabí (Pedernales, Jama, San Vicente, Sucre y Chone) que están en la base de datos — puedes verla completa en el **Centro de Datos**, al final de la página. Sí puedo ayudarte con hospedaje, restaurantes, playas, naturaleza y más de esa zona."
         resultados_eventos = buscar_eventos(canton=canton)
         if resultados_eventos:
             respuesta_ev, lista_eventos = armar_respuesta_eventos(resultados_eventos)
             if lista_eventos:
                 return {
-                    "respuesta": f"No encontré establecimientos para eso, pero hay eventos próximos:\n\n{respuesta_ev.split(':',1)[1].strip()}",
+                    "respuesta": f"{base} Mientras tanto, te puedo recomendar algún evento próximo:\n\n{respuesta_ev.split(':',1)[1].strip()}",
                     "contexto": {},
                     "eventos": lista_eventos
                 }
         return {
-            "respuesta": "Perdón, no encuentro información al respecto. Lo que sé se basa únicamente en los 5 cantones del Norte de Manabí (Pedernales, Jama, San Vicente, Sucre y Chone) que están en la base de datos — puedes verla completa en el **Centro de Datos**, al final de la página. Sí puedo ayudarte con hospedaje, restaurantes, playas, naturaleza y más de esa zona, o recomendarte algún evento próximo. ¿Qué necesitas?",
+            "respuesta": f"{base} ¿Qué necesitas? 🌊",
             "contexto": {}
         }
 
