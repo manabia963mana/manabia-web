@@ -690,15 +690,24 @@ def chat_mana(request: PreguntaRequest):
     texto_norm = normalizar(request.texto)
     FRASES_REPETIR = [
         "repite eso", "repiteme eso", "repite lo anterior", "puedes repetir",
-        "repite por favor", "no entendi", "no te entendi", "que dijiste",
-        "explica de nuevo", "explicame de nuevo", "explicamelo de nuevo",
-        "no entendi el mensaje", "puedes explicar de nuevo", "repite la respuesta",
-        "me lo repites", "me repites eso",
+        "repite por favor", "que dijiste", "repite la respuesta",
+        "me lo repites", "me repites eso", "como dijiste", "puedes repetirlo",
     ]
-    if any(f in texto_norm for f in FRASES_REPETIR):
+    FRASES_EXPLICAR_MEJOR = [
+        "no entendi", "no te entendi", "explica de nuevo", "explicame de nuevo",
+        "explicamelo de nuevo", "no entendi el mensaje", "puedes explicar de nuevo",
+        "explica mejor", "explicalo mejor", "explicame mejor", "puedes explicar mejor",
+        "no me quedo claro", "no quedo claro", "no entendi bien",
+    ]
+    if any(f in texto_norm for f in FRASES_REPETIR + FRASES_EXPLICAR_MEJOR):
         ultima = request.contexto.get("ultima_respuesta") if request.contexto else None
         if ultima:
-            return {"respuesta": ultima, "contexto": request.contexto}
+            es_explicacion = any(f in texto_norm for f in FRASES_EXPLICAR_MEJOR)
+            # Mana no reformula con otras palabras (no es un modelo de lenguaje),
+            # así que "explica mejor" repite la misma información, pero con un
+            # aviso honesto en vez de fingir que es una explicación distinta.
+            prefijo = "No tengo una forma distinta de explicarlo, pero te lo comparto de nuevo por si ayuda:\n\n" if es_explicacion else ""
+            return {"respuesta": prefijo + ultima, "contexto": request.contexto}
         return {
             "respuesta": "Todavía no hemos hablado de nada que pueda repetirte — ¿en qué te ayudo? 🌊",
             "contexto": request.contexto or {}
