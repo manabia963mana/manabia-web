@@ -584,6 +584,60 @@ def obtener_comunidad():
         })
     return result
 
+SUBCATEGORIAS_ESPECIFICAS = {
+    # Alimentos y Bebidas
+    "bar": "Bar",
+    "cafeteria": "Cafetería",
+    "restaurante": "Restaurante",
+    # Alojamiento
+    "hotel": "Hotel",
+    "hosteria": "Hostería",
+    "casa de huespedes": "Casa de Huéspedes",
+    "hacienda turistica": "Hacienda Turística",
+    "campamento turistico": "Campamento Turístico",
+    "lodge": "Lodge",
+    "resort": "Resort",
+    "refugio": "Refugio",
+    # Deportes
+    "gimnasio": "Gimnasio",
+    "piscina": "Piscina",
+    "tenis": "Tenis",
+    "estadio": "Estadio y cancha",
+    "cancha": "Estadio y cancha",
+    "patinaje": "Patinaje",
+    "voley": "Vóley",
+    # Manifestaciones culturales
+    "museo": "Museo",
+    "iglesia": "Iglesia",
+    "biblioteca": "Biblioteca",
+    "centro cultural": "Centro Cultural",
+    "artesania": "Artesanías",
+    "zoologico": "Zoológico y acuario",
+    "teatro": "Teatro",
+    # Servicios financieros / públicos / salud
+    "cajero": "Cajero ATM",
+    "banco": "Banco",
+    "cooperativa": "Cooperativa",
+    "hospital": "Hospital",
+    "dentista": "Dentista",
+    "centro de salud": "Centro de Salud",
+    "policia": "Policía",
+    "bomberos": "Bomberos",
+    "municipio": "Municipio",
+    "universidad": "Universidad",
+    # Wellness
+    "spa": "Spa",
+    "masaje": "Masajes",
+    "yoga": "Yoga",
+    # Sitios Naturales
+    "cascada": "Cascada",
+    "mirador": "Mirador",
+    "humedal": "Humedal",
+    "cavernas": "Cavernas",
+    "cueva": "Cavernas",
+    "playa": "Playa",
+}
+
 PALABRAS_CLAVE = {
     "Alojamiento": ["hotel", "hostal", "cabaña", "glamping", "hosteria", "alojamiento", "camping",
                     "hospedaje", "lodge", "resort", "refugio", "casa de huespedes", "hacienda",
@@ -627,13 +681,24 @@ def interpretar_consulta(texto: str):
     PALABRAS_GENERAL = ["hacer", "visitar", "ver", "conocer", "recomendar",
                         "lugares", "sitios", "atracciones", "que hay"]
 
-    for categoria, palabras in PALABRAS_CLAVE.items():
-        for palabra in palabras:
-            if normalizar(palabra) in texto_norm:
-                categoria_detectada = categoria
-                break
-        if categoria_detectada:
+    # Subcategorías específicas: se revisan ANTES que las categorías amplias.
+    # Ej. "bar" debe encontrar solo Subcategoría=Bar, no toda la categoría
+    # "Alimentos y Bebidas" (que también incluye Cafetería y Restaurante).
+    # El filtro de búsqueda ya revisa Categoría Y Subcategoría por igual, así
+    # que devolver aquí el valor exacto de subcategoría filtra correctamente.
+    for palabra, subcategoria in SUBCATEGORIAS_ESPECIFICAS.items():
+        if normalizar(palabra) in texto_norm:
+            categoria_detectada = subcategoria
             break
+
+    if not categoria_detectada:
+        for categoria, palabras in PALABRAS_CLAVE.items():
+            for palabra in palabras:
+                if normalizar(palabra) in texto_norm:
+                    categoria_detectada = categoria
+                    break
+            if categoria_detectada:
+                break
 
     if not categoria_detectada:
         for p in PALABRAS_GENERAL:
