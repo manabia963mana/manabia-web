@@ -918,7 +918,7 @@ def _chat_mana_interno(request: PreguntaRequest):
                     "eventos": lista_eventos
                 }
         return {
-            "respuesta": "Perdón, no encuentro información al respecto. Lo que sé se basa únicamente en los 5 cantones del Norte de Manabí (Pedernales, Jama, San Vicente, Sucre y Chone) que están en la base de datos — puedes verla completa en el **Centro de Datos**, al final de la página. Sí puedo ayudarte con hospedaje, restaurantes, playas, naturaleza y más de esa zona, o recomendarte algún evento próximo. ¿Qué necesitas? 🌊",
+            "respuesta": "Perdón, no encuentro información al respecto. Lo que sé se basa únicamente en los 5 cantones del Norte de Manabí (Pedernales, Jama, San Vicente, Sucre y Chone) que están en la base de datos — puedes verla completa en el **Centro de Datos**, al final de la página. Sí puedo ayudarte con hospedaje, restaurantes, playas, naturaleza y más de esa zona, o recomendarte algún evento próximo. ¿Qué necesitas?",
             "contexto": {}
         }
 
