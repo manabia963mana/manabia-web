@@ -1309,7 +1309,8 @@ function whatsappLink(numero){
   else if(!digitos.startsWith('593')) digitos='593'+digitos;
   return `https://wa.me/${digitos}`;
 }
-function mapsLink(lat,lng,nombre,parroquia,canton){
+function mapsLink(lat,lng,nombre,parroquia,canton,codigoPlus){
+  if(codigoPlus) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(codigoPlus)}`;
   if(lat&&lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
   const partes=[nombre,parroquia,canton,'Ecuador'].filter(Boolean);
   if(!partes.length) return null;
@@ -1455,7 +1456,7 @@ function abrirDetalleEvento(ev){
 function abrirDetalleLugarObjeto(l){
   if(!l) return;
   const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
-  const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón);
+  const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón,l.CodigoPlus);
   const web=l['Sitio web']?(l['Sitio web'].startsWith('http')?l['Sitio web']:'https://'+l['Sitio web']):null;
   const fb=l.Facebook?(l.Facebook.startsWith('http')?l.Facebook:'https://'+l.Facebook):null;
   const ig=l.Instagram?(l.Instagram.startsWith('http')?l.Instagram:'https://instagram.com/'+l.Instagram.replace('@','')):null;
@@ -1525,7 +1526,7 @@ function mostrarResultados(lugares){
       c.style.cursor='pointer';
       c.onclick=()=>abrirDetalleLugar(i);
       const linkWa=whatsappLink(l.WhatsApp||l.Teléfono);
-      const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón);
+      const linkMaps=mapsLink(l.Lat,l.Lng,l.Nombre,l.Parroquia,l.Cantón,l.CodigoPlus);
       const enlaces=(linkWa||linkMaps)?`<div class="lugar-enlaces-nuevo">
           ${linkWa?`<a class="link-wa" href="${linkWa}" target="_blank" rel="noopener" onclick="event.stopPropagation()">WhatsApp</a>`:''}
           ${linkMaps?`<a class="link-maps" href="${linkMaps}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Cómo llegar</a>`:''}
