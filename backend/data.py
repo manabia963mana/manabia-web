@@ -137,17 +137,36 @@ def _limpiar_referencia(valor):
         return ""
     return v
 
+import re as _re_modulo
+
+def es_codigo_plus(valor):
+    """Detecta un Código Plus de Google Maps (ej. 'QPXP+42Q, Jama' o '9HVG+FR Bahia de Caraquez').
+    Formato real: 4-8 caracteres del alfabeto de Open Location Code + '+' + 2-3 caracteres,
+    seguido opcionalmente de una localidad. Se encontró que las coordenadas 'revisadas' de la
+    base vienen en este formato dentro de la columna Latitud, no como decimales — sin esto,
+    el sistema las descartaba en silencio y caían al respaldo de búsqueda por texto, que es
+    donde salían ubicaciones erróneas (la Amazonía, el Pacífico)."""
+    if not valor or not isinstance(valor, str):
+        return False
+    s = valor.strip()
+    return bool(_re_modulo.match(r"^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}", s.upper()))
+
 def limpiar_coordenada(valor, tipo="lat"):
     """Convierte una coordenada a float. Maneja 2 problemas reales de captura:
     1) Coordenadas guardadas sin separador decimal (ej. '-804239' en vez de '-80.4239').
     2) Coordenadas en formato grados/minutos/segundos (ej. 80°03'26" o 80º29´19´´),
        que sin esto el sistema nunca podía convertir y se perdían en silencio.
-    Rango esperado para Norte de Manabí: latitud entre -2 y 2, longitud entre -82 y -75."""
+    Rango esperado para Norte de Manabí: latitud entre -2 y 2, longitud entre -82 y -75.
+    NOTA: los Códigos Plus (ej. 'QPXP+42Q, Jama') NO se procesan aquí — se manejan aparte
+    en buscar_lugares(), porque no son coordenadas decimales sino un código de ubicación
+    que Google Maps resuelve directo como texto de búsqueda."""
     import re as _re
     s = limpiar(valor)
     if not s:
         return None
     if s.strip() in ("S/D", "-", "Presencial", "Mixta"):
+        return None
+    if es_codigo_plus(s):
         return None
 
     # Formato DMS: grados (° o º) + minutos (' o ´) + segundos opcionales (" o ´´)
@@ -209,10 +228,14 @@ def construir_whatsapp_link(numero: str):
         digitos = '593' + digitos
     return f"https://wa.me/{digitos}"
 
-def construir_maps_link(lat, lng, nombre="", parroquia="", canton="", direccion=""):
-    """Link de Google Maps: usa coordenadas si existen; si no, busca por dirección real;
-    si tampoco hay dirección, busca por nombre + ubicación como último recurso."""
+def construir_maps_link(lat, lng, nombre="", parroquia="", canton="", direccion="", codigo_plus=""):
+    """Link de Google Maps. Prioridad: 1) Código Plus verificado a mano (el más confiable,
+    Google lo resuelve directo como búsqueda exacta) 2) coordenadas decimales 3) dirección real
+    4) nombre + ubicación como último recurso."""
     import urllib.parse
+    if codigo_plus:
+        query = urllib.parse.quote(codigo_plus)
+        return f"https://www.google.com/maps/search/?api=1&query={query}"
     if lat and lng:
         return f"https://www.google.com/maps/search/?api=1&query={lat},{lng}"
     if direccion:
@@ -337,6 +360,7 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Tags": limpiar(row.get(col_tags, "")) if col_tags else "",
             "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
             "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
+            "CodigoPlus": limpiar(row.get(col_lat, "")) if col_lat and es_codigo_plus(limpiar(row.get(col_lat, ""))) else "",
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
             "Referencia de Dirección": _limpiar_referencia(row.get(col_ref_direccion, "")) if col_ref_direccion else "",
             "Descripción larga": limpiar(row.get(col_desc_larga, "")) if col_desc_larga else "",
