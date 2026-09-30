@@ -1029,7 +1029,11 @@ function protegerNombresPropios(texto){
     const escapado = nombre.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
     const regex = new RegExp(`(?<![${LETRA}])${escapado}(?![${LETRA}])`, 'gi');
     protegido = protegido.replace(regex, (match)=>{
-      const token = `95035${mapa.length}53059`;
+      // Token alfanumérico, NO un número: un token numérico largo a veces lo
+      // reformatea Google Translate (le agrega o cambia un dígito, ej. de
+      // agrupación de miles), lo que rompía la restauración y dejaba el
+      // número pegado en vez del nombre real. Con letras, Google lo deja intacto.
+      const token = `zzqprotegidoz${mapa.length}zqzz`;
       mapa.push(match);
       return token;
     });
@@ -1038,7 +1042,7 @@ function protegerNombresPropios(texto){
   // 2. Nombres de lugares dinámicos: en las respuestas de Mana siempre aparecen
   // justo después del ícono 📍, así que se protegen sin necesitar una lista fija
   protegido = protegido.replace(/📍\s*([^\n—]+)/g, (match, nombreLugar)=>{
-    const token = `95035${mapa.length}53059`;
+    const token = `zzqprotegidoz${mapa.length}zqzz`;
     mapa.push(nombreLugar);
     return `📍 ${token}`;
   });
@@ -1049,8 +1053,8 @@ function protegerNombresPropios(texto){
 function restaurarNombresPropios(texto, mapa){
   let restaurado = texto;
   mapa.forEach((original, i)=>{
-    // Google a veces agrega espacios alrededor del número; se busca con tolerancia
-    const regex = new RegExp(`95035\\s*${i}\\s*53059`, 'g');
+    // Tolerante a espacios/mayúsculas que Google pudiera introducir alrededor
+    const regex = new RegExp(`zzqprotegidoz\\s*${i}\\s*zqzz`, 'gi');
     restaurado = restaurado.replace(regex, original);
   });
   return restaurado;
@@ -1097,7 +1101,12 @@ async function traducirUno(texto, de, a){
     const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${de}&tl=${a}&dt=t&q=${encodeURIComponent(protegido)}`, { signal: AbortSignal.timeout(8000) });
     const data = await res.json();
     const traducido = data[0].map(seg => seg[0]).join('');
-    return restaurarNombresPropios(traducido, mapa);
+    const restaurado = restaurarNombresPropios(traducido, mapa);
+    // Red de seguridad: si por algún motivo quedó un token sin restaurar
+    // (nunca debería pasar, pero mejor esto que mostrar basura al usuario),
+    // se devuelve el texto original en español en vez de un token roto.
+    if(/zzqprotegidoz/i.test(restaurado)) return texto;
+    return restaurado;
   }catch(e){
     return texto;
   }
@@ -1309,6 +1318,20 @@ function whatsappLink(numero){
   else if(!digitos.startsWith('593')) digitos='593'+digitos;
   return `https://wa.me/${digitos}`;
 }
+function normalizarTexto(s){
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+function armarUbicacion(direccion, parroquia, canton){
+  // Evita repetir el cantón o la parroquia si ya aparecen escritos dentro de
+  // la Dirección (algo común: "Calle X, Pedernales" + Parroquia="Pedernales"
+  // + Cantón="Pedernales" mostraba "...Pedernales, Pedernales, Pedernales").
+  const partes = [];
+  const yaIncluye = (texto, palabra) => texto && palabra && normalizarTexto(texto).includes(normalizarTexto(palabra));
+  if(direccion){ partes.push(direccion); }
+  if(parroquia && !yaIncluye(direccion, parroquia)) partes.push(parroquia);
+  if(canton && !yaIncluye(direccion, canton) && !yaIncluye(parroquia, canton)) partes.push(canton);
+  return partes.join(', ');
+}
 function mapsLink(lat,lng,nombre,parroquia,canton,codigoPlus){
   if(codigoPlus) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(codigoPlus)}`;
   if(lat&&lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
@@ -1408,7 +1431,7 @@ function abrirDetalleEvento(ev){
 
   const campos=[
     ['Fecha', fechaTexto],
-    ['Ubicación', [ev.Dirección, ev.Parroquia, ev.Cantón].filter(Boolean).join(', ')],
+    ['Ubicación', armarUbicacion(ev.Dirección, ev.Parroquia, ev.Cantón)],
     ['Referencia', ev['Referencia de Dirección']],
     ['Horario', ev.Horario],
     ['Duración aproximada', ev['Duración aproximada']],
@@ -1463,7 +1486,7 @@ function abrirDetalleLugarObjeto(l){
   const tiktok=l.TikTok?(l.TikTok.startsWith('http')?l.TikTok:'https://tiktok.com/@'+l.TikTok.replace('@','')):null;
 
   const campos=[
-    ['Ubicación', [l.Dirección, l.Parroquia, l.Cantón].filter(Boolean).join(', ')],
+    ['Ubicación', armarUbicacion(l.Dirección, l.Parroquia, l.Cantón)],
     ['Referencia', l['Referencia de Dirección']],
     ['Horario', l.Horario],
     ['Precio', l.Precio],
@@ -2077,14 +2100,20 @@ async function cargarMapa(){
     conCoords.forEach(l=>colocarMarcador(l,{lat:l.Lat,lng:l.Lng},bounds,false));
     if(conCoords.length) mapaInstancia.fitBounds(bounds);
 
-    // Lugares sin coordenadas: se ubican por dirección (geocodificación), uno por uno
+    // Lugares sin coordenadas: se ubican con el Código Plus verificado si existe
+    // (mucho más preciso), o por dirección/nombre como respaldo — uno por uno.
     for(const l of sinCoords){
-      const partes=[l.Dirección, l.Parroquia, l.Cantón, 'Ecuador'].filter(Boolean);
-      if(!partes.length) continue;
-      const query=partes.join(', ');
+      let query;
+      if(l.CodigoPlus){
+        query = l.CodigoPlus;
+      }else{
+        const partes=[l.Dirección, l.Parroquia, l.Cantón, 'Ecuador'].filter(Boolean);
+        if(!partes.length) continue;
+        query = partes.join(', ');
+      }
       const coords=await geocodeDireccion(query);
       if(coords){
-        colocarMarcador(l,coords,bounds,true);
+        colocarMarcador(l,coords,bounds,!l.CodigoPlus);
         mapaInstancia.fitBounds(bounds);
       }
       await new Promise(r=>setTimeout(r,180)); // evita saturar la API de Geocoding
