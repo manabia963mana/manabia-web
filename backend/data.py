@@ -614,7 +614,10 @@ SUBCATEGORIAS_ESPECIFICAS = {
     "cafeteria": "Cafetería",
     "restaurante": "Restaurante",
     # Alojamiento
-    "hotel": "Hotel",
+    # "hotel" NO se mapea aquí a propósito -- a diferencia de bar/cafetería
+    # (que la gente sí distingue claramente), "hotel" en el habla común incluye
+    # hosterías, lodges, resorts, etc. Se deja que vaya a la categoría amplia
+    # "Alojamiento" en PALABRAS_CLAVE en vez de la subcategoría estrecha "Hotel".
     "hosteria": "Hostería",
     "casa de huespedes": "Casa de Huéspedes",
     "hacienda turistica": "Hacienda Turística",
