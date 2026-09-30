@@ -1052,11 +1052,22 @@ function protegerNombresPropios(texto){
 
 function restaurarNombresPropios(texto, mapa){
   let restaurado = texto;
-  mapa.forEach((original, i)=>{
-    // Tolerante a espacios/mayúsculas que Google pudiera introducir alrededor
-    const regex = new RegExp(`zzqprotegidoz\\s*${i}\\s*zqzz`, 'gi');
-    restaurado = restaurado.replace(regex, original);
-  });
+  // Se repite varias pasadas (no solo una) porque puede haber tokens anidados:
+  // un nombre de cantón protegido primero (ej. "Chone") puede quedar DENTRO
+  // del texto que protege el nombre completo del lugar después (el patrón
+  // 📍). En la primera pasada solo se revela el token externo; el interno,
+  // que recién queda visible ahí, necesita una pasada más para resolverse.
+  for(let pasada=0; pasada<4; pasada++){
+    let huboReemplazo = false;
+    mapa.forEach((original, i)=>{
+      const regex = new RegExp(`zzqprotegidoz\\s*${i}\\s*zqzz`, 'gi');
+      if(regex.test(restaurado)){
+        restaurado = restaurado.replace(regex, original);
+        huboReemplazo = true;
+      }
+    });
+    if(!huboReemplazo) break;
+  }
   return restaurado;
 }
 
@@ -1152,16 +1163,10 @@ async function traducirPagina(activar){
 }
 
 async function traducirTexto(texto, de, a){
-  if(!texto || !texto.trim()) return texto;
-  try{
-    const { protegido, mapa } = protegerNombresPropios(texto);
-    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${de}&tl=${a}&dt=t&q=${encodeURIComponent(protegido)}`, { signal: AbortSignal.timeout(6000) });
-    const data = await res.json();
-    const traducido = data[0].map(seg => seg[0]).join('');
-    return restaurarNombresPropios(traducido, mapa);
-  }catch(e){
-    return texto; // si falla la traducción, se manda/muestra el texto original
-  }
+  // Reutiliza traducirUno (misma lógica, misma red de seguridad) en vez de
+  // duplicarla -- tener 2 copias casi iguales fue justo lo que causó que un
+  // arreglo a una no llegara a la otra, dejando tokens sin restaurar visibles.
+  return traducirUno(texto, de, a);
 }
 
 async function traducirYDetectarIdioma(texto, aIdioma){
@@ -1176,7 +1181,9 @@ async function traducirYDetectarIdioma(texto, aIdioma){
     const data = await res.json();
     const traducido = data[0].map(seg => seg[0]).join('');
     const idiomaDetectado = data[2] || null; // ej. 'en', 'es'
-    return { texto: restaurarNombresPropios(traducido, mapa), idiomaDetectado };
+    const restaurado = restaurarNombresPropios(traducido, mapa);
+    if(/zzqprotegidoz/i.test(restaurado)) return { texto, idiomaDetectado };
+    return { texto: restaurado, idiomaDetectado };
   }catch(e){
     return { texto, idiomaDetectado: null };
   }
