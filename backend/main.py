@@ -89,19 +89,20 @@ def health():
 def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
     consulta = corregir_typos(consulta) if consulta else consulta
 
-    # Si la persona escribió una sola palabra (sin elegir categoría manual en
-    # el dropdown) y esa palabra es justo la que activa una categoría (ej.
-    # "comida", "hotel"), se salta la búsqueda libre e se va directo a la
-    # categoría completa — igual que en el chat de Mana. Sin esto, una palabra
-    # genérica que por casualidad coincide con 1-2 nombres de negocios dejaba
-    # la respuesta corta en vez de mostrar todos los lugares de esa categoría.
+    # Si la persona escribió 1 o 2 palabras (sin elegir categoría manual en el
+    # dropdown) y esas palabras son justo las que activan una categoría/
+    # subcategoría (ej. "comida", "hotel") y opcionalmente un cantón (ej.
+    # "hotel jama"), se salta la búsqueda libre y se va directo a la categoría
+    # completa — igual que en el chat de Mana. Sin esto, "hotel en jama" solo
+    # encontraba los hoteles que tuvieran la palabra "hotel" Y "jama" juntas en
+    # el texto, dejando fuera lodges, hosterías, etc. que no dicen "hotel".
     categoria_detectada, canton_detectado = ("", "")
     es_solo_palabra_de_categoria = False
     if consulta and not categoria:
         palabras = consulta.split()
-        if len(palabras) == 1:
+        if len(palabras) <= 2:
             categoria_detectada, canton_detectado = interpretar_consulta(consulta)
-            if categoria_detectada and categoria_detectada != "GENERAL":
+            if categoria_detectada and categoria_detectada != "GENERAL" and (len(palabras) == 1 or canton_detectado):
                 es_solo_palabra_de_categoria = True
 
     # 1. Si se eligió una categoría manual (tarjeta o dropdown), se resuelve con
@@ -857,21 +858,21 @@ def _chat_mana_interno(request: PreguntaRequest):
     # cantón, porque una palabra como "iglesia" puede ser tanto el nombre de un
     # lugar específico como una palabra clave de categoría.
     #
-    # EXCEPCIÓN importante: si después de quitar palabras vacías queda una sola
-    # palabra Y esa palabra es justamente la que activó la categoría (ej.
-    # "comida", "hotel"), se salta la búsqueda de nombre específico e se va
-    # directo a la categoría completa. La razón: con una sola palabra genérica,
-    # la búsqueda de nombre libre a veces encuentra 1 o 2 coincidencias sueltas
-    # (lugares que por casualidad tienen esa palabra en su nombre), y eso hacía
-    # que la respuesta se quedara corta en vez de mostrar TODOS los lugares de
-    # esa categoría, que es lo que la persona realmente quería.
+    # EXCEPCIÓN importante: si después de quitar palabras vacías quedan 1 o 2
+    # palabras Y son justamente las que activaron la categoría/subcategoría y
+    # el cantón (ej. "comida", "hotel jama"), se salta la búsqueda de nombre
+    # específico y se va directo a la categoría completa. La razón: con pocas
+    # palabras genéricas, la búsqueda de nombre libre a veces encuentra 1 o 2
+    # coincidencias sueltas (lugares que por casualidad tienen esas palabras
+    # juntas en su nombre), dejando fuera todos los que no las tienen escritas
+    # tal cual — ej. "hotel jama" solo encontraba los que decían "Hotel" en el
+    # nombre, sin contar lodges, hosterías, etc. del mismo cantón.
     palabras_busqueda = [p for p in texto.split() if normalizar(p) not in PALABRAS_IGNORAR]
     texto_limpio_busqueda = " ".join(palabras_busqueda)
 
     es_solo_la_palabra_de_categoria = (
-        len(palabras_busqueda) == 1
-        and categoria
-        and categoria != "GENERAL"
+        categoria and categoria != "GENERAL"
+        and (len(palabras_busqueda) == 1 or (len(palabras_busqueda) == 2 and canton))
     )
 
     if len(palabras_busqueda) >= 1 and not es_solo_la_palabra_de_categoria:
