@@ -151,15 +151,116 @@ def es_codigo_plus(valor):
     s = valor.strip()
     return bool(_re_modulo.match(r"^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}", s.upper()))
 
+def _parsear_candidatos_magnitud(valor):
+    """Convierte un valor de coordenada a una LISTA de posibles magnitudes
+    (una por cada nivel de división entre 10), sin decidir todavía si es
+    válido como latitud o como longitud -- eso lo decide limpiar_par_coordenadas
+    comparando ambas columnas juntas. Para DMS no hay ambigüedad de escala, así
+    que se devuelve un solo candidato. Devuelve [] si no se puede interpretar
+    en absoluto (texto corrupto, S/D, Código Plus, etc.)."""
+    import re as _re
+    s = limpiar(valor)
+    if not s:
+        return []
+    if s.strip() in ("S/D", "-", "Presencial", "Mixta"):
+        return []
+    if es_codigo_plus(s):
+        return []
+    dms = _re.match(
+        r"^(-?\d+)\s*[°º]\s*(\d+)?\s*['´]?\s*(\d+(?:\.\d+)?)?\s*[\"´]{0,2}\s*$",
+        s.strip()
+    )
+    if dms and ("°" in s or "º" in s):
+        grados = float(dms.group(1))
+        minutos = float(dms.group(2)) if dms.group(2) else 0.0
+        segundos = float(dms.group(3)) if dms.group(3) else 0.0
+        signo = -1 if grados < 0 or s.strip().startswith("-") else 1
+        return [(abs(grados) + minutos / 60 + segundos / 3600) * signo]
+    try:
+        val = float(str(s).replace(",", "."))
+    except (ValueError, TypeError):
+        return []
+    candidatos = [val]
+    v = val
+    for _ in range(6):
+        v /= 10
+        candidatos.append(v)
+    return candidatos
+
+def limpiar_par_coordenadas(valor_col_lat, valor_col_lng):
+    """Interpreta el PAR de columnas Latitud/Longitud juntas, detectando y
+    corrigiendo cuando están invertidas -- un error real y frecuente al
+    cargar los datos: alguien puso la longitud (magnitud ~75-85) en la
+    columna Latitud, y la latitud (magnitud ~0-3, casi el ecuador) en la
+    columna Longitud. Antes esto se descartaba en silencio porque 80° no es
+    una latitud válida, aunque sí fuera una longitud perfectamente real.
+    También prueba cada nivel de "sin separador decimal" (dividir entre 10
+    varias veces) por cada columna, y elige la combinación de candidatos que
+    sí forma un par latitud/longitud real del Norte de Manabí.
+    Devuelve (lat, lng) ya bien asignados, o None en el que no se pudo
+    interpretar. Rango del Norte de Manabí: latitud -3 a 3, longitud -82 a -75."""
+    candidatos_a = _parsear_candidatos_magnitud(valor_col_lat)
+    candidatos_b = _parsear_candidatos_magnitud(valor_col_lng)
+
+    def encaja_lat(v):
+        return -3 <= v <= 3
+
+    def encaja_lng_abs(v):
+        return 70 <= abs(v) <= 85
+
+    lat, lng = None, None
+    # 1. Caso normal: columna Lat trae la latitud, columna Lng trae la longitud
+    for a in candidatos_a:
+        if lat is not None:
+            break
+        if encaja_lat(a):
+            for b in candidatos_b:
+                if encaja_lng_abs(b):
+                    lat, lng = a, b
+                    break
+    # 2. Caso invertido: columna Lat trae la longitud y viceversa
+    if lat is None:
+        for a in candidatos_a:
+            if lat is not None:
+                break
+            if encaja_lng_abs(a):
+                for b in candidatos_b:
+                    if encaja_lat(b):
+                        lat, lng = b, a
+                        break
+    # 3. Solo una de las 2 columnas se pudo interpretar
+    if lat is None and lng is None:
+        for a in candidatos_a:
+            if encaja_lat(a):
+                lat = a
+                break
+        if lat is None:
+            for a in candidatos_a:
+                if encaja_lng_abs(a):
+                    lng = a
+                    break
+        if lat is None and lng is None:
+            for b in candidatos_b:
+                if encaja_lat(b):
+                    lat = b
+                    break
+            if lat is None:
+                for b in candidatos_b:
+                    if encaja_lng_abs(b):
+                        lng = b
+                        break
+
+    if lng is not None and lng > 0:
+        lng = -lng  # el Norte de Manabí siempre está al oeste (longitud negativa)
+    return lat, lng
+
 def limpiar_coordenada(valor, tipo="lat"):
-    """Convierte una coordenada a float. Maneja 2 problemas reales de captura:
-    1) Coordenadas guardadas sin separador decimal (ej. '-804239' en vez de '-80.4239').
-    2) Coordenadas en formato grados/minutos/segundos (ej. 80°03'26" o 80º29´19´´),
-       que sin esto el sistema nunca podía convertir y se perdían en silencio.
-    Rango esperado para Norte de Manabí: latitud entre -2 y 2, longitud entre -82 y -75.
-    NOTA: los Códigos Plus (ej. 'QPXP+42Q, Jama') NO se procesan aquí — se manejan aparte
-    en buscar_lugares(), porque no son coordenadas decimales sino un código de ubicación
-    que Google Maps resuelve directo como texto de búsqueda."""
+    """Convierte UNA coordenada a float, asumiendo que ya está en la columna
+    correcta. Se mantiene por compatibilidad; para leer el par completo de la
+    base (que puede venir con las columnas invertidas) usar
+    limpiar_par_coordenadas() en su lugar, que sí detecta y corrige eso.
+    NOTA: los Códigos Plus (ej. 'QPXP+42Q, Jama') NO se procesan aquí — se
+    manejan aparte en buscar_lugares()."""
     import re as _re
     s = limpiar(valor)
     if not s:
@@ -358,8 +459,8 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             "Horario": limpiar(row.get(col_horario, "")) if col_horario else "",
             "Precio": limpiar(row.get(col_precio, "")) if col_precio else "",
             "Tags": limpiar(row.get(col_tags, "")) if col_tags else "",
-            "Lat": limpiar_coordenada(row.get(col_lat, ""), "lat") if col_lat else None,
-            "Lng": limpiar_coordenada(row.get(col_lng, ""), "lng") if col_lng else None,
+            "Lat": None,  # se completa abajo con limpiar_par_coordenadas, junto con Lng
+            "Lng": None,
             "CodigoPlus": limpiar(row.get(col_lat, "")) if col_lat and es_codigo_plus(limpiar(row.get(col_lat, ""))) else "",
             "Dirección": limpiar(row.get(col_direccion, "")) if col_direccion else "",
             "Referencia de Dirección": _limpiar_referencia(row.get(col_ref_direccion, "")) if col_ref_direccion else "",
@@ -388,6 +489,10 @@ def buscar_lugares(consulta: str = "", canton: str = "", categoria: str = "", ta
             # Embeddings_Status, Prioridad_IA, Relacionado_Con, Score_Calidad_Datos,
             # Persona de contacto) — son metadata de gestión, no información para el público.
         }
+        if col_lat and not item["CodigoPlus"]:
+            item["Lat"], item["Lng"] = limpiar_par_coordenadas(
+                row.get(col_lat, ""), row.get(col_lng, "") if col_lng else ""
+            )
         result.append(item)
 
     print(f"Resultado final: {len(result)} lugares")
