@@ -99,7 +99,7 @@ def lugares(canton: str = "", categoria: str = "", consulta: str = ""):
     categoria_detectada, canton_detectado = ("", "")
     es_solo_palabra_de_categoria = False
     if consulta and not categoria:
-        palabras = consulta.split()
+        palabras = [p for p in consulta.split() if normalizar(p) not in PALABRAS_IGNORAR]
         if len(palabras) <= 2:
             categoria_detectada, canton_detectado = interpretar_consulta(consulta)
             if categoria_detectada and categoria_detectada != "GENERAL" and (len(palabras) == 1 or canton_detectado):
@@ -426,6 +426,11 @@ FRASES_FAQ["que es la mision geodesica"] = "mision_geodesica"
 FRASES_FAQ["que es la mision geodesica francesa"] = "mision_geodesica"
 FRASES_FAQ["quien fue pedro vicente maldonado"] = "mision_geodesica"
 FRASES_FAQ["que es el proyecto iche"] = "iche_cultura"
+FRASES_FAQ["que es iche"] = "iche_cultura"
+FRASES_FAQ["proyecto iche"] = "iche_cultura"
+# NOTA: a propósito NO se agrega "iche" sola como disparador -- "viche" (el
+# plato típico) la contiene como subcadena ("v-iche"), y hubiera interceptado
+# por error cualquier pregunta sobre viche con la respuesta del proyecto Iche.
 FRASES_FAQ["que es el museo de la cultura montubia"] = "museo_montubio"
 FRASES_FAQ["que es la cultura montubia"] = "museo_montubio"
 FRASES_FAQ["cuando es la temporada de ballenas"] = "temporada_ballenas_info"
@@ -485,6 +490,12 @@ def verificar_saludo(texto_norm: str):
         return RESPUESTAS_FIJAS["saludo"]["respuesta"], "saludo"
     if len(palabras_texto) <= 4 and palabras_texto & GRACIAS_PUROS:
         return RESPUESTAS_FIJAS["gracias"]["respuesta"], "gracias"
+
+    # "iche" como palabra exacta (no subcadena) -- así no choca con "viche"
+    # (el plato), que sí contiene "iche" como subcadena pero es una palabra
+    # distinta por completo.
+    if "iche" in palabras_texto:
+        return RESPUESTAS_FIJAS["iche_cultura"]["respuesta"], "iche_cultura"
 
     for frase, clave in FRASES_FAQ.items():
         if frase in texto_limpio:
