@@ -1033,7 +1033,7 @@ function protegerNombresPropios(texto){
       // reformatea Google Translate (le agrega o cambia un dígito, ej. de
       // agrupación de miles), lo que rompía la restauración y dejaba el
       // número pegado en vez del nombre real. Con letras, Google lo deja intacto.
-      const token = `zzqprotegidoz${mapa.length}zqzz`;
+      const token = `qxzjkw${mapa.length}wkjzxq`;
       mapa.push(match);
       return token;
     });
@@ -1042,7 +1042,7 @@ function protegerNombresPropios(texto){
   // 2. Nombres de lugares dinámicos: en las respuestas de Mana siempre aparecen
   // justo después del ícono 📍, así que se protegen sin necesitar una lista fija
   protegido = protegido.replace(/📍\s*([^\n—]+)/g, (match, nombreLugar)=>{
-    const token = `zzqprotegidoz${mapa.length}zqzz`;
+    const token = `qxzjkw${mapa.length}wkjzxq`;
     mapa.push(nombreLugar);
     return `📍 ${token}`;
   });
@@ -1060,7 +1060,7 @@ function restaurarNombresPropios(texto, mapa){
   for(let pasada=0; pasada<4; pasada++){
     let huboReemplazo = false;
     mapa.forEach((original, i)=>{
-      const regex = new RegExp(`zzqprotegidoz\\s*${i}\\s*zqzz`, 'gi');
+      const regex = new RegExp(`qxzjkw\s*${i}\s*wkjzxq`, 'gi');
       if(regex.test(restaurado)){
         restaurado = restaurado.replace(regex, original);
         huboReemplazo = true;
@@ -1116,7 +1116,7 @@ async function traducirUno(texto, de, a){
     // Red de seguridad: si por algún motivo quedó un token sin restaurar
     // (nunca debería pasar, pero mejor esto que mostrar basura al usuario),
     // se devuelve el texto original en español en vez de un token roto.
-    if(/zzqprotegidoz/i.test(restaurado)) return texto;
+    if(/qxzjkw/i.test(restaurado)) return texto;
     return restaurado;
   }catch(e){
     return texto;
@@ -1182,7 +1182,7 @@ async function traducirYDetectarIdioma(texto, aIdioma){
     const traducido = data[0].map(seg => seg[0]).join('');
     const idiomaDetectado = data[2] || null; // ej. 'en', 'es'
     const restaurado = restaurarNombresPropios(traducido, mapa);
-    if(/zzqprotegidoz/i.test(restaurado)) return { texto, idiomaDetectado };
+    if(/qxzjkw/i.test(restaurado)) return { texto, idiomaDetectado };
     return { texto: restaurado, idiomaDetectado };
   }catch(e){
     return { texto, idiomaDetectado: null };
@@ -2050,10 +2050,29 @@ function geocodeDireccion(query){
   if(geocodeCache.hasOwnProperty(query)) return Promise.resolve(geocodeCache[query]);
   if(!geocoder) geocoder=new google.maps.Geocoder();
   return new Promise((resolve)=>{
-    geocoder.geocode({address:query},(results,status)=>{
+    // Se limita la búsqueda a una caja alrededor del Norte de Manabí, para que
+    // Google no adivine en otra parte del mundo cuando la dirección es
+    // ambigua o está incompleta (así aparecían pines en México o África).
+    const cajaManabi = {
+      north: 2.0, south: -3.0, east: -79.0, west: -81.5,
+    };
+    geocoder.geocode({
+      address:query,
+      bounds: cajaManabi,
+      region: 'ec',
+    },(results,status)=>{
       if(status==='OK' && results && results[0]){
         const loc=results[0].geometry.location;
         const coords={lat:loc.lat(),lng:loc.lng()};
+        // El "bounds" de arriba solo INFLUYE la búsqueda, no la obliga -- si
+        // Google igual devuelve algo fuera de Ecuador, se descarta en vez de
+        // confiar en un resultado claramente equivocado.
+        const dentroDeEcuador = coords.lat >= -5 && coords.lat <= 2 && coords.lng >= -92 && coords.lng <= -75;
+        if(!dentroDeEcuador){
+          geocodeCache[query]=null;
+          resolve(null);
+          return;
+        }
         geocodeCache[query]=coords;
         resolve(coords);
       }else{
@@ -2097,8 +2116,9 @@ async function cargarMapa(){
     const res=await fetch(BACKEND+'/lugares?'+params,{signal:AbortSignal.timeout(70000)});
     const data=await res.json();
     const todos=data.lugares||[];
-    const conCoords=todos.filter(l=>l.Lat&&l.Lng);
-    const sinCoords=todos.filter(l=>!(l.Lat&&l.Lng) && (l.Dirección||l.Nombre));
+    const dentroDeEcuador=(lat,lng)=> lat>=-5 && lat<=2 && lng>=-92 && lng<=-75;
+    const conCoords=todos.filter(l=>l.Lat&&l.Lng&&dentroDeEcuador(l.Lat,l.Lng));
+    const sinCoords=todos.filter(l=>!(l.Lat&&l.Lng&&dentroDeEcuador(l.Lat,l.Lng)) && (l.Dirección||l.Nombre));
     if(!conCoords.length && !sinCoords.length) return;
 
     const bounds=new google.maps.LatLngBounds();
